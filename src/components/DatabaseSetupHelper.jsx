@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FiDatabase, FiCopy, FiCheck } from 'react-icons/fi';
+import { MdStorage, MdContentCopy, MdCheck } from 'react-icons/md';
 
 export default function DatabaseSetupHelper() {
   const [copied, setCopied] = useState(false);
@@ -78,10 +78,14 @@ CREATE TABLE IF NOT EXISTS public.invoices (
     tax NUMERIC(10, 2) DEFAULT 0.00 NOT NULL,
     total NUMERIC(10, 2) DEFAULT 0.00 NOT NULL,
     amount_paid NUMERIC(10, 2) DEFAULT 0.00 NOT NULL,
+    deposit_percent NUMERIC(5, 2) DEFAULT 0 NOT NULL,
     status TEXT DEFAULT 'Draft'::text NOT NULL,
     due_date DATE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- For existing databases: add the deposit column if it's missing
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS deposit_percent NUMERIC(5, 2) DEFAULT 0 NOT NULL;
 
 -- Enable RLS for Invoices
 ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
@@ -100,7 +104,7 @@ CREATE POLICY "Allow public delete" ON public.invoices FOR DELETE USING (true);`
     <div className="db-alert">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div className="db-alert-title">
-          <FiDatabase />
+          <MdStorage />
           <span>Supabase Schema Configuration Required</span>
         </div>
         <button 
@@ -108,7 +112,7 @@ CREATE POLICY "Allow public delete" ON public.invoices FOR DELETE USING (true);`
           className="btn btn-sm btn-secondary"
           style={{ padding: '0.25rem 0.6rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
         >
-          {copied ? <FiCheck style={{ color: 'var(--success)' }} /> : <FiCopy />}
+          {copied ? <MdCheck style={{ color: 'var(--success)' }} /> : <MdContentCopy />}
           <span>{copied ? 'Copied SQL!' : 'Copy SQL Schema'}</span>
         </button>
       </div>

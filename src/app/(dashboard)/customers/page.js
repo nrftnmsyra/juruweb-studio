@@ -4,7 +4,8 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { dbService } from '@/lib/database';
 import DatabaseSetupHelper from '@/components/DatabaseSetupHelper';
-import { FiPlus, FiSearch, FiMail, FiPhone, FiMapPin, FiBriefcase, FiX } from 'react-icons/fi';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { MdAdd, MdSearch, MdMail, MdPhone, MdLocationOn, MdWork, MdClose, MdDelete } from 'react-icons/md';
 import toast from 'react-hot-toast';
 
 function CustomersContent() {
@@ -23,6 +24,10 @@ function CustomersContent() {
     company: '',
     address: ''
   });
+
+  // Delete confirmation state
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Check if '?new=true' is in the query params to auto-open the modal
   useEffect(() => {
@@ -76,6 +81,21 @@ function CustomersContent() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await dbService.deleteCustomer(deleteTarget.id);
+      toast.success('Customer deleted successfully!');
+      setDeleteTarget(null);
+      loadCustomers();
+    } catch {
+      toast.error('Failed to delete customer');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   // Filter customers by search term
   const filteredCustomers = customers.filter(c => 
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -91,7 +111,7 @@ function CustomersContent() {
           <p className="page-subtitle">Manage customer details and profiles.</p>
         </div>
         <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-          <FiPlus />
+          <MdAdd />
           <span>Add Client</span>
         </button>
       </div>
@@ -99,17 +119,16 @@ function CustomersContent() {
       {dbSetupRequired && <DatabaseSetupHelper />}
 
       {/* Control bar */}
-      <div className="card" style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', padding: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: '#101012', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '0.4rem 0.8rem', flex: 1 }}>
-          <FiSearch style={{ color: 'var(--text-muted)' }} />
-          <input 
-            type="text" 
-            placeholder="Search by name, email, or company..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ background: 'transparent', border: 'none', padding: 0 }}
-          />
-        </div>
+      <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', maxWidth: '340px', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+        <MdSearch style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+        <input
+          className="input-bare"
+          type="text"
+          placeholder="Search by name, email, or company..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ fontSize: '0.9rem' }}
+        />
       </div>
 
       {/* Customers List */}
@@ -128,6 +147,7 @@ function CustomersContent() {
                 <th>Contact Details</th>
                 <th>Address</th>
                 <th>Date Added</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -137,19 +157,19 @@ function CustomersContent() {
                     <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{cust.name}</div>
                     {cust.company && (
                       <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.2rem' }}>
-                        <FiBriefcase size={12} />
+                        <MdWork size={12} />
                         <span>{cust.company}</span>
                       </div>
                     )}
                   </td>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem' }}>
-                      <FiMail size={13} style={{ color: 'var(--text-muted)' }} />
+                      <MdMail size={13} style={{ color: 'var(--text-muted)' }} />
                       <span>{cust.email}</span>
                     </div>
                     {cust.phone && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', marginTop: '0.2rem' }}>
-                        <FiPhone size={13} style={{ color: 'var(--text-muted)' }} />
+                        <MdPhone size={13} style={{ color: 'var(--text-muted)' }} />
                         <span>{cust.phone}</span>
                       </div>
                     )}
@@ -157,15 +177,20 @@ function CustomersContent() {
                   <td>
                     {cust.address ? (
                       <div style={{ display: 'flex', alignItems: 'start', gap: '0.3rem', fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: '280px' }}>
-                        <FiMapPin size={13} style={{ color: 'var(--text-muted)', flexShrink: 0, marginTop: '2px' }} />
+                        <MdLocationOn size={13} style={{ color: 'var(--text-muted)', flexShrink: 0, marginTop: '2px' }} />
                         <span>{cust.address}</span>
                       </div>
                     ) : (
                       <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>None</span>
                     )}
                   </td>
-                  <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                  <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                     {new Date(cust.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </td>
+                  <td>
+                    <button className="btn btn-secondary icon-btn-sm" onClick={() => setDeleteTarget(cust)} title="Delete customer">
+                      <MdDelete />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -181,7 +206,7 @@ function CustomersContent() {
             <div className="modal-header">
               <h3 className="modal-title">Register Customer</h3>
               <button className="modal-close" onClick={() => setIsModalOpen(false)}>
-                <FiX />
+                <MdClose />
               </button>
             </div>
             
@@ -255,6 +280,15 @@ function CustomersContent() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete Customer"
+        message={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+        pending={deleting}
+      />
     </div>
   );
 }

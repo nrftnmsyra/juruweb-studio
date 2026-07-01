@@ -4,7 +4,8 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { dbService } from '@/lib/database';
 import DatabaseSetupHelper from '@/components/DatabaseSetupHelper';
-import { FiPlus, FiBriefcase, FiCalendar, FiClock, FiCheckCircle, FiChevronDown, FiAlertCircle, FiX } from 'react-icons/fi';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { MdAdd, MdWork, MdCalendarToday, MdAccessTime, MdCheckCircle, MdError, MdClose, MdDelete } from 'react-icons/md';
 import toast from 'react-hot-toast';
 
 function OrdersContent() {
@@ -24,6 +25,10 @@ function OrdersContent() {
     notes: '',
     total_amount: 999.00
   });
+
+  // Delete confirmation state
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (searchParams.get('new') === 'true') {
@@ -163,7 +168,22 @@ function OrdersContent() {
     return `${diffDays} day(s) left`;
   };
 
-  const filteredOrders = statusFilter === 'All' 
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await dbService.deleteOrder(deleteTarget.id);
+      toast.success('Order deleted successfully!');
+      setDeleteTarget(null);
+      loadData();
+    } catch {
+      toast.error('Failed to delete order');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const filteredOrders = statusFilter === 'All'
     ? orders 
     : orders.filter(o => o.status === statusFilter);
 
@@ -175,7 +195,7 @@ function OrdersContent() {
           <p className="page-subtitle">Track project schedules, delivery ETAs, and progress statuses.</p>
         </div>
         <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-          <FiPlus />
+          <MdAdd />
           <span>New Order</span>
         </button>
       </div>
@@ -223,9 +243,9 @@ function OrdersContent() {
                       )}
                     </div>
                     <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <span>Package: <strong style={{ color: 'white' }}>{order.package_type} Plan</strong></span>
+                      <span>Package: <strong style={{ color: 'var(--text-primary)' }}>{order.package_type} Plan</strong></span>
                       <span>•</span>
-                      <span>Total Amount: <strong style={{ color: 'white' }}>RM {Number(order.total_amount).toFixed(2)}</strong></span>
+                      <span>Total Amount: <strong style={{ color: 'var(--text-primary)' }}>RM {Number(order.total_amount).toFixed(2)}</strong></span>
                     </div>
                   </div>
 
@@ -233,11 +253,11 @@ function OrdersContent() {
                   <div style={{ minWidth: '220px', flex: '0 1 auto' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', fontSize: '0.8rem', marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <FiCalendar />
+                        <MdCalendarToday />
                         <span>ETA: {order.eta_date ? new Date(order.eta_date).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not set'}</span>
                       </span>
                       <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.25rem', color: isOverdue ? 'var(--error)' : isCompleted ? 'var(--success)' : 'var(--warning)', fontWeight: 600 }}>
-                        {isCompleted ? <FiCheckCircle /> : isOverdue ? <FiAlertCircle /> : <FiClock />}
+                        {isCompleted ? <MdCheckCircle /> : isOverdue ? <MdError /> : <MdAccessTime />}
                         <span>{isCompleted ? 'Finished' : daysLeft}</span>
                       </span>
                     </div>
@@ -256,24 +276,24 @@ function OrdersContent() {
 
                   {/* Right block: Action Status selector */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{ position: 'relative' }}>
-                      <select 
-                        value={order.status}
-                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                        style={{ padding: '0.4rem 1.8rem 0.4rem 0.75rem', fontSize: '0.8rem', fontWeight: 600, border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', appearance: 'none', backgroundPosition: 'right 0.5rem center' }}
-                      >
-                        <option value="New">New</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Review">Review</option>
-                        <option value="Completed">Completed</option>
-                      </select>
-                      <FiChevronDown style={{ position: 'absolute', right: '0.65rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', fontSize: '0.8rem', color: 'var(--text-muted)' }} />
-                    </div>
+                    <select
+                      value={order.status}
+                      onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                      style={{ width: 'auto', height: 'var(--control-height-sm)', fontSize: '0.8rem', fontWeight: 600, borderRadius: '9999px' }}
+                    >
+                      <option value="New">New</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Review">Review</option>
+                      <option value="Completed">Completed</option>
+                    </select>
+                    <button className="btn btn-secondary icon-btn-sm" onClick={() => setDeleteTarget(order)} title="Delete order">
+                      <MdDelete />
+                    </button>
                   </div>
                 </div>
 
                 {order.notes && (
-                  <div style={{ marginTop: '1rem', padding: '0.75rem 1rem', background: '#121214', borderRadius: '8px', border: '1px solid #202022', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  <div style={{ marginTop: '1rem', padding: '0.75rem 1rem', background: 'var(--bg-subtle)', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                     <strong>Project Scope / Remarks:</strong> {order.notes}
                   </div>
                 )}
@@ -290,7 +310,7 @@ function OrdersContent() {
             <div className="modal-header">
               <h3 className="modal-title">New Client Project Order</h3>
               <button className="modal-close" onClick={() => setIsModalOpen(false)}>
-                <FiX />
+                <MdClose />
               </button>
             </div>
             
@@ -350,7 +370,7 @@ function OrdersContent() {
                     required 
                   />
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    Reference timeframe: Basic = 3–5 days, Standard = 5–7 days, Premium = 7–14 days.
+                    Reference timeframe: Basic = 3-5 days, Standard = 5-7 days, Premium = 7-14 days.
                   </span>
                 </div>
 
@@ -374,6 +394,15 @@ function OrdersContent() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete Order"
+        message={`Are you sure you want to delete the order for "${deleteTarget?.customer?.name || 'this client'}"? This action cannot be undone.`}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+        pending={deleting}
+      />
     </div>
   );
 }

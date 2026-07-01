@@ -73,10 +73,14 @@ CREATE TABLE IF NOT EXISTS public.invoices (
     tax NUMERIC(10, 2) DEFAULT 0.00 NOT NULL,
     total NUMERIC(10, 2) DEFAULT 0.00 NOT NULL,
     amount_paid NUMERIC(10, 2) DEFAULT 0.00 NOT NULL,
+    deposit_percent NUMERIC(5, 2) DEFAULT 0 NOT NULL, -- 0 = full invoice; e.g. 50 = 50% deposit invoice
     status TEXT DEFAULT 'Draft'::text NOT NULL, -- 'Draft', 'Sent', 'Partially Paid', 'Paid', 'Cancelled'
     due_date DATE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- For existing databases: add the deposit column if it's missing
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS deposit_percent NUMERIC(5, 2) DEFAULT 0 NOT NULL;
 
 -- Enable RLS for Invoices
 ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;

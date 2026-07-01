@@ -4,34 +4,34 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { 
-  FiGrid, 
-  FiUsers, 
-  FiFileText, 
-  FiCompass, 
-  FiBriefcase, 
-  FiLogOut 
-} from 'react-icons/fi';
+  MdSpaceDashboard, 
+  MdPeople, 
+  MdDescription, 
+  MdReceiptLong, 
+  MdWork, 
+  MdLogout 
+} from 'react-icons/md';
 
-export default function Sidebar() {
+export default function Sidebar({ open = false, onClose = () => {} }) {
   const pathname = usePathname();
 
   const menuItems = [
-    { name: 'Dashboard', path: '/', icon: <FiGrid /> },
-    { name: 'Customers', path: '/customers', icon: <FiUsers /> },
-    { name: 'Orders', path: '/orders', icon: <FiBriefcase /> },
-    { name: 'Quotations', path: '/quotations', icon: <FiFileText /> },
-    { name: 'Invoices', path: '/invoices', icon: <FiCompass /> }
+    { name: 'Dashboard', path: '/', icon: <MdSpaceDashboard /> },
+    { name: 'Customers', path: '/customers', icon: <MdPeople /> },
+    { name: 'Orders', path: '/orders', icon: <MdWork /> },
+    { name: 'Quotations', path: '/quotations', icon: <MdDescription /> },
+    { name: 'Invoices', path: '/invoices', icon: <MdReceiptLong /> }
   ];
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${open ? 'open' : ''}`}>
       <div className="sidebar-logo">
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Image 
-            src="/light-bg-logo.PNG" 
-            alt="Juruweb Studio Logo" 
-            width={120} 
-            height={36} 
+        <Link href="/" onClick={onClose} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Image
+            src="/dark-bg-logo.png"
+            alt="Juruweb Studio Logo"
+            width={160}
+            height={48}
             style={{ objectFit: 'contain' }}
             priority
           />
@@ -42,9 +42,10 @@ export default function Sidebar() {
         {menuItems.map((item) => {
           const isActive = pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
           return (
-            <Link 
-              key={item.name} 
+            <Link
+              key={item.name}
               href={item.path}
+              onClick={onClose}
               className={`sidebar-link ${isActive ? 'active' : ''}`}
             >
               <span className="sidebar-link-icon" style={{ display: 'flex', alignItems: 'center' }}>

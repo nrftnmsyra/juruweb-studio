@@ -4,8 +4,9 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { dbService } from '@/lib/database';
 import DatabaseSetupHelper from '@/components/DatabaseSetupHelper';
-import { FiPlus, FiPrinter, FiTrash2, FiFileText, FiX, FiCheck } from 'react-icons/fi';
+import { MdAdd, MdPrint, MdDelete, MdDescription, MdClose, MdCheck } from 'react-icons/md';
 import toast from 'react-hot-toast';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import Image from 'next/image';
 
 const ADDONS = [
@@ -36,13 +37,18 @@ function QuotationsContent() {
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState('');
   const [lineItems, setLineItems] = useState([
-    { description: 'Standard Website Package', quantity: 1, unit_price: 999.00 }
+    { description: 'Standard Website Package', quantity: 1, unit_price: 999.00, discount: 0, discount_type: 'rm', remark: '' }
   ]);
+  const [selectedPackage, setSelectedPackage] = useState('Standard Website Package (RM 999)');
   const [validUntil, setValidUntil] = useState('');
   const [notes, setNotes] = useState('');
   
   // PDF Preview State
   const [activeQuotation, setActiveQuotation] = useState(null);
+
+  // Delete confirmation state
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (searchParams.get('new') === 'true') {
@@ -78,11 +84,11 @@ function QuotationsContent() {
     }
   }
 
-  // Predefined package selection handler
+  // Predefined package selection handler (single-select; keeps any added add-ons)
   const handleSelectPackage = (pkg) => {
-    setLineItems([
-      { description: pkg.label.split(' (')[0], quantity: 1, unit_price: pkg.price }
-    ]);
+    setSelectedPackage(pkg.label);
+    const pkgItem = { description: pkg.label.split(' (')[0], quantity: 1, unit_price: pkg.price, discount: 0, discount_type: 'rm', remark: '' };
+    setLineItems(prev => [pkgItem, ...prev.slice(1)]);
   };
 
   // Add Addon line item
@@ -100,7 +106,7 @@ function QuotationsContent() {
   };
 
   const handleAddCustomLine = () => {
-    setLineItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0.00 }]);
+    setLineItems(prev => [...prev, { description: '', quantity: 1, unit_price: 0.00, discount: 0.00, discount_type: 'rm', remark: '' }]);
   };
 
   const handleRemoveLine = (index) => {
@@ -125,9 +131,18 @@ function QuotationsContent() {
     return items.reduce((acc, item) => acc + (Number(item.quantity) * Number(item.unit_price)), 0);
   };
 
+  // Resolve a line item's discount to an RM amount (supports flat RM or percent)
+  const lineDiscountAmount = (item) => {
+    const gross = Number(item.quantity) * Number(item.unit_price);
+    return item.discount_type === 'percent'
+      ? gross * (Number(item.discount || 0) / 100)
+      : Number(item.discount || 0);
+  };
+
   const subtotal = calculateSubtotal(lineItems);
+  const discountTotal = lineItems.reduce((acc, item) => acc + lineDiscountAmount(item), 0);
   const tax = 0.00; // No tax by default
-  const total = subtotal + tax;
+  const total = subtotal - discountTotal + tax;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -160,9 +175,11 @@ function QuotationsContent() {
       setIsModalOpen(false);
       
       // Reset form
-      setLineItems([{ description: 'Standard Website Package', quantity: 1, unit_price: 999.00 }]);
+      setLineItems([{ description: 'Standard Website Package', quantity: 1, unit_price: 999.00, discount: 0, discount_type: 'rm', remark: '' }]);
+      setSelectedPackage('Standard Website Package (RM 999)');
       setSelectedCustomerId('');
       setSelectedOrderId('');
+      setNotes('');
       loadData();
     } catch {
       toast.error('Failed to create quotation');
@@ -171,6 +188,21 @@ function QuotationsContent() {
 
   const triggerPrint = () => {
     window.print();
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await dbService.deleteQuotation(deleteTarget.id);
+      toast.success('Quotation deleted successfully!');
+      setDeleteTarget(null);
+      loadData();
+    } catch {
+      toast.error('Failed to delete quotation');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   return (
@@ -188,9 +220,6 @@ function QuotationsContent() {
             position: absolute;
             left: 0;
             top: 0;
-            width: 100%;
-            padding: 0;
-            margin: 0;
           }
         }
       `}</style>
@@ -201,7 +230,7 @@ function QuotationsContent() {
           <p className="page-subtitle">Draft technical estimations, price catalogs, and client offers.</p>
         </div>
         <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-          <FiPlus />
+          <MdAdd />
           <span>New Quotation</span>
         </button>
       </div>
@@ -228,6 +257,7 @@ function QuotationsContent() {
                     <th>Total Valuation</th>
                     <th>Date Sent</th>
                     <th>View PDF</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -242,13 +272,18 @@ function QuotationsContent() {
                         <div style={{ fontWeight: 600 }}>{q.customer?.name}</div>
                         <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{q.customer?.company || 'Personal'}</div>
                       </td>
-                      <td>{new Date(q.valid_until).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                      <td style={{ whiteSpace: 'nowrap' }}>{new Date(q.valid_until).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                       <td style={{ fontWeight: 700 }}>RM {Number(q.total).toFixed(2)}</td>
-                      <td>{new Date(q.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                      <td style={{ whiteSpace: 'nowrap' }}>{new Date(q.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                       <td>
                         <button className="btn btn-secondary btn-sm" onClick={() => setActiveQuotation(q)}>
-                          <FiFileText />
+                          <MdDescription />
                           <span>View Doc</span>
+                        </button>
+                      </td>
+                      <td>
+                        <button className="btn btn-secondary icon-btn-sm" onClick={() => setDeleteTarget(q)} title="Delete quotation">
+                          <MdDelete />
                         </button>
                       </td>
                     </tr>
@@ -269,7 +304,7 @@ function QuotationsContent() {
             </button>
             <div style={{ display: 'flex', gap: '0.75rem', marginLeft: 'auto' }}>
               <button className="btn btn-primary" onClick={triggerPrint}>
-                <FiPrinter />
+                <MdPrint />
                 <span>Print or Save PDF</span>
               </button>
             </div>
@@ -279,12 +314,12 @@ function QuotationsContent() {
             {/* PDF Main Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #e4e4e7', paddingBottom: '2rem', marginBottom: '2rem' }}>
               <div>
-                <Image src="/dark-bg-logo.PNG" alt="Juruweb Studio" width={180} height={50} style={{ objectFit: 'contain' }} />
+                <Image src="/dark-bg-logo.png" alt="Juruweb Studio" width={180} height={50} style={{ objectFit: 'contain' }} />
                 <div style={{ fontSize: '0.85rem', color: '#71717a', marginTop: '0.5rem', lineHeight: '1.4' }}>
-                  <strong>Juruweb Studio Private Ltd.</strong><br />
+                  <strong>Juruweb Studio</strong><br />
                   Digitalization and System Engineering Services<br />
-                  Kuala Lumpur, Malaysia<br />
-                  Email: hello@juruweb.co.my
+                  Bandar Baru Sentul, 51000, Kuala Lumpur<br />
+                  Email: juruweb.info@gmail.com
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
@@ -323,19 +358,24 @@ function QuotationsContent() {
               <thead>
                 <tr style={{ borderBottom: '2px solid #18181b' }}>
                   <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b' }}>Project Scope Item Description</th>
-                  <th style={{ textAlign: 'center', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '100px' }}>Quantity</th>
-                  <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '150px' }}>Unit Price (RM)</th>
-                  <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '150px' }}>Total (RM)</th>
+                  <th style={{ textAlign: 'center', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '70px' }}>Qty</th>
+                  <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '120px' }}>Unit Price (RM)</th>
+                  <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '110px' }}>Discount</th>
+                  <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '130px' }}>Total (RM)</th>
                 </tr>
               </thead>
               <tbody>
                 {activeQuotation.items ? (
                   activeQuotation.items.map((item, idx) => (
                     <tr key={idx} style={{ borderBottom: '1px solid #e4e4e7' }}>
-                      <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', fontWeight: 500 }}>{item.description}</td>
+                      <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', fontWeight: 500 }}>
+                        {item.description}
+                        {item.remark && <div style={{ fontSize: '0.8rem', color: '#71717a', fontWeight: 400, marginTop: '0.2rem' }}>{item.remark}</div>}
+                      </td>
                       <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', textAlign: 'center' }}>{item.quantity}</td>
                       <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', textAlign: 'right' }}>RM {Number(item.unit_price).toFixed(2)}</td>
-                      <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', textAlign: 'right', fontWeight: 600 }}>RM {(Number(item.quantity) * Number(item.unit_price)).toFixed(2)}</td>
+                      <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', textAlign: 'right' }}>{Number(item.discount || 0) > 0 ? (item.discount_type === 'percent' ? `${Number(item.discount).toFixed(0)}%` : `RM ${Number(item.discount).toFixed(2)}`) : '-'}</td>
+                      <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', textAlign: 'right', fontWeight: 600 }}>RM {((Number(item.quantity) * Number(item.unit_price)) - lineDiscountAmount(item)).toFixed(2)}</td>
                     </tr>
                   ))
                 ) : null}
@@ -344,20 +384,38 @@ function QuotationsContent() {
 
             {/* Calculations summaries */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-              <div style={{ width: '320px', fontSize: '0.95rem', color: '#18181b', lineHeight: '1.8' }}>
-                <div style={{ display: 'flex', justifyBetween: 'space-between', borderBottom: '1px solid #e4e4e7', paddingBottom: '0.5rem' }}>
-                  <span>Subtotal:</span>
-                  <span style={{ marginLeft: 'auto', fontWeight: 600 }}>RM {Number(activeQuotation.subtotal).toFixed(2)}</span>
-                </div>
-                <div style={{ display: 'flex', justifyBetween: 'space-between', borderBottom: '1px solid #e4e4e7', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}>
-                  <span>Tax (0%):</span>
-                  <span style={{ marginLeft: 'auto', fontWeight: 600 }}>RM {Number(activeQuotation.tax).toFixed(2)}</span>
-                </div>
-                <div style={{ display: 'flex', justifyBetween: 'space-between', paddingTop: '0.75rem', fontSize: '1.25rem', color: '#ff69b4', fontWeight: 800 }}>
-                  <span>Final Total:</span>
-                  <span style={{ marginLeft: 'auto' }}>RM {Number(activeQuotation.total).toFixed(2)}</span>
-                </div>
-              </div>
+              {(() => {
+                const sub = Number(activeQuotation.subtotal);
+                const tot = Number(activeQuotation.total);
+                const rowStyle = { display: 'flex', justifyContent: 'space-between', marginBottom: '0.55rem' };
+                const labelStyle = { color: '#71717a' };
+                const valStyle = { fontWeight: 600, color: '#18181b' };
+                return (
+                  <div style={{ width: '300px', fontSize: '0.9rem' }}>
+                    <div style={rowStyle}>
+                      <span style={labelStyle}>Subtotal</span>
+                      <span style={valStyle}>RM {sub.toFixed(2)}</span>
+                    </div>
+                    {(sub - tot) > 0.001 && (
+                      <div style={rowStyle}>
+                        <span style={labelStyle}>Discount</span>
+                        <span style={{ ...valStyle, color: '#059669' }}>- RM {(sub - tot).toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'baseline',
+                      marginTop: '0.75rem',
+                      paddingTop: '0.75rem',
+                      borderTop: '2px solid #18181b',
+                    }}>
+                      <span style={{ fontWeight: 700, color: '#18181b' }}>Total</span>
+                      <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#18181b' }}>RM {tot.toFixed(2)}</span>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Invoicing Deposit details and conditions */}
@@ -366,9 +424,32 @@ function QuotationsContent() {
               <ol style={{ paddingLeft: '1rem' }}>
                 <li><strong>50% Outbound Deposit</strong> is required before any development start (RM {(Number(activeQuotation.total) / 2).toFixed(2)}).</li>
                 <li>50% final balance to be cleared immediately upon staging staging approval.</li>
-                <li>Please send transaction receipts/statements to hello@juruweb.co.my.</li>
+                <li>Please send transaction receipts/statements to juruweb.info@gmail.com.</li>
                 <li>All website deliveries are subject to standard Juruweb Studio SLA policies.</li>
               </ol>
+            </div>
+
+            {/* Bank details */}
+            <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #e4e4e7' }}>
+              <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#a1a1aa', marginBottom: '0.85rem' }}>Payment Details</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2.5rem', fontSize: '0.85rem' }}>
+                <div>
+                  <div style={{ color: '#a1a1aa', fontSize: '0.72rem', marginBottom: '0.15rem' }}>Bank</div>
+                  <div style={{ fontWeight: 600, color: '#18181b' }}>Maybank</div>
+                </div>
+                <div>
+                  <div style={{ color: '#a1a1aa', fontSize: '0.72rem', marginBottom: '0.15rem' }}>Account Number</div>
+                  <div style={{ fontWeight: 600, color: '#18181b' }}>1644 7246 6013</div>
+                </div>
+                <div>
+                  <div style={{ color: '#a1a1aa', fontSize: '0.72rem', marginBottom: '0.15rem' }}>Account Holder</div>
+                  <div style={{ fontWeight: 600, color: '#18181b' }}>Helmi Ashraf Bin Ahmad</div>
+                </div>
+                <div>
+                  <div style={{ color: '#a1a1aa', fontSize: '0.72rem', marginBottom: '0.15rem' }}>Reference</div>
+                  <div style={{ fontWeight: 600, color: '#18181b' }}>QT-{activeQuotation.id.substr(0,4).toUpperCase()}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -381,7 +462,7 @@ function QuotationsContent() {
             <div className="modal-header">
               <h3 className="modal-title">New Estimate Quotation</h3>
               <button className="modal-close" onClick={() => setIsModalOpen(false)}>
-                <FiX />
+                <MdClose />
               </button>
             </div>
             
@@ -425,22 +506,24 @@ function QuotationsContent() {
                   <input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} required />
                 </div>
 
-                {/* Quick select buttons */}
+                {/* Package selector (single-select) */}
                 <div style={{ marginBottom: '1.5rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem' }}>Insert Packages (From Pricing PDF)</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem' }}>Select Package (choose one)</label>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    {PACKAGES.map(pkg => (
-                      <button 
-                        type="button" 
-                        key={pkg.label}
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => handleSelectPackage(pkg)}
-                        style={{ borderStyle: 'dashed', borderColor: 'var(--brand-pink)' }}
-                      >
-                        <FiCheck style={{ marginRight: '0.2rem', color: 'var(--brand-pink)' }} />
-                        <span>{pkg.label}</span>
-                      </button>
-                    ))}
+                    {PACKAGES.map(pkg => {
+                      const active = selectedPackage === pkg.label;
+                      return (
+                        <button
+                          type="button"
+                          key={pkg.label}
+                          className={`btn btn-sm ${active ? 'btn-primary' : 'btn-secondary'}`}
+                          onClick={() => handleSelectPackage(pkg)}
+                        >
+                          {active && <MdCheck style={{ marginRight: '0.2rem' }} />}
+                          <span>{pkg.label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -455,7 +538,7 @@ function QuotationsContent() {
                         onClick={() => handleSelectAddOn(addon)}
                         style={{ fontSize: '0.75rem' }}
                       >
-                        <FiPlus />
+                        <MdAdd />
                         <span>{addon.label.split(' (')[0]} (RM {addon.price})</span>
                       </button>
                     ))}
@@ -467,7 +550,7 @@ function QuotationsContent() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <label>Quoted Scope Line Items</label>
                     <button type="button" className="btn btn-secondary btn-sm" onClick={handleAddCustomLine}>
-                      <FiPlus />
+                      <MdAdd />
                       <span>Custom Item</span>
                     </button>
                   </div>
@@ -476,8 +559,9 @@ function QuotationsContent() {
                     <thead>
                       <tr>
                         <th>Scoped Item / Description</th>
-                        <th style={{ width: '80px', textAlignment: 'center' }}>Qty</th>
-                        <th style={{ width: '120px', textAlignment: 'right' }}>Price (RM)</th>
+                        <th style={{ width: '60px', textAlign: 'center' }}>Qty</th>
+                        <th style={{ width: '100px', textAlign: 'right' }}>Price (RM)</th>
+                        <th style={{ width: '180px', textAlign: 'right' }}>Discount</th>
                         <th style={{ width: '40px' }}></th>
                       </tr>
                     </thead>
@@ -485,38 +569,65 @@ function QuotationsContent() {
                       {lineItems.map((item, idx) => (
                         <tr key={idx}>
                           <td>
-                            <input 
-                              type="text" 
-                              placeholder="e.g. Logo Design, Extra product uploads" 
+                            <input
+                              type="text"
+                              placeholder="e.g. Logo Design, Extra product uploads"
                               value={item.description}
                               onChange={(e) => handleLineItemChange(idx, 'description', e.target.value)}
-                              style={{ padding: '0.4rem 0.6rem', fontSize: '0.85rem' }}
+                              style={{ fontSize: '0.85rem' }}
                               required
+                            />
+                            <input
+                              type="text"
+                              placeholder="Add a remark (optional)"
+                              value={item.remark || ''}
+                              onChange={(e) => handleLineItemChange(idx, 'remark', e.target.value)}
+                              style={{ fontSize: '0.78rem', marginTop: '0.35rem', color: 'var(--text-secondary)' }}
                             />
                           </td>
                           <td>
-                            <input 
-                              type="number" 
+                            <input
+                              type="number"
                               value={item.quantity}
                               onChange={(e) => handleLineItemChange(idx, 'quantity', parseInt(e.target.value) || 1)}
-                              style={{ padding: '0.4rem 0.4rem', fontSize: '0.85rem', textAlignment: 'center' }}
+                              style={{ fontSize: '0.85rem', textAlign: 'center' }}
                               min="1"
                               required
                             />
                           </td>
                           <td>
-                            <input 
-                              type="number" 
+                            <input
+                              type="number"
                               value={item.unit_price}
                               onChange={(e) => handleLineItemChange(idx, 'unit_price', parseFloat(e.target.value) || 0.00)}
-                              style={{ padding: '0.4rem 0.4rem', fontSize: '0.85rem', textAlignment: 'right' }}
+                              style={{ fontSize: '0.85rem', textAlign: 'right' }}
                               step="0.01"
                               required
                             />
                           </td>
                           <td>
-                            <button type="button" className="btn btn-danger btn-sm" onClick={() => handleRemoveLine(idx)} style={{ padding: '0.4rem' }}>
-                              <FiTrash2 />
+                            <div style={{ display: 'flex', gap: '0.4rem' }}>
+                              <input
+                                type="number"
+                                value={item.discount ?? 0}
+                                onChange={(e) => handleLineItemChange(idx, 'discount', parseFloat(e.target.value) || 0.00)}
+                                style={{ fontSize: '0.85rem', textAlign: 'right', minWidth: 0 }}
+                                step="0.01"
+                                min="0"
+                              />
+                              <select
+                                value={item.discount_type || 'rm'}
+                                onChange={(e) => handleLineItemChange(idx, 'discount_type', e.target.value)}
+                                style={{ width: '78px', flexShrink: 0, fontSize: '0.8rem', paddingLeft: '0.6rem', paddingRight: '1.5rem', backgroundPosition: 'right 0.45rem center' }}
+                              >
+                                <option value="rm">RM</option>
+                                <option value="percent">%</option>
+                              </select>
+                            </div>
+                          </td>
+                          <td>
+                            <button type="button" className="btn btn-danger icon-btn-sm" onClick={() => handleRemoveLine(idx)}>
+                              <MdDelete />
                             </button>
                           </td>
                         </tr>
@@ -527,9 +638,21 @@ function QuotationsContent() {
 
                 {/* Subtotal preview */}
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
-                  <div style={{ textAlign: 'right', width: '220px' }}>
-                    <div style={{ color: 'var(--text-secondary)' }}>Calculated Total Valuation:</div>
-                    <div style={{ fontSize: '1.5rem', color: 'var(--brand-pink)', fontWeight: 800 }}>RM {total.toFixed(2)}</div>
+                  <div style={{ width: '260px', display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.9rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
+                      <span>Subtotal</span>
+                      <span>RM {subtotal.toFixed(2)}</span>
+                    </div>
+                    {discountTotal > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--success)' }}>
+                        <span>Discount</span>
+                        <span>- RM {discountTotal.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderTop: '1px solid var(--border-color)', paddingTop: '0.5rem', marginTop: '0.25rem' }}>
+                      <span style={{ fontWeight: 600 }}>Total</span>
+                      <span style={{ fontSize: '1.4rem', fontWeight: 800 }}>RM {total.toFixed(2)}</span>
+                    </div>
                   </div>
                 </div>
 
@@ -543,6 +666,15 @@ function QuotationsContent() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete Quotation"
+        message={`Are you sure you want to delete the quotation for "${deleteTarget?.customer?.name || 'this client'}"? This action cannot be undone.`}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+        pending={deleting}
+      />
     </div>
   );
 }

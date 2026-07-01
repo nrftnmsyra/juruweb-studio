@@ -95,6 +95,24 @@ export const dbService = {
     }
   },
 
+  async deleteCustomer(id) {
+    try {
+      const { error } = await supabase.from('customers').delete().eq('id', id);
+      if (error) {
+        const check = handleDbError(error);
+        if (check) {
+          setLocalStorageData('juruweb_customers', getLocalStorageData('juruweb_customers').filter(c => c.id !== id));
+          return { ...check };
+        }
+        throw error;
+      }
+      return { success: true };
+    } catch {
+      setLocalStorageData('juruweb_customers', getLocalStorageData('juruweb_customers').filter(c => c.id !== id));
+      return { success: true };
+    }
+  },
+
   async addCustomer(customer) {
     try {
       const { data, error } = await supabase.from('customers').insert([customer]).select();
@@ -172,6 +190,24 @@ export const dbService = {
     }
   },
 
+  async deleteOrder(id) {
+    try {
+      const { error } = await supabase.from('orders').delete().eq('id', id);
+      if (error) {
+        const check = handleDbError(error);
+        if (check) {
+          setLocalStorageData('juruweb_orders', getLocalStorageData('juruweb_orders').filter(o => o.id !== id));
+          return { ...check };
+        }
+        throw error;
+      }
+      return { success: true };
+    } catch {
+      setLocalStorageData('juruweb_orders', getLocalStorageData('juruweb_orders').filter(o => o.id !== id));
+      return { success: true };
+    }
+  },
+
   async updateOrderStatus(orderId, status) {
     try {
       const { data, error } = await supabase.from('orders').update({ status }).eq('id', orderId).select();
@@ -229,6 +265,24 @@ export const dbService = {
     }
   },
 
+  async deleteQuotation(id) {
+    try {
+      const { error } = await supabase.from('quotations').delete().eq('id', id);
+      if (error) {
+        const check = handleDbError(error);
+        if (check) {
+          setLocalStorageData('juruweb_quotations', getLocalStorageData('juruweb_quotations').filter(q => q.id !== id));
+          return { ...check };
+        }
+        throw error;
+      }
+      return { success: true };
+    } catch {
+      setLocalStorageData('juruweb_quotations', getLocalStorageData('juruweb_quotations').filter(q => q.id !== id));
+      return { success: true };
+    }
+  },
+
   async addQuotation(quotation) {
     try {
       const { data, error } = await supabase.from('quotations').insert([quotation]).select();
@@ -282,9 +336,32 @@ export const dbService = {
     }
   },
 
+  async deleteInvoice(id) {
+    try {
+      const { error } = await supabase.from('invoices').delete().eq('id', id);
+      if (error) {
+        const check = handleDbError(error);
+        if (check) {
+          setLocalStorageData('juruweb_invoices', getLocalStorageData('juruweb_invoices').filter(i => i.id !== id));
+          return { ...check };
+        }
+        throw error;
+      }
+      return { success: true };
+    } catch {
+      setLocalStorageData('juruweb_invoices', getLocalStorageData('juruweb_invoices').filter(i => i.id !== id));
+      return { success: true };
+    }
+  },
+
   async addInvoice(invoice) {
     try {
-      const { data, error } = await supabase.from('invoices').insert([invoice]).select();
+      let { data, error } = await supabase.from('invoices').insert([invoice]).select();
+      // Gracefully handle DBs where the optional deposit_percent column hasn't been added yet
+      if (error && /deposit_percent/.test(error.message || '')) {
+        const { deposit_percent, ...rest } = invoice;
+        ({ data, error } = await supabase.from('invoices').insert([rest]).select());
+      }
       if (error) {
         const check = handleDbError(error);
         if (check) {
