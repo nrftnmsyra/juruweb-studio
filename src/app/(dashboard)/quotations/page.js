@@ -232,8 +232,7 @@ function QuotationsContent() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Quote Reference</th>
-                    <th>Client Name / Company</th>
+                    <th>Client / Reference</th>
                     <th>Valid Until</th>
                     <th>Total Valuation</th>
                     <th>Date Sent</th>
@@ -243,14 +242,12 @@ function QuotationsContent() {
                 <tbody>
                   {quotations.map((q) => (
                     <tr key={q.id}>
-                      <td data-label="Reference">
-                        <span style={{ fontFamily: 'monospace', fontWeight: 600, color: 'var(--brand-pink)' }}>
-                          JUR-QT-{q.id.substr(0, 6).toUpperCase()}
-                        </span>
-                      </td>
                       <td data-label="Client">
                         <div className="u-caps" style={{ fontWeight: 600 }}>{q.customer?.name}</div>
                         <div className="u-caps" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{q.customer?.company || 'Personal'}</div>
+                        <div style={{ fontFamily: 'monospace', fontSize: '0.72rem', color: 'var(--brand-pink)', marginTop: '0.2rem' }}>
+                          JUR-QT-{q.id.substr(0, 6).toUpperCase()}
+                        </div>
                       </td>
                       <td data-label="Valid Until" style={{ whiteSpace: 'nowrap' }}>{new Date(q.valid_until).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                       <td data-label="Total" style={{ fontWeight: 700 }}>RM {Number(q.total).toFixed(2)}</td>
@@ -440,7 +437,7 @@ function QuotationsContent() {
             </div>
             
             <form onSubmit={handleSubmit}>
-              <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+              <div className="modal-body">
                 
                 {/* Select client */}
                 <div className="form-grid">
@@ -541,7 +538,7 @@ function QuotationsContent() {
                     <tbody>
                       {lineItems.map((item, idx) => (
                         <tr key={idx}>
-                          <td>
+                          <td data-label="Scoped Item / Description">
                             <input
                               type="text"
                               placeholder="e.g. Logo Design, Extra product uploads"
@@ -558,7 +555,7 @@ function QuotationsContent() {
                               style={{ fontSize: '0.78rem', marginTop: '0.35rem', color: 'var(--text-secondary)' }}
                             />
                           </td>
-                          <td>
+                          <td data-label="Qty">
                             <input
                               type="number"
                               value={item.quantity}
@@ -568,7 +565,7 @@ function QuotationsContent() {
                               required
                             />
                           </td>
-                          <td>
+                          <td data-label="Price (RM)">
                             <input
                               type="number"
                               value={item.unit_price}
@@ -578,7 +575,7 @@ function QuotationsContent() {
                               required
                             />
                           </td>
-                          <td>
+                          <td data-label="Discount">
                             <div style={{ display: 'flex', gap: '0.4rem' }}>
                               <input
                                 type="number"
@@ -598,7 +595,7 @@ function QuotationsContent() {
                               </select>
                             </div>
                           </td>
-                          <td>
+                          <td className="line-remove">
                             <button type="button" className="btn btn-danger icon-btn-sm" onClick={() => handleRemoveLine(idx)}>
                               <MdDelete />
                             </button>

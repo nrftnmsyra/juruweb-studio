@@ -393,7 +393,7 @@ function InvoicesContent() {
             <table className="pdf-items" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #18181b' }}>
-                  <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b' }}>Description</th>
+                  <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b' }}>Item Description</th>
                   <th style={{ textAlign: 'center', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '80px' }}>Qty</th>
                   <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '120px' }}>Price (RM)</th>
                   <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '120px' }}>Discount</th>
@@ -633,7 +633,7 @@ function InvoicesContent() {
             </div>
             
             <form onSubmit={handleSubmit}>
-              <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+              <div className="modal-body">
                 
                 {/* Select quote to load items */}
                 <div className="form-group" style={{ marginBottom: '1.25rem' }}>
@@ -723,7 +723,7 @@ function InvoicesContent() {
                     <tbody>
                       {lineItems.map((item, idx) => (
                         <tr key={idx}>
-                          <td>
+                          <td data-label="Item Description">
                             <input
                               type="text"
                               placeholder="e.g. 50% Project milestone deposit"
@@ -740,7 +740,7 @@ function InvoicesContent() {
                               style={{ fontSize: '0.78rem', marginTop: '0.35rem', color: 'var(--text-secondary)' }}
                             />
                           </td>
-                          <td>
+                          <td data-label="Qty">
                             <input
                               type="number"
                               value={item.quantity}
@@ -750,7 +750,7 @@ function InvoicesContent() {
                               required
                             />
                           </td>
-                          <td>
+                          <td data-label="Price (RM)">
                             <input
                               type="number"
                               value={item.unit_price}
@@ -760,7 +760,7 @@ function InvoicesContent() {
                               required
                             />
                           </td>
-                          <td>
+                          <td data-label="Discount">
                             <div style={{ display: 'flex', gap: '0.4rem' }}>
                               <input
                                 type="number"
@@ -780,7 +780,7 @@ function InvoicesContent() {
                               </select>
                             </div>
                           </td>
-                          <td>
+                          <td className="line-remove">
                             <button type="button" className="btn btn-danger icon-btn-sm" onClick={() => handleRemoveLine(idx)}>
                               <MdDelete />
                             </button>
