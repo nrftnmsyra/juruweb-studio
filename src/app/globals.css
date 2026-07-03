@@ -931,6 +931,9 @@ input::placeholder {
 }
 .track-form input {
   flex: 1 1 auto;
+  border-radius: 9999px;
+  padding-left: 1.35rem;
+  padding-right: 1.35rem;
 }
 .track-form .btn {
   flex-shrink: 0;
