@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { dbService } from '@/lib/database';
-import { downloadElementAsPdf } from '@/lib/pdf';
 import DatabaseSetupHelper from '@/components/DatabaseSetupHelper';
-import { MdAdd, MdPrint, MdDownload, MdAttachMoney, MdDelete, MdDescription, MdClose } from 'react-icons/md';
+import PdfDocumentPreview from '@/components/PdfDocumentPreview';
+import { MdAdd, MdAttachMoney, MdDelete, MdDescription, MdClose } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -35,23 +35,6 @@ function InvoicesContent() {
 
   // PDF Preview State
   const [activeInvoice, setActiveInvoice] = useState(null);
-  const pdfRef = useRef(null);
-  const [downloading, setDownloading] = useState(false);
-
-  const handleDownloadPdf = async () => {
-    if (!activeInvoice || !pdfRef.current) return;
-    setDownloading(true);
-    const t = toast.loading('Generating PDF…');
-    try {
-      const ref = `JUR-INV-${activeInvoice.id.substr(0, 6).toUpperCase()}`;
-      await downloadElementAsPdf(pdfRef.current, `${ref}.pdf`);
-      toast.success('PDF downloaded!', { id: t });
-    } catch {
-      toast.error('Could not generate the PDF', { id: t });
-    } finally {
-      setDownloading(false);
-    }
-  };
 
   // Delete confirmation state
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -356,26 +339,16 @@ function InvoicesContent() {
 
       {/* PDF Viewer Area */}
       {activeInvoice && (
-        <div>
-          <div className="pdf-toolbar print-hide">
-            <button className="btn btn-secondary" onClick={() => setActiveInvoice(null)}>
-              <span>← Back To Invoices</span>
-            </button>
-            <button className="btn btn-secondary" onClick={() => window.print()} style={{ marginLeft: 'auto' }}>
-              <MdPrint />
-              <span>Print</span>
-            </button>
-            <button className="btn btn-primary" onClick={handleDownloadPdf} disabled={downloading}>
-              <MdDownload />
-              <span>{downloading ? 'Preparing…' : 'Download PDF'}</span>
-            </button>
-          </div>
-
-          <div ref={pdfRef} className="pdf-print-area pdf-preview">
-            {/* Header info */}
+        <PdfDocumentPreview
+          docKey={activeInvoice.id}
+          filename={`JUR-INV-${activeInvoice.id.substr(0, 6).toUpperCase()}.pdf`}
+          onBack={() => setActiveInvoice(null)}
+          backLabel="← Back To Invoices"
+        >
+          {/* Header info */}
             <div className="pdf-head" style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #e4e4e7', paddingBottom: '2rem', marginBottom: '2rem' }}>
               <div>
-                <Image src="/dark-bg-logo.png" alt="Juruweb Studio" width={180} height={50} style={{ objectFit: 'contain', maxWidth: '100%', height: 'auto' }} />
+                <Image src="/dark-bg-logo.png" alt="Juruweb Studio" width={180} height={53} unoptimized priority style={{ display: 'block', width: '180px', maxWidth: '100%', height: 'auto' }} />
                 <div style={{ fontSize: '0.85rem', color: '#71717a', marginTop: '0.5rem', lineHeight: '1.4' }}>
                   <strong>Juruweb Studio</strong><br />
                   Digitalization and System Engineering Services<br />
@@ -588,8 +561,7 @@ function InvoicesContent() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+        </PdfDocumentPreview>
       )}
 
       {/* Recording Payment overlay modal */}
