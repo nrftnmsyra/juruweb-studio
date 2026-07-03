@@ -977,6 +977,11 @@ input::placeholder {
   flex-direction: column;
   gap: 0.85rem;
 }
+/* Divider between one project group and the next */
+.track-project-group:not(:last-child) {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
 .track-project-invoices {
   margin-left: 1.1rem;
   padding-left: 1.1rem;
