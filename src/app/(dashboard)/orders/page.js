@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { dbService } from '@/lib/database';
 import DatabaseSetupHelper from '@/components/DatabaseSetupHelper';
 import ConfirmDialog from '@/components/ConfirmDialog';
-import { MdAdd, MdWork, MdCalendarToday, MdAccessTime, MdCheckCircle, MdError, MdClose, MdDelete, MdAutorenew } from 'react-icons/md';
+import { MdAdd, MdWork, MdCalendarToday, MdAccessTime, MdCheckCircle, MdError, MdClose, MdDelete, MdAutorenew, MdEditCalendar } from 'react-icons/md';
 import toast from 'react-hot-toast';
 
 function OrdersContent() {
@@ -42,6 +42,22 @@ function OrdersContent() {
       loadData();
     } catch {
       toast.error('Failed to update remark');
+    }
+  };
+
+  // Inline project deadline (ETA) editing
+  const [editingEtaId, setEditingEtaId] = useState(null);
+  const [etaDraft, setEtaDraft] = useState('');
+
+  const saveEta = async (orderId) => {
+    if (!etaDraft) { toast.error('Please pick a date'); return; }
+    try {
+      await dbService.updateOrder(orderId, { eta_date: etaDraft });
+      toast.success('Project deadline updated!');
+      setEditingEtaId(null);
+      loadData();
+    } catch {
+      toast.error('Failed to update deadline');
     }
   };
 
@@ -321,11 +337,28 @@ function OrdersContent() {
                       <option value="Review">Review</option>
                       <option value="Completed">Completed</option>
                     </select>
+                    <button
+                      className="btn btn-secondary icon-btn-sm"
+                      title={isMaintenance ? 'Edit next billing date' : 'Edit project deadline'}
+                      onClick={() => { setEditingEtaId(editingEtaId === order.id ? null : order.id); setEtaDraft(order.eta_date || ''); }}
+                    >
+                      <MdEditCalendar />
+                    </button>
                     <button className="btn btn-secondary icon-btn-sm" onClick={() => setDeleteTarget(order)} title="Delete order">
                       <MdDelete />
                     </button>
                   </div>
                 </div>
+
+                {/* Inline deadline (ETA) editor */}
+                {editingEtaId === order.id && (
+                  <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', padding: '0.75rem 1rem', background: 'var(--bg-subtle)', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
+                    <label style={{ margin: 0, fontSize: '0.75rem' }}>{isMaintenance ? 'Next billing date' : 'Project deadline (ETA)'}</label>
+                    <input type="date" value={etaDraft} onChange={(e) => setEtaDraft(e.target.value)} style={{ width: 'auto', height: 'var(--control-height-sm)', fontSize: '0.85rem' }} />
+                    <button className="btn btn-primary btn-sm" onClick={() => saveEta(order.id)}>Save</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => setEditingEtaId(null)}>Cancel</button>
+                  </div>
+                )}
 
                 {/* Editable project remark (shown to the client on the tracker) */}
                 <div style={{ marginTop: '1rem' }}>
