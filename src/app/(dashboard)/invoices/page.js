@@ -5,9 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import { dbService } from '@/lib/database';
 import DatabaseSetupHelper from '@/components/DatabaseSetupHelper';
 import PdfDocumentPreview from '@/components/PdfDocumentPreview';
+import InvoiceDocument from '@/components/InvoiceDocument';
 import { MdAdd, MdAttachMoney, MdDelete, MdDescription, MdClose } from 'react-icons/md';
 import toast from 'react-hot-toast';
-import Image from 'next/image';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 function InvoicesContent() {
@@ -15,6 +15,7 @@ function InvoicesContent() {
   const [invoices, setInvoices] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [quotations, setQuotations] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dbSetupRequired, setDbSetupRequired] = useState(false);
   const [statusFilter, setStatusFilter] = useState('All');
@@ -23,6 +24,7 @@ function InvoicesContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [selectedQuotationId, setSelectedQuotationId] = useState('');
+  const [selectedOrderId, setSelectedOrderId] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [lineItems, setLineItems] = useState([
     { description: 'Standard Website Development', quantity: 1, unit_price: 999.00, discount: 0, discount_type: 'rm', remark: '' }
@@ -59,6 +61,7 @@ function InvoicesContent() {
       const invoicesRes = await dbService.getInvoices();
       const custsRes = await dbService.getCustomers();
       const quotesRes = await dbService.getQuotations();
+      const ordersRes = await dbService.getOrders();
 
       if (invoicesRes.isDbSetupRequired || custsRes.isDbSetupRequired || quotesRes.isDbSetupRequired) {
         setDbSetupRequired(true);
@@ -67,6 +70,7 @@ function InvoicesContent() {
       setInvoices(invoicesRes.data || []);
       setCustomers(custsRes.data || []);
       setQuotations(quotesRes.data || []);
+      setOrders(ordersRes.data || []);
     } catch {
       toast.error('Failed to load transaction data');
     } finally {
@@ -84,6 +88,7 @@ function InvoicesContent() {
     if (!qNode) return;
 
     setSelectedCustomerId(qNode.customer_id);
+    if (qNode.order_id) setSelectedOrderId(qNode.order_id); // inherit the quotation's project
     setLineItems(qNode.items.map(item => ({
       description: item.description,
       quantity: item.quantity,
@@ -141,6 +146,7 @@ function InvoicesContent() {
     const payload = {
       customer_id: selectedCustomerId,
       quotation_id: selectedQuotationId || null,
+      order_id: selectedOrderId || null,
       items: lineItems,
       subtotal,
       tax,
@@ -158,10 +164,11 @@ function InvoicesContent() {
       }
       toast.success('Invoice generated successfully!');
       setIsModalOpen(false);
-      
+
       // Reset states
       setSelectedCustomerId('');
       setSelectedQuotationId('');
+      setSelectedOrderId('');
       setDepositPercent(0);
       setLineItems([{ description: 'Standard Website Development', quantity: 1, unit_price: 999.00, discount: 0, discount_type: 'rm', remark: '' }]);
       loadData();
@@ -347,238 +354,7 @@ function InvoicesContent() {
           onBack={() => setActiveInvoice(null)}
           backLabel="← Back To Invoices"
         >
-          {/* Header info */}
-            <div className="pdf-head" style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #e4e4e7', paddingBottom: '2rem', marginBottom: '2rem' }}>
-              <div>
-                <Image src="/dark-bg-logo.png" alt="Juruweb Studio" width={180} height={53} unoptimized priority style={{ display: 'block', width: '180px', maxWidth: '100%', height: 'auto' }} />
-                <div style={{ fontSize: '0.85rem', color: '#71717a', marginTop: '0.5rem', lineHeight: '1.4' }}>
-                  <strong>Juruweb Studio</strong><br />
-                  Digitalization and System Engineering Services<br />
-                  Bandar Baru Sentul, 51000, Kuala Lumpur<br />
-                  Email: juruweb.info@gmail.com
-                </div>
-              </div>
-              <div className="pdf-head-meta" style={{ textAlign: 'right' }}>
-                <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#18181b', textTransform: 'uppercase', letterSpacing: '-0.025em' }}>Tax Invoice</h2>
-                <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#18181b', lineHeight: '1.5' }}>
-                  <div>Invoice Ref: <strong>JUR-INV-{activeInvoice.id.substr(0, 6).toUpperCase()}</strong></div>
-                  <div>Issued Date: {new Date(activeInvoice.created_at).toLocaleDateString('en-MY')}</div>
-                  <div>Payment Due: {new Date(activeInvoice.due_date).toLocaleDateString('en-MY')}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Billing names */}
-            <div className="pdf-parties" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2.5rem' }}>
-              <div>
-                <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#71717a', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Invoiced To</h4>
-                <div className="u-caps" style={{ fontSize: '0.95rem', color: '#18181b', lineHeight: '1.4' }}>
-                  <strong style={{ fontSize: '1.1rem' }}>{activeInvoice.customer?.name}</strong>
-                  {activeInvoice.customer?.company && <div>{activeInvoice.customer.company}</div>}
-                  <div className="u-nocaps">{activeInvoice.customer?.email}</div>
-                  <div>{activeInvoice.customer?.phone}</div>
-                </div>
-              </div>
-              {activeInvoice.customer?.address && (
-                <div>
-                  <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#71717a', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Address Details</h4>
-                  <div className="u-caps" style={{ fontSize: '0.9rem', color: '#18181b', whiteSpace: 'pre-line', lineHeight: '1.4' }}>
-                    {activeInvoice.customer.address}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Line items */}
-            <table className="pdf-items" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem' }}>
-              <thead>
-                <tr style={{ borderBottom: '2px solid #18181b' }}>
-                  <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b' }}>Item Description</th>
-                  <th style={{ textAlign: 'center', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '80px' }}>Qty</th>
-                  <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '120px' }}>Price (RM)</th>
-                  <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '120px' }}>Discount</th>
-                  <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '130px' }}>Total (RM)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activeInvoice.items ? (
-                  activeInvoice.items.map((item, idx) => (
-                    <tr key={idx} style={{ borderBottom: '1px solid #e4e4e7' }}>
-                      <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', fontWeight: 500 }}>
-                        {item.description}
-                        {item.remark && <div style={{ fontSize: '0.8rem', color: '#71717a', fontWeight: 400, marginTop: '0.2rem', whiteSpace: 'pre-line' }}>{item.remark}</div>}
-                      </td>
-                      <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', textAlign: 'center' }}>{item.quantity}</td>
-                      <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', textAlign: 'right' }}>RM {Number(item.unit_price).toFixed(2)}</td>
-                      <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', textAlign: 'right' }}>{Number(item.discount || 0) > 0 ? (item.discount_type === 'percent' ? `${Number(item.discount).toFixed(0)}%` : `RM ${Number(item.discount).toFixed(2)}`) : '-'}</td>
-                      <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', textAlign: 'right', fontWeight: 600 }}>RM {((Number(item.quantity) * Number(item.unit_price)) - lineDiscountAmount(item)).toFixed(2)}</td>
-                    </tr>
-                  ))
-                ) : null}
-              </tbody>
-            </table>
-
-            {/* Calculations summaries */}
-            <div className="pdf-summary pdf-avoid-break" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem' }}>
-              <div style={{ maxWidth: '350px', display: 'flex', alignItems: 'center' }}>
-                {(() => {
-                  const paid = Number(activeInvoice.amount_paid);
-                  const tot = Number(activeInvoice.total);
-                  let color = '#dc2626';
-                  let label = 'Unpaid';
-                  if (paid >= tot) { color = '#059669'; label = 'Paid'; }
-                  else if (paid > 0) { color = '#d97706'; label = 'Partially Paid'; }
-                  return (
-                    <div style={{
-                      border: `2px solid ${color}`,
-                      borderRadius: '10px',
-                      padding: '0.7rem 1.2rem',
-                      transform: 'rotate(-8deg)',
-                      opacity: 0.82,
-                      mixBlendMode: 'multiply',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '0.4rem',
-                    }}>
-                      <span
-                        aria-label="Juruweb Studio"
-                        className="pdf-stamp-mark"
-                        style={{
-                          display: 'block',
-                          width: '110px',
-                          height: '26px',
-                          backgroundColor: color,
-                          WebkitMaskImage: 'url(/stamp-logo.svg)',
-                          maskImage: 'url(/stamp-logo.svg)',
-                          WebkitMaskRepeat: 'no-repeat',
-                          maskRepeat: 'no-repeat',
-                          WebkitMaskSize: 'contain',
-                          maskSize: 'contain',
-                          WebkitMaskPosition: 'center',
-                          maskPosition: 'center',
-                        }}
-                      />
-                      <span style={{
-                        color,
-                        fontSize: '1.25rem',
-                        fontWeight: 800,
-                        letterSpacing: '0.14em',
-                        textTransform: 'uppercase',
-                        lineHeight: 1,
-                      }}>
-                        {label}
-                      </span>
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {(() => {
-                const sub = Number(activeInvoice.subtotal);
-                const tot = Number(activeInvoice.total);
-                const paid = Number(activeInvoice.amount_paid);
-                const depPct = Number(activeInvoice.deposit_percent) || 0;
-                const deposit = tot * depPct / 100;
-                const balance = tot - deposit;
-                const due = (depPct > 0 ? deposit : tot) - paid;
-                const rowStyle = { display: 'flex', justifyContent: 'space-between', marginBottom: '0.55rem' };
-                const labelStyle = { color: '#71717a' };
-                const valStyle = { fontWeight: 600, color: '#18181b' };
-                return (
-                  <div className="pdf-totals" style={{ width: '300px', fontSize: '0.9rem', marginLeft: 'auto' }}>
-                    {(sub - tot) > 0.001 && (
-                      <>
-                        <div style={rowStyle}>
-                          <span style={labelStyle}>Subtotal</span>
-                          <span style={valStyle}>RM {sub.toFixed(2)}</span>
-                        </div>
-                        <div style={rowStyle}>
-                          <span style={labelStyle}>Discount</span>
-                          <span style={{ ...valStyle, color: '#059669' }}>- RM {(sub - tot).toFixed(2)}</span>
-                        </div>
-                      </>
-                    )}
-                    <div style={rowStyle}>
-                      <span style={labelStyle}>Total</span>
-                      <span style={valStyle}>RM {tot.toFixed(2)}</span>
-                    </div>
-                    {depPct > 0 && (
-                      <>
-                        <div style={rowStyle}>
-                          <span style={labelStyle}>Deposit ({depPct}%)</span>
-                          <span style={valStyle}>RM {deposit.toFixed(2)}</span>
-                        </div>
-                        <div style={rowStyle}>
-                          <span style={labelStyle}>Balance</span>
-                          <span style={valStyle}>RM {balance.toFixed(2)}</span>
-                        </div>
-                      </>
-                    )}
-                    {paid > 0 && (
-                      <div style={rowStyle}>
-                        <span style={labelStyle}>Paid</span>
-                        <span style={{ ...valStyle, color: '#059669' }}>- RM {paid.toFixed(2)}</span>
-                      </div>
-                    )}
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'baseline',
-                      marginTop: '0.75rem',
-                      paddingTop: '0.75rem',
-                      borderTop: '2px solid #18181b',
-                    }}>
-                      <span style={{ fontWeight: 700, color: '#18181b' }}>
-                        {depPct > 0 ? 'Deposit Due' : 'Amount Due'}
-                      </span>
-                      <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#18181b' }}>
-                        RM {due.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-
-            {/* Terms & Conditions */}
-            <div className="pdf-avoid-break" style={{ marginTop: '2.5rem', fontSize: '0.8rem', color: '#71717a', lineHeight: 1.5 }}>
-              <h5 style={{ fontSize: '0.85rem', color: '#18181b', fontWeight: 700, marginBottom: '0.6rem' }}>Payment Terms &amp; Conditions</h5>
-              {[
-                `Payment is due by ${new Date(activeInvoice.due_date).toLocaleDateString('en-MY')}.`,
-                'Kindly transfer to the bank account below and email your payment receipt to juruweb.info@gmail.com.',
-                `Please quote the invoice reference (INV-${activeInvoice.id.substr(0, 4).toUpperCase()}) in your transfer.`,
-                'All deliverables and services remain subject to Juruweb Studio SLA policies.',
-              ].map((term, i) => (
-                <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.35rem' }}>
-                  <span style={{ fontWeight: 700, color: '#18181b', flexShrink: 0 }}>{i + 1}.</span>
-                  <span>{term}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Bank details */}
-            <div className="pdf-avoid-break" style={{ marginTop: '2rem' }}>
-              <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#a1a1aa', marginBottom: '0.85rem' }}>Payment Details</div>
-              <div className="pdf-bank" style={{ display: 'flex', flexWrap: 'wrap', gap: '2.5rem', fontSize: '0.85rem' }}>
-                <div>
-                  <div style={{ color: '#a1a1aa', fontSize: '0.72rem', marginBottom: '0.15rem' }}>Bank</div>
-                  <div style={{ fontWeight: 600, color: '#18181b' }}>Maybank</div>
-                </div>
-                <div>
-                  <div style={{ color: '#a1a1aa', fontSize: '0.72rem', marginBottom: '0.15rem' }}>Account Number</div>
-                  <div style={{ fontWeight: 600, color: '#18181b' }}>1644 7246 6013</div>
-                </div>
-                <div>
-                  <div style={{ color: '#a1a1aa', fontSize: '0.72rem', marginBottom: '0.15rem' }}>Account Holder</div>
-                  <div style={{ fontWeight: 600, color: '#18181b' }}>Helmi Ashraf Bin Ahmad</div>
-                </div>
-                <div>
-                  <div style={{ color: '#a1a1aa', fontSize: '0.72rem', marginBottom: '0.15rem' }}>Reference</div>
-                  <div style={{ fontWeight: 600, color: '#18181b' }}>INV-{activeInvoice.id.substr(0,4).toUpperCase()}</div>
-                </div>
-              </div>
-            </div>
+          <InvoiceDocument invoice={activeInvoice} />
         </PdfDocumentPreview>
       )}
 
@@ -687,6 +463,19 @@ function InvoicesContent() {
                     <label>Invoiced Due Date *</label>
                     <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
                   </div>
+                </div>
+
+                {/* Link this invoice to a project so it groups on the client tracker */}
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label>Link to Project (Optional)</label>
+                  <select value={selectedOrderId} onChange={(e) => setSelectedOrderId(e.target.value)}>
+                    <option value="">-- Not linked to a project --</option>
+                    {orders
+                      .filter(o => !selectedCustomerId || o.customer_id === selectedCustomerId)
+                      .map(o => (
+                        <option key={o.id} value={o.id}>{o.package_type} Project (#{o.id.substr(0, 4).toUpperCase()})</option>
+                      ))}
+                  </select>
                 </div>
 
                 {/* Deposit option */}

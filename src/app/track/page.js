@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { dbService } from '@/lib/database';
+import PdfDocumentPreview from '@/components/PdfDocumentPreview';
+import InvoiceDocument from '@/components/InvoiceDocument';
 import {
   MdSearch, MdCalendarToday, MdAccessTime, MdCheckCircle, MdError,
-  MdReceiptLong, MdWork, MdAutorenew,
+  MdReceiptLong, MdWork, MdAutorenew, MdDescription,
 } from 'react-icons/md';
 
 // Timeline progress for an order (mirrors the admin Orders view)
@@ -56,6 +58,7 @@ export default function TrackPage() {
   const [searched, setSearched] = useState(false);
   const [record, setRecord] = useState(null);
   const [error, setError] = useState('');
+  const [previewInvoice, setPreviewInvoice] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,6 +87,74 @@ export default function TrackPage() {
         return acc + Math.max(0, Number(i.total) - Number(i.amount_paid));
       }, 0)
     : 0;
+
+  // Group invoices under their project (order); anything unlinked goes to a
+  // separate list. A customer/company can have several projects.
+  const orders = record?.orders || [];
+  const invoices = record?.invoices || [];
+  const invoicesByOrder = {};
+  const unlinkedInvoices = [];
+  invoices.forEach((inv) => {
+    const ord = inv.order_id && orders.find((o) => o.id === inv.order_id);
+    if (ord) (invoicesByOrder[ord.id] = invoicesByOrder[ord.id] || []).push(inv);
+    else unlinkedInvoices.push(inv);
+  });
+  const paymentSummary = (invs) =>
+    invs.reduce((a, i) => {
+      a.total += Number(i.total);
+      a.paid += Number(i.amount_paid);
+      if (i.status !== 'Cancelled') a.balance += Math.max(0, Number(i.total) - Number(i.amount_paid));
+      return a;
+    }, { total: 0, paid: 0, balance: 0 });
+
+  // One invoice card with a "View invoice" preview action
+  const renderInvoice = (inv) => {
+    const balance = Math.max(0, Number(inv.total) - Number(inv.amount_paid));
+    return (
+      <div key={inv.id} style={{ border: '1px solid var(--border-color)', borderRadius: '12px', padding: '0.9rem 1rem', background: 'var(--bg-card)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontFamily: 'monospace', fontSize: '0.78rem', color: 'var(--brand-pink)' }}>
+              JUR-INV-{String(inv.id).substr(0, 6).toUpperCase()}
+            </div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>Due: {fmtDate(inv.due_date)}</div>
+          </div>
+          <span className={`badge ${invoiceBadge(inv.status)}`}>{inv.status}</span>
+        </div>
+
+        <div className="track-invoice-figures">
+          <div><div className="track-fig-label">Total</div><div className="track-fig-value">{fmt(inv.total)}</div></div>
+          <div><div className="track-fig-label">Paid</div><div className="track-fig-value" style={{ color: 'var(--success)' }}>{fmt(inv.amount_paid)}</div></div>
+          <div><div className="track-fig-label">Balance</div><div className="track-fig-value" style={{ color: balance > 0 ? 'var(--warning)' : 'var(--text-secondary)' }}>{fmt(balance)}</div></div>
+        </div>
+
+        <button className="btn btn-secondary btn-sm" style={{ marginTop: '0.85rem' }} onClick={() => setPreviewInvoice(inv)}>
+          <MdDescription /> <span>View invoice</span>
+        </button>
+      </div>
+    );
+  };
+
+  // Full-screen invoice preview (same document + PDF export as the admin side)
+  if (record && previewInvoice) {
+    const ref = `JUR-INV-${String(previewInvoice.id).substr(0, 6).toUpperCase()}`;
+    return (
+      <div className="public-shell">
+        <div className="public-container">
+          <PdfDocumentPreview
+            docKey={previewInvoice.id}
+            filename={`${ref}.pdf`}
+            docLabel={ref}
+            docTitle="Tax Invoice"
+            onBack={() => setPreviewInvoice(null)}
+            backLabel="← Back to my projects"
+          >
+            <InvoiceDocument invoice={{ ...previewInvoice, customer: record.customer }} />
+          </PdfDocumentPreview>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="public-shell">
@@ -156,18 +227,20 @@ export default function TrackPage() {
               </div>
             </div>
 
-            {/* Orders */}
-            <h2 className="track-section-title"><MdWork /> Project Orders</h2>
-            {record.orders.length === 0 ? (
-              <div className="card" style={{ marginBottom: '1.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>No active project orders.</div>
+            {/* Projects — each with its own invoices & payment */}
+            <h2 className="track-section-title"><MdWork /> My Projects</h2>
+            {orders.length === 0 && unlinkedInvoices.length === 0 ? (
+              <div className="card" style={{ marginBottom: '1.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>No projects or invoices on record yet.</div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
-                {record.orders.map((order) => {
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                {orders.map((order) => {
                   const isMaintenance = order.package_type === 'Maintenance';
                   const progress = calculateProgress(order.start_date, order.eta_date);
                   const isCompleted = order.status === 'Completed';
                   const left = daysRemaining(order.eta_date);
                   const isOverdue = !isMaintenance && left.includes('Overdue');
+                  const projInvoices = invoicesByOrder[order.id] || [];
+                  const pay = paymentSummary(projInvoices);
                   return (
                     <div className="card" key={order.id} style={{ borderLeft: `4px solid ${isMaintenance ? 'var(--info)' : isCompleted ? 'var(--success)' : isOverdue ? 'var(--error)' : 'var(--brand-pink)'}` }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -195,7 +268,6 @@ export default function TrackPage() {
                               {isCompleted ? 'Delivered' : left}
                             </span>
                           </div>
-
                           {!isCompleted && (
                             <div style={{ marginTop: '0.6rem' }}>
                               <div className="eta-progress-container">
@@ -207,53 +279,37 @@ export default function TrackPage() {
                       )}
 
                       {order.notes && (
-                        <div style={{ marginTop: '0.9rem', padding: '0.6rem 0.85rem', background: 'var(--bg-subtle)', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                          {order.notes}
+                        <div style={{ marginTop: '0.9rem', padding: '0.6rem 0.85rem', background: 'var(--bg-subtle)', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '0.82rem', color: 'var(--text-secondary)', whiteSpace: 'pre-line' }}>
+                          <strong style={{ color: 'var(--text-primary)' }}>Remark:</strong> {order.notes}
+                        </div>
+                      )}
+
+                      {projInvoices.length > 0 && (
+                        <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px dashed var(--border-color)' }}>
+                          <div className="track-invoice-figures" style={{ marginTop: 0, paddingTop: 0, borderTop: 'none' }}>
+                            <div><div className="track-fig-label">Invoiced</div><div className="track-fig-value">{fmt(pay.total)}</div></div>
+                            <div><div className="track-fig-label">Paid</div><div className="track-fig-value" style={{ color: 'var(--success)' }}>{fmt(pay.paid)}</div></div>
+                            <div><div className="track-fig-label">Balance</div><div className="track-fig-value" style={{ color: pay.balance > 0 ? 'var(--warning)' : 'var(--text-secondary)' }}>{fmt(pay.balance)}</div></div>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
+                            {projInvoices.map(renderInvoice)}
+                          </div>
                         </div>
                       )}
                     </div>
                   );
                 })}
-              </div>
-            )}
 
-            {/* Invoices */}
-            <h2 className="track-section-title"><MdReceiptLong /> Invoices &amp; Payments</h2>
-            {record.invoices.length === 0 ? (
-              <div className="card" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>No invoices issued yet.</div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {record.invoices.map((inv) => {
-                  const balance = Math.max(0, Number(inv.total) - Number(inv.amount_paid));
-                  return (
-                    <div className="card" key={inv.id}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                        <div>
-                          <div style={{ fontFamily: 'monospace', fontSize: '0.78rem', color: 'var(--brand-pink)' }}>
-                            JUR-INV-{String(inv.id).substr(0, 6).toUpperCase()}
-                          </div>
-                          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>Due: {fmtDate(inv.due_date)}</div>
-                        </div>
-                        <span className={`badge ${invoiceBadge(inv.status)}`}>{inv.status}</span>
-                      </div>
-
-                      <div className="track-invoice-figures">
-                        <div>
-                          <div className="track-fig-label">Total</div>
-                          <div className="track-fig-value">{fmt(inv.total)}</div>
-                        </div>
-                        <div>
-                          <div className="track-fig-label">Paid</div>
-                          <div className="track-fig-value" style={{ color: 'var(--success)' }}>{fmt(inv.amount_paid)}</div>
-                        </div>
-                        <div>
-                          <div className="track-fig-label">Balance</div>
-                          <div className="track-fig-value" style={{ color: balance > 0 ? 'var(--warning)' : 'var(--text-secondary)' }}>{fmt(balance)}</div>
-                        </div>
-                      </div>
+                {unlinkedInvoices.length > 0 && (
+                  <div className="card">
+                    <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <MdReceiptLong /> Other Invoices
+                    </h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                      {unlinkedInvoices.map(renderInvoice)}
                     </div>
-                  );
-                })}
+                  </div>
+                )}
               </div>
             )}
 

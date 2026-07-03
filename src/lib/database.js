@@ -209,30 +209,30 @@ export const dbService = {
   },
 
   async updateOrderStatus(orderId, status) {
+    return this.updateOrder(orderId, { status });
+  },
+
+  // Patch arbitrary order fields (status, notes/remark, …) with a localStorage fallback
+  async updateOrder(orderId, fields) {
+    const applyLocal = (extra = {}) => {
+      const list = getLocalStorageData('juruweb_orders');
+      const idx = list.findIndex(o => o.id === orderId);
+      if (idx !== -1) {
+        list[idx] = { ...list[idx], ...fields };
+        setLocalStorageData('juruweb_orders', list);
+      }
+      return { success: true, ...extra };
+    };
     try {
-      const { data, error } = await supabase.from('orders').update({ status }).eq('id', orderId).select();
+      const { data, error } = await supabase.from('orders').update(fields).eq('id', orderId).select();
       if (error) {
         const check = handleDbError(error);
-        if (check) {
-          const list = getLocalStorageData('juruweb_orders');
-          const idx = list.findIndex(o => o.id === orderId);
-          if (idx !== -1) {
-            list[idx].status = status;
-            setLocalStorageData('juruweb_orders', list);
-          }
-          return { data, ...check };
-        }
+        if (check) return { data, ...applyLocal(check) };
         throw error;
       }
       return { data };
     } catch {
-      const list = getLocalStorageData('juruweb_orders');
-      const idx = list.findIndex(o => o.id === orderId);
-      if (idx !== -1) {
-        list[idx].status = status;
-        setLocalStorageData('juruweb_orders', list);
-      }
-      return { success: true };
+      return applyLocal();
     }
   },
 

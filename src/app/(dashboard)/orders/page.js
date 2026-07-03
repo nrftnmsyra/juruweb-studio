@@ -30,6 +30,21 @@ function OrdersContent() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
+  // Inline project remark editing
+  const [editingRemarkId, setEditingRemarkId] = useState(null);
+  const [remarkDraft, setRemarkDraft] = useState('');
+
+  const saveRemark = async (orderId) => {
+    try {
+      await dbService.updateOrder(orderId, { notes: remarkDraft });
+      toast.success('Project remark updated!');
+      setEditingRemarkId(null);
+      loadData();
+    } catch {
+      toast.error('Failed to update remark');
+    }
+  };
+
   useEffect(() => {
     if (searchParams.get('new') === 'true') {
       setIsModalOpen(true);
@@ -312,11 +327,38 @@ function OrdersContent() {
                   </div>
                 </div>
 
-                {order.notes && (
-                  <div style={{ marginTop: '1rem', padding: '0.75rem 1rem', background: 'var(--bg-subtle)', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    <strong>Project Scope / Remarks:</strong> {order.notes}
-                  </div>
-                )}
+                {/* Editable project remark (shown to the client on the tracker) */}
+                <div style={{ marginTop: '1rem' }}>
+                  {editingRemarkId === order.id ? (
+                    <div>
+                      <textarea
+                        value={remarkDraft}
+                        onChange={(e) => setRemarkDraft(e.target.value)}
+                        rows={3}
+                        placeholder="Add a remark / progress update for this project (visible to the client on the tracker)."
+                        style={{ fontSize: '0.85rem' }}
+                      />
+                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                        <button className="btn btn-primary btn-sm" onClick={() => saveRemark(order.id)}>Save remark</button>
+                        <button className="btn btn-secondary btn-sm" onClick={() => setEditingRemarkId(null)}>Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ padding: '0.75rem 1rem', background: 'var(--bg-subtle)', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start' }}>
+                      <div style={{ whiteSpace: 'pre-line' }}>
+                        <strong style={{ color: 'var(--text-primary)' }}>Project Remark:</strong>{' '}
+                        {order.notes ? order.notes : <span style={{ color: 'var(--text-muted)' }}>No remark yet.</span>}
+                      </div>
+                      <button
+                        className="btn btn-secondary btn-sm"
+                        style={{ flexShrink: 0 }}
+                        onClick={() => { setEditingRemarkId(order.id); setRemarkDraft(order.notes || ''); }}
+                      >
+                        {order.notes ? 'Edit' : 'Add'}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}
