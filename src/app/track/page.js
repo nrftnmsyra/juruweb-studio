@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { dbService } from '@/lib/database';
 import {
   MdSearch, MdCalendarToday, MdAccessTime, MdCheckCircle, MdError,
-  MdReceiptLong, MdWork,
+  MdReceiptLong, MdWork, MdAutorenew,
 } from 'react-icons/md';
 
 // Timeline progress for an order (mirrors the admin Orders view)
@@ -163,36 +163,47 @@ export default function TrackPage() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
                 {record.orders.map((order) => {
+                  const isMaintenance = order.package_type === 'Maintenance';
                   const progress = calculateProgress(order.start_date, order.eta_date);
                   const isCompleted = order.status === 'Completed';
                   const left = daysRemaining(order.eta_date);
-                  const isOverdue = left.includes('Overdue');
+                  const isOverdue = !isMaintenance && left.includes('Overdue');
                   return (
-                    <div className="card" key={order.id} style={{ borderLeft: `4px solid ${isCompleted ? 'var(--success)' : isOverdue ? 'var(--error)' : 'var(--brand-pink)'}` }}>
+                    <div className="card" key={order.id} style={{ borderLeft: `4px solid ${isMaintenance ? 'var(--info)' : isCompleted ? 'var(--success)' : isOverdue ? 'var(--error)' : 'var(--brand-pink)'}` }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
                         <div>
-                          <div style={{ fontWeight: 700 }}>{order.package_type} Package</div>
-                          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{fmt(order.total_amount)}</div>
+                          <div style={{ fontWeight: 700 }}>{order.package_type}{isMaintenance ? ' Retainer' : ' Package'}</div>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{fmt(order.total_amount)}{isMaintenance ? ' / mo' : ''}</div>
                         </div>
-                        <span className={`badge ${orderBadge(order.status)}`}>{order.status}</span>
+                        {isMaintenance
+                          ? <span className="badge badge-recurring"><MdAutorenew size={12} /> Recurring</span>
+                          : <span className={`badge ${orderBadge(order.status)}`}>{order.status}</span>}
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.9rem', flexWrap: 'wrap' }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                          <MdCalendarToday /> ETA: {fmtDate(order.eta_date)}
-                        </span>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontWeight: 600, color: isCompleted ? 'var(--success)' : isOverdue ? 'var(--error)' : 'var(--warning)' }}>
-                          {isCompleted ? <MdCheckCircle /> : isOverdue ? <MdError /> : <MdAccessTime />}
-                          {isCompleted ? 'Delivered' : left}
-                        </span>
-                      </div>
-
-                      {!isCompleted && (
-                        <div style={{ marginTop: '0.6rem' }}>
-                          <div className="eta-progress-container">
-                            <div className="eta-progress-bar" style={{ width: `${progress}%` }} />
+                      {isMaintenance ? (
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.82rem', color: 'var(--info)', fontWeight: 600, marginTop: '0.9rem' }}>
+                          <MdAutorenew size={14} /> Renews monthly · Next billing {fmtDate(order.eta_date)}
+                        </div>
+                      ) : (
+                        <>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.9rem', flexWrap: 'wrap' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                              <MdCalendarToday /> ETA: {fmtDate(order.eta_date)}
+                            </span>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontWeight: 600, color: isCompleted ? 'var(--success)' : isOverdue ? 'var(--error)' : 'var(--warning)' }}>
+                              {isCompleted ? <MdCheckCircle /> : isOverdue ? <MdError /> : <MdAccessTime />}
+                              {isCompleted ? 'Delivered' : left}
+                            </span>
                           </div>
-                        </div>
+
+                          {!isCompleted && (
+                            <div style={{ marginTop: '0.6rem' }}>
+                              <div className="eta-progress-container">
+                                <div className="eta-progress-bar" style={{ width: `${progress}%` }} />
+                              </div>
+                            </div>
+                          )}
+                        </>
                       )}
 
                       {order.notes && (

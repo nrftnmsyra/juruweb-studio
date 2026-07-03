@@ -487,6 +487,7 @@ input::placeholder {
 .badge-partial { background-color: var(--warning-glow); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.2); }
 .badge-paid { background-color: var(--success-glow); color: #047857; border: 1px solid rgba(16, 185, 129, 0.2); }
 .badge-cancelled { background-color: var(--error-glow); color: #b91c1c; border: 1px solid rgba(239, 68, 68, 0.2); }
+.badge-recurring { background-color: var(--info-glow); color: #1d4ed8; border: 1px solid rgba(59, 130, 246, 0.25); }
 
 /* Overview KPI row */
 .overview-stats {

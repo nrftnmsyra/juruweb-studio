@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { dbService } from '@/lib/database';
 import DatabaseSetupHelper from '@/components/DatabaseSetupHelper';
 import ConfirmDialog from '@/components/ConfirmDialog';
-import { MdAdd, MdWork, MdCalendarToday, MdAccessTime, MdCheckCircle, MdError, MdClose, MdDelete } from 'react-icons/md';
+import { MdAdd, MdWork, MdCalendarToday, MdAccessTime, MdCheckCircle, MdError, MdClose, MdDelete, MdAutorenew } from 'react-icons/md';
 import toast from 'react-hot-toast';
 
 function OrdersContent() {
@@ -75,11 +75,14 @@ function OrdersContent() {
     } else if (pkg === 'Premium') {
       price = 1499.00;
       defaultEtaOffsetDays = 10; // 7-14 working days
+    } else if (pkg === 'Maintenance') {
+      price = 120.00;
+      defaultEtaOffsetDays = 30; // recurring monthly retainer — next billing date
     } else {
       price = 0;
     }
 
-    // Pre-calculate ETA date
+    // Pre-calculate ETA / next-billing date
     const d = new Date();
     d.setDate(d.getDate() + defaultEtaOffsetDays);
     const etaStr = d.toISOString().split('T')[0];
@@ -225,54 +228,71 @@ function OrdersContent() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           {filteredOrders.map((order) => {
+            const isMaintenance = order.package_type === 'Maintenance';
             const progress = calculateProgress(order.start_date, order.eta_date);
             const daysLeft = getDaysRemainingStr(order.eta_date);
             const isCompleted = order.status === 'Completed';
-            const isOverdue = daysLeft.includes('Overdue');
+            const isOverdue = !isMaintenance && daysLeft.includes('Overdue');
+            const borderColor = isMaintenance ? 'var(--info)' : isCompleted ? 'var(--success)' : isOverdue ? 'var(--error)' : 'var(--brand-pink)';
 
             return (
-              <div className="card" key={order.id} style={{ borderLeft: isCompleted ? '4px solid var(--success)' : isOverdue ? '4px solid var(--error)' : '4px solid var(--brand-pink)' }}>
+              <div className="card" key={order.id} style={{ borderLeft: `4px solid ${borderColor}` }}>
                 <div className="order-row" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
-                  
+
                   {/* Left block: Customer & Package info */}
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <h3 className="u-caps" style={{ fontSize: '1.15rem', fontWeight: 700 }}>{order.customer?.name || 'Unknown Client'}</h3>
                       {order.customer?.company && (
                         <span className="u-caps" style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>({order.customer.company})</span>
                       )}
+                      {isMaintenance && (
+                        <span className="badge badge-recurring"><MdAutorenew size={12} /> Recurring</span>
+                      )}
                     </div>
                     <div className="order-meta" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <span>Package: <strong style={{ color: 'var(--text-primary)' }}>{order.package_type} Plan</strong></span>
+                      <span>{isMaintenance ? 'Retainer' : 'Package'}: <strong style={{ color: 'var(--text-primary)' }}>{order.package_type}{isMaintenance ? '' : ' Plan'}</strong></span>
                       <span className="order-dot">•</span>
-                      <span>Total Amount: <strong style={{ color: 'var(--text-primary)' }}>RM {Number(order.total_amount).toFixed(2)}</strong></span>
+                      <span>{isMaintenance ? 'Monthly Fee' : 'Total Amount'}: <strong style={{ color: 'var(--text-primary)' }}>RM {Number(order.total_amount).toFixed(2)}{isMaintenance ? ' / mo' : ''}</strong></span>
                     </div>
                   </div>
 
-                  {/* Middle block: ETA & Timeline */}
-                  <div style={{ minWidth: '220px', flex: '0 1 auto' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', fontSize: '0.8rem', marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  {/* Middle block: ETA & Timeline (project) or next-billing (recurring) */}
+                  {isMaintenance ? (
+                    <div style={{ minWidth: '220px', flex: '0 1 auto' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                         <MdCalendarToday />
-                        <span>ETA: {order.eta_date ? new Date(order.eta_date).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not set'}</span>
-                      </span>
-                      <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.25rem', color: isOverdue ? 'var(--error)' : isCompleted ? 'var(--success)' : 'var(--warning)', fontWeight: 600 }}>
-                        {isCompleted ? <MdCheckCircle /> : isOverdue ? <MdError /> : <MdAccessTime />}
-                        <span>{isCompleted ? 'Finished' : daysLeft}</span>
-                      </span>
-                    </div>
-                    
-                    {!isCompleted && (
-                      <div>
-                        <div className="eta-progress-container">
-                          <div className="eta-progress-bar" style={{ width: `${progress}%` }}></div>
-                        </div>
-                        <div style={{ textAlign: 'right', fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                          Timeline usage: {progress}%
-                        </div>
+                        <span>Next billing: <strong style={{ color: 'var(--text-primary)' }}>{order.eta_date ? new Date(order.eta_date).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not set'}</strong></span>
                       </div>
-                    )}
-                  </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', color: 'var(--info)', fontWeight: 600, marginTop: '0.35rem' }}>
+                        <MdAutorenew size={13} /> Renews monthly
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ minWidth: '220px', flex: '0 1 auto' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', fontSize: '0.8rem', marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <MdCalendarToday />
+                          <span>ETA: {order.eta_date ? new Date(order.eta_date).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not set'}</span>
+                        </span>
+                        <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.25rem', color: isOverdue ? 'var(--error)' : isCompleted ? 'var(--success)' : 'var(--warning)', fontWeight: 600 }}>
+                          {isCompleted ? <MdCheckCircle /> : isOverdue ? <MdError /> : <MdAccessTime />}
+                          <span>{isCompleted ? 'Finished' : daysLeft}</span>
+                        </span>
+                      </div>
+
+                      {!isCompleted && (
+                        <div>
+                          <div className="eta-progress-container">
+                            <div className="eta-progress-bar" style={{ width: `${progress}%` }}></div>
+                          </div>
+                          <div style={{ textAlign: 'right', fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                            Timeline usage: {progress}%
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Right block: Action Status selector */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -335,42 +355,45 @@ function OrdersContent() {
                 <div className="form-grid">
                   <div className="form-group">
                     <label>Package/Plan *</label>
-                    <select 
-                      name="package_type" 
+                    <select
+                      name="package_type"
                       value={formData.package_type}
                       onChange={handlePackageChange}
                     >
                       <option value="Basic">Basic Plan (RM 699)</option>
                       <option value="Standard">Standard Plan (RM 999)</option>
                       <option value="Premium">Premium Plan (RM 1,499)</option>
+                      <option value="Maintenance">Maintenance / Retainer (RM 120 / mo · recurring)</option>
                       <option value="Custom">Custom Scope</option>
                     </select>
                   </div>
-                  
+
                   <div className="form-group">
-                    <label>Project Price (RM) *</label>
-                    <input 
-                      type="number" 
-                      name="total_amount" 
+                    <label>{formData.package_type === 'Maintenance' ? 'Monthly Fee (RM) *' : 'Project Price (RM) *'}</label>
+                    <input
+                      type="number"
+                      name="total_amount"
                       placeholder="Pricing amount"
-                      value={formData.total_amount} 
+                      value={formData.total_amount}
                       onChange={handleInputChange}
-                      required 
+                      required
                     />
                   </div>
                 </div>
 
                 <div className="form-group" style={{ marginTop: '1.25rem' }}>
-                  <label>ETA Completion Deadline *</label>
-                  <input 
-                    type="date" 
-                    name="eta_date" 
-                    value={formData.eta_date} 
-                    onChange={handleInputChange} 
-                    required 
+                  <label>{formData.package_type === 'Maintenance' ? 'Next Billing Date *' : 'ETA Completion Deadline *'}</label>
+                  <input
+                    type="date"
+                    name="eta_date"
+                    value={formData.eta_date}
+                    onChange={handleInputChange}
+                    required
                   />
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    Reference timeframe: Basic = 3-5 days, Standard = 5-7 days, Premium = 7-14 days.
+                    {formData.package_type === 'Maintenance'
+                      ? 'Recurring monthly retainer — set the next billing date (defaults to 30 days out).'
+                      : 'Reference timeframe: Basic = 3-5 days, Standard = 5-7 days, Premium = 7-14 days.'}
                   </span>
                 </div>
 
