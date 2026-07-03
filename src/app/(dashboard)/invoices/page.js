@@ -285,8 +285,8 @@ function InvoicesContent() {
                     return (
                       <tr key={inv.id}>
                         <td data-label="Customer">
-                          <div style={{ fontWeight: 600 }}>{inv.customer?.name}</div>
-                          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{inv.customer?.company || 'Personal'}</div>
+                          <div className="u-caps" style={{ fontWeight: 600 }}>{inv.customer?.name}</div>
+                          <div className="u-caps" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{inv.customer?.company || 'Personal'}</div>
                           <div style={{ fontFamily: 'monospace', fontSize: '0.72rem', color: 'var(--brand-pink)', marginTop: '0.2rem' }}>
                             JUR-INV-{inv.id.substr(0, 6).toUpperCase()}
                           </div>
@@ -375,17 +375,17 @@ function InvoicesContent() {
             <div className="pdf-parties" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2.5rem' }}>
               <div>
                 <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#71717a', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Invoiced To</h4>
-                <div style={{ fontSize: '0.95rem', color: '#18181b', lineHeight: '1.4' }}>
+                <div className="u-caps" style={{ fontSize: '0.95rem', color: '#18181b', lineHeight: '1.4' }}>
                   <strong style={{ fontSize: '1.1rem' }}>{activeInvoice.customer?.name}</strong>
                   {activeInvoice.customer?.company && <div>{activeInvoice.customer.company}</div>}
-                  <div>{activeInvoice.customer?.email}</div>
+                  <div className="u-nocaps">{activeInvoice.customer?.email}</div>
                   <div>{activeInvoice.customer?.phone}</div>
                 </div>
               </div>
               {activeInvoice.customer?.address && (
                 <div>
                   <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#71717a', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Address Details</h4>
-                  <div style={{ fontSize: '0.9rem', color: '#18181b', whiteSpace: 'pre-line', lineHeight: '1.4' }}>
+                  <div className="u-caps" style={{ fontSize: '0.9rem', color: '#18181b', whiteSpace: 'pre-line', lineHeight: '1.4' }}>
                     {activeInvoice.customer.address}
                   </div>
                 </div>

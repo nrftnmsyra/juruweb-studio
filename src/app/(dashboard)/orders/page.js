@@ -237,9 +237,9 @@ function OrdersContent() {
                   {/* Left block: Customer & Package info */}
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <h3 style={{ fontSize: '1.15rem', fontWeight: 700 }}>{order.customer?.name || 'Unknown Client'}</h3>
+                      <h3 className="u-caps" style={{ fontSize: '1.15rem', fontWeight: 700 }}>{order.customer?.name || 'Unknown Client'}</h3>
                       {order.customer?.company && (
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>({order.customer.company})</span>
+                        <span className="u-caps" style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>({order.customer.company})</span>
                       )}
                     </div>
                     <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

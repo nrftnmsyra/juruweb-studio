@@ -251,8 +251,8 @@ function QuotationsContent() {
                         </span>
                       </td>
                       <td data-label="Client">
-                        <div style={{ fontWeight: 600 }}>{q.customer?.name}</div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{q.customer?.company || 'Personal'}</div>
+                        <div className="u-caps" style={{ fontWeight: 600 }}>{q.customer?.name}</div>
+                        <div className="u-caps" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{q.customer?.company || 'Personal'}</div>
                       </td>
                       <td data-label="Valid Until" style={{ whiteSpace: 'nowrap' }}>{new Date(q.valid_until).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                       <td data-label="Total" style={{ fontWeight: 700 }}>RM {Number(q.total).toFixed(2)}</td>
@@ -318,17 +318,17 @@ function QuotationsContent() {
             <div className="pdf-parties" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2.5rem' }}>
               <div>
                 <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#71717a', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Customer Details</h4>
-                <div style={{ fontSize: '0.95rem', color: '#18181b', lineHeight: '1.4' }}>
+                <div className="u-caps" style={{ fontSize: '0.95rem', color: '#18181b', lineHeight: '1.4' }}>
                   <strong style={{ fontSize: '1.1rem' }}>{activeQuotation.customer?.name}</strong>
                   {activeQuotation.customer?.company && <div>{activeQuotation.customer.company}</div>}
-                  <div>{activeQuotation.customer?.email}</div>
+                  <div className="u-nocaps">{activeQuotation.customer?.email}</div>
                   <div>{activeQuotation.customer?.phone}</div>
                 </div>
               </div>
               {activeQuotation.customer?.address && (
                 <div>
                   <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#71717a', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Customer Location</h4>
-                  <div style={{ fontSize: '0.9rem', color: '#18181b', whiteSpace: 'pre-line', lineHeight: '1.4' }}>
+                  <div className="u-caps" style={{ fontSize: '0.9rem', color: '#18181b', whiteSpace: 'pre-line', lineHeight: '1.4' }}>
                     {activeQuotation.customer.address}
                   </div>
                 </div>

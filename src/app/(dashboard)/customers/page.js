@@ -154,9 +154,9 @@ function CustomersContent() {
               {filteredCustomers.map((cust) => (
                 <tr key={cust.id}>
                   <td>
-                    <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{cust.name}</div>
+                    <div className="u-caps" style={{ fontWeight: 600, fontSize: '0.95rem' }}>{cust.name}</div>
                     {cust.company && (
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.2rem' }}>
+                      <div className="u-caps" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.2rem' }}>
                         <MdWork size={12} />
                         <span>{cust.company}</span>
                       </div>
@@ -168,7 +168,7 @@ function CustomersContent() {
                       <span>{cust.email}</span>
                     </div>
                     {cust.phone && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', marginTop: '0.2rem' }}>
+                      <div className="u-caps" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', marginTop: '0.2rem' }}>
                         <MdPhone size={13} style={{ color: 'var(--text-muted)' }} />
                         <span>{cust.phone}</span>
                       </div>
@@ -176,7 +176,7 @@ function CustomersContent() {
                   </td>
                   <td>
                     {cust.address ? (
-                      <div style={{ display: 'flex', alignItems: 'start', gap: '0.3rem', fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: '280px' }}>
+                      <div className="u-caps" style={{ display: 'flex', alignItems: 'start', gap: '0.3rem', fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: '280px' }}>
                         <MdLocationOn size={13} style={{ color: 'var(--text-muted)', flexShrink: 0, marginTop: '2px' }} />
                         <span>{cust.address}</span>
                       </div>

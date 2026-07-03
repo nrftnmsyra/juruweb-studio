@@ -524,6 +524,14 @@ input::placeholder {
   }
 }
 
+/* Customer-detail casing: uppercase everywhere except email addresses */
+.u-caps {
+  text-transform: uppercase;
+}
+.u-nocaps {
+  text-transform: none;
+}
+
 /* Subtle inline link (e.g. "View all") */
 .link-subtle {
   display: inline-flex;
