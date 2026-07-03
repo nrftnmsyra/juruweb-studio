@@ -123,7 +123,7 @@ export default function Home() {
           </div>
         ) : (
           <div className="table-container">
-            <table className="data-table">
+            <table className="data-table data-table--stack">
               <thead>
                 <tr>
                   <th>Customer</th>
@@ -142,14 +142,14 @@ export default function Home() {
                   return (
                     <tr key={order.id}>
                       <td>
-                        <div style={{ fontWeight: 600 }}>{order.customer?.name || 'Unknown'}</div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                        <div className="u-caps" style={{ fontWeight: 600 }}>{order.customer?.name || 'Unknown'}</div>
+                        <div className="u-caps" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                           {order.customer?.company || 'Personal'}
                         </div>
                       </td>
-                      <td>{order.package_type} Plan</td>
-                      <td style={{ whiteSpace: 'nowrap' }}>{order.eta_date ? new Date(order.eta_date).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not set'}</td>
-                      <td>
+                      <td data-label="Package">{order.package_type} Plan</td>
+                      <td data-label="ETA" style={{ whiteSpace: 'nowrap' }}>{order.eta_date ? new Date(order.eta_date).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not set'}</td>
+                      <td data-label="Status">
                         <span className={`badge ${badgeClass}`}>{order.status}</span>
                       </td>
                     </tr>
