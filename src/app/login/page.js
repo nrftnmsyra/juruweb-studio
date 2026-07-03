@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { useActionState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { MdLock, MdArrowForward } from 'react-icons/md';
 import { loginAction } from './actions';
 
@@ -43,18 +44,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1.5rem',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
+    <div className="login-page">
       <div
         aria-hidden
         style={{
@@ -69,22 +59,7 @@ export default function LoginPage() {
       <form
         action={formAction}
         onPaste={handlePaste}
-        style={{
-          width: '100%',
-          maxWidth: '400px',
-          background: 'rgba(255, 255, 255, 0.75)',
-          backdropFilter: 'blur(24px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-          border: '1px solid rgba(255, 255, 255, 0.6)',
-          borderRadius: '24px',
-          boxShadow: 'var(--shadow-lg)',
-          padding: '2.5rem 2rem',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '1.5rem',
-          animation: 'fadeIn 0.5s ease-out',
-        }}
+        className="login-card"
       >
         <input type="hidden" name="passcode" value={passcode} />
 
@@ -123,7 +98,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.6rem' }}>
+        <div className="passcode-inputs">
           {digits.map((digit, index) => (
             <input
               key={index}
@@ -136,14 +111,7 @@ export default function LoginPage() {
               onChange={(e) => handleChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
               autoFocus={index === 0}
-              style={{
-                width: '3rem',
-                height: '3.5rem',
-                textAlign: 'center',
-                fontSize: '1.4rem',
-                fontWeight: 700,
-                padding: 0,
-              }}
+              className="passcode-input"
             />
           ))}
         </div>
@@ -163,6 +131,10 @@ export default function LoginPage() {
           <span>{pending ? 'Verifying...' : 'Unlock Dashboard'}</span>
           {!pending && <MdArrowForward />}
         </button>
+
+        <Link href="/track" className="login-track-link">
+          Are you a customer? Track your order &amp; payment →
+        </Link>
       </form>
     </div>
   );

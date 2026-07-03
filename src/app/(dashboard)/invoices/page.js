@@ -234,19 +234,19 @@ function InvoicesContent() {
 
       {dbSetupRequired && !activeInvoice && <DatabaseSetupHelper />}
 
-      {/* Status Bar */}
+      {/* Status Filter */}
       {!activeInvoice && (
-        <div className="card print-hide" style={{ marginBottom: '2rem', padding: '0.75rem', display: 'flex', gap: '0.5rem', overflowX: 'auto' }}>
-          {['All', 'Sent', 'Partially Paid', 'Paid', 'Cancelled'].map((status) => (
-            <button 
-              key={status}
-              className={`btn ${statusFilter === status ? 'btn-primary' : 'btn-secondary'} btn-sm`}
-              onClick={() => setStatusFilter(status)}
-              style={{ borderRadius: '8px', padding: '0.4rem 1rem' }}
-            >
-              {status}
-            </button>
-          ))}
+        <div className="filter-bar print-hide">
+          <label htmlFor="inv-status-filter">Filter by status</label>
+          <select
+            id="inv-status-filter"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            {['All', 'Sent', 'Partially Paid', 'Paid', 'Cancelled'].map((status) => (
+              <option key={status} value={status}>{status}</option>
+            ))}
+          </select>
         </div>
       )}
 
@@ -339,7 +339,7 @@ function InvoicesContent() {
       {/* PDF Viewer Area */}
       {activeInvoice && (
         <div>
-          <div className="print-hide" style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', justifyBetween: 'space-between', alignItems: 'center' }}>
+          <div className="pdf-toolbar print-hide">
             <button className="btn btn-secondary" onClick={() => setActiveInvoice(null)}>
               <span>← Back To Invoices</span>
             </button>

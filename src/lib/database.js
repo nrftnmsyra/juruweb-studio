@@ -411,5 +411,46 @@ export const dbService = {
       }
       return { success: true };
     }
+  },
+
+  // ---- PUBLIC CUSTOMER TRACKING (lookup by phone number) ----
+  // Returns { data: { customer, orders, invoices } } or { data: null } when
+  // no customer matches. Matches on the trailing digits so leading zeros and
+  // country codes (e.g. 0123456789 vs +60123456789) still resolve.
+  async getCustomerRecordByPhone(rawPhone) {
+    const digits = (rawPhone || '').replace(/\D/g, '');
+    if (digits.length < 6) return { data: null, invalid: true };
+    const tail = digits.slice(-8);
+
+    const buildLocal = (extra = {}) => {
+      const custs = getLocalStorageData('juruweb_customers');
+      const customer = custs.find(c => (c.phone || '').replace(/\D/g, '').includes(tail));
+      if (!customer) return { data: null, ...extra };
+      const orders = getLocalStorageData('juruweb_orders')
+        .filter(o => o.customer_id === customer.id);
+      const invoices = getLocalStorageData('juruweb_invoices')
+        .filter(i => i.customer_id === customer.id);
+      return { data: { customer, orders, invoices }, ...extra };
+    };
+
+    try {
+      const { data: custs, error } = await supabase
+        .from('customers')
+        .select('*')
+        .ilike('phone', `%${tail}%`);
+      if (error) {
+        if (handleDbError(error)) return buildLocal({ isDbSetupRequired: true });
+        throw error;
+      }
+      const customer = (custs || [])[0];
+      if (!customer) return { data: null };
+      const [ordersRes, invoicesRes] = await Promise.all([
+        supabase.from('orders').select('*').eq('customer_id', customer.id).order('created_at', { ascending: false }),
+        supabase.from('invoices').select('*').eq('customer_id', customer.id).order('created_at', { ascending: false }),
+      ]);
+      return { data: { customer, orders: ordersRes.data || [], invoices: invoicesRes.data || [] } };
+    } catch {
+      return buildLocal();
+    }
   }
 };

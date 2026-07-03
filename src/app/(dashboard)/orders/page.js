@@ -202,18 +202,18 @@ function OrdersContent() {
 
       {dbSetupRequired && <DatabaseSetupHelper />}
 
-      {/* Filter tab bar */}
-      <div className="card" style={{ marginBottom: '2rem', padding: '0.75rem', display: 'flex', gap: '0.5rem', overflowX: 'auto' }}>
-        {['All', 'New', 'In Progress', 'Review', 'Completed'].map((status) => (
-          <button 
-            key={status}
-            className={`btn ${statusFilter === status ? 'btn-primary' : 'btn-secondary'} btn-sm`}
-            onClick={() => setStatusFilter(status)}
-            style={{ borderRadius: '8px', padding: '0.4rem 1rem' }}
-          >
-            {status}
-          </button>
-        ))}
+      {/* Status Filter */}
+      <div className="filter-bar">
+        <label htmlFor="order-status-filter">Filter by status</label>
+        <select
+          id="order-status-filter"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          {['All', 'New', 'In Progress', 'Review', 'Completed'].map((status) => (
+            <option key={status} value={status}>{status}</option>
+          ))}
+        </select>
       </div>
 
       {loading ? (

@@ -190,6 +190,16 @@ body {
 .btn svg {
   flex-shrink: 0;
 }
+.btn,
+.btn span {
+  white-space: nowrap;
+}
+/* A button's label never wraps; if space is tight it truncates instead */
+.btn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
 
 .btn-primary {
   background-color: var(--primary);
@@ -226,6 +236,55 @@ body {
   padding: 0 1rem;
   font-size: 0.8rem;
   border-radius: 9999px;
+}
+
+/* Compact status filter (dropdown) */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.filter-bar label {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.filter-bar select {
+  width: auto;
+  min-width: 180px;
+  height: var(--control-height-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 9999px;
+}
+
+/* Toolbar above a PDF document (Back / Print) */
+.pdf-toolbar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+  }
+  .filter-bar select {
+    width: 100%;
+  }
+
+  .pdf-toolbar {
+    flex-wrap: wrap;
+  }
+  .pdf-toolbar > .btn {
+    flex: 1 1 auto;
+    margin-left: 0 !important;
+  }
 }
 
 /* Database Error / Setup Banner */
@@ -685,6 +744,9 @@ input::placeholder {
     max-width: 100%;
     min-height: 0;
     padding: 0;
+    /* Keep colours/backgrounds (status stamp, totals rule) in the saved PDF */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   /* Repeat the line-item table header at the top of each new page */
@@ -694,6 +756,163 @@ input::placeholder {
   .pdf-preview tr {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+}
+
+/* ===== Login / Passcode screen ===== */
+.login-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  /* Comfortable side spacing + honour the iOS home-indicator safe area */
+  padding: 1.5rem;
+  padding-top: max(1.5rem, env(safe-area-inset-top));
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  padding-left: max(1.25rem, env(safe-area-inset-left));
+  padding-right: max(1.25rem, env(safe-area-inset-right));
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 24px;
+  box-shadow: var(--shadow-lg);
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.passcode-inputs {
+  display: flex;
+  gap: 0.6rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.passcode-input {
+  width: 3rem;
+  height: 3.5rem;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  padding: 0;
+  flex: 0 1 auto;
+}
+
+.login-track-link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  transition: var(--transition-smooth);
+}
+.login-track-link:hover {
+  color: var(--brand-pink-hover);
+}
+
+/* Phones: sleeker card, evenly-spread digits that never overflow */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 2rem 1.25rem;
+    border-radius: 20px;
+    gap: 1.25rem;
+  }
+
+  .passcode-inputs {
+    gap: 0.4rem;
+    justify-content: space-between;
+  }
+
+  .passcode-input {
+    /* Fluid width so all 6 boxes fit any phone with even spacing */
+    width: 100%;
+    max-width: 3rem;
+    height: 3.25rem;
+    font-size: 1.25rem;
+  }
+}
+
+/* ===== Public customer tracking page (/track) ===== */
+.public-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  position: relative;
+  padding: 2rem 1.25rem;
+  padding-top: max(2rem, env(safe-area-inset-top));
+  padding-bottom: max(2rem, calc(env(safe-area-inset-bottom) + 1rem));
+  padding-left: max(1.25rem, env(safe-area-inset-left));
+  padding-right: max(1.25rem, env(safe-area-inset-right));
+}
+
+.public-container {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.track-form {
+  display: flex;
+  gap: 0.75rem;
+}
+.track-form input {
+  flex: 1 1 auto;
+}
+.track-form .btn {
+  flex-shrink: 0;
+}
+
+.track-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.9rem;
+}
+
+.track-invoice-figures {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+.track-fig-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: 0.15rem;
+}
+.track-fig-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+@media (max-width: 480px) {
+  .track-form {
+    flex-direction: column;
+  }
+  .track-form .btn {
+    width: 100%;
   }
 }
 
@@ -961,9 +1180,11 @@ input::placeholder {
 /* =========================================================
    Mobile & tablet: turn the dense data tables into stacked
    cards (a single container per record) instead of a cramped
-   horizontally-scrolling grid.
+   horizontally-scrolling grid. Covers phones AND tablets
+   (portrait iPads sit at 810/834px), which is why this runs
+   up to 1024px.
    ========================================================= */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   /* The scroll wrapper is no longer needed — cards stack vertically */
   .table-container {
     border: none;
@@ -1050,11 +1271,16 @@ input::placeholder {
 }
 
 /* =========================================================
-   Mobile & tablet: make the A4 PDF preview readable instead of
-   a shrunk-down full-width A4 sheet. Inline styles are overridden
-   with !important since they win on specificity otherwise.
+   Mobile & tablet: make the A4 PDF preview readable ON SCREEN
+   instead of a shrunk-down full-width A4 sheet. Inline styles are
+   overridden with !important since they win on specificity.
+
+   IMPORTANT: scoped to `screen` only. When saving to PDF on a phone
+   the print viewport is the device width (~400px), which would
+   otherwise match a plain `max-width` query and shrink the printed
+   A4 document. `@media print` (above) keeps the true A4 layout.
    ========================================================= */
-@media (max-width: 768px) {
+@media screen and (max-width: 1024px) {
   .pdf-preview {
     padding: 1.5rem 1.25rem;
     min-height: 0;

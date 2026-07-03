@@ -280,7 +280,7 @@ function QuotationsContent() {
       {/* activeQuotation Preview Visualizer */}
       {activeQuotation && (
         <div>
-          <div className="print-hide" style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', justifyBetween: 'space-between', alignItems: 'center' }}>
+          <div className="pdf-toolbar print-hide">
             <button className="btn btn-secondary" onClick={() => setActiveQuotation(null)}>
               <span>← Back To List</span>
             </button>

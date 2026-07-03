@@ -5,6 +5,11 @@ export function proxy(request) {
   const { pathname } = request.nextUrl;
   const isAuthed = request.cookies.get(AUTH_COOKIE_NAME)?.value === AUTH_COOKIE_VALUE;
 
+  // Public customer-facing order/payment tracker — no auth required
+  if (pathname.startsWith('/track')) {
+    return NextResponse.next();
+  }
+
   if (pathname.startsWith('/login')) {
     if (isAuthed) {
       return NextResponse.redirect(new URL('/', request.url));
