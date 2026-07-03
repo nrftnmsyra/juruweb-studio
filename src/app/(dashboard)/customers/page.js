@@ -140,7 +140,7 @@ function CustomersContent() {
         </div>
       ) : (
         <div className="table-container">
-          <table className="data-table">
+          <table className="data-table data-table--stack">
             <thead>
               <tr>
                 <th>Customer / Company</th>
@@ -187,7 +187,7 @@ function CustomersContent() {
                   <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                     {new Date(cust.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </td>
-                  <td>
+                  <td className="actions-cell">
                     <button className="btn btn-secondary icon-btn-sm" onClick={() => setDeleteTarget(cust)} title="Delete customer">
                       <MdDelete />
                     </button>
