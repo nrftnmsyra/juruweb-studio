@@ -280,6 +280,8 @@ function QuotationsContent() {
         <PdfDocumentPreview
           docKey={activeQuotation.id}
           filename={`JUR-QT-${activeQuotation.id.substr(0, 6).toUpperCase()}.pdf`}
+          docLabel={`JUR-QT-${activeQuotation.id.substr(0, 6).toUpperCase()}`}
+          docTitle="Quotation"
           onBack={() => setActiveQuotation(null)}
           backLabel="← Back To List"
         >

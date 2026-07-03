@@ -342,6 +342,8 @@ function InvoicesContent() {
         <PdfDocumentPreview
           docKey={activeInvoice.id}
           filename={`JUR-INV-${activeInvoice.id.substr(0, 6).toUpperCase()}.pdf`}
+          docLabel={`JUR-INV-${activeInvoice.id.substr(0, 6).toUpperCase()}`}
+          docTitle="Tax Invoice"
           onBack={() => setActiveInvoice(null)}
           backLabel="← Back To Invoices"
         >

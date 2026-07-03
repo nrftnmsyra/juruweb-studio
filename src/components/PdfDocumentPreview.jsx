@@ -9,7 +9,7 @@ import { renderElementToPages, downloadPagesAsPdf } from '@/lib/pdf';
 // images, and shows those exact images as the preview — so the preview always
 // matches the downloaded PDF, page for page. `docKey` re-triggers rendering
 // whenever the underlying document changes.
-export default function PdfDocumentPreview({ docKey, filename, onBack, backLabel = '← Back', children }) {
+export default function PdfDocumentPreview({ docKey, filename, docLabel, docTitle, onBack, backLabel = '← Back', children }) {
   const sourceRef = useRef(null);
   const [rendered, setRendered] = useState(null);
   const [building, setBuilding] = useState(true);
@@ -35,7 +35,7 @@ export default function PdfDocumentPreview({ docKey, filename, onBack, backLabel
             }))),
       );
       try {
-        const res = await renderElementToPages(sourceRef.current);
+        const res = await renderElementToPages(sourceRef.current, { docLabel, docTitle });
         if (!cancelled) setRendered(res);
       } catch {
         if (!cancelled) toast.error('Could not render the document preview');
@@ -97,15 +97,8 @@ export default function PdfDocumentPreview({ docKey, filename, onBack, backLabel
           </div>
         )}
         {!building && rendered?.pages.map((p, i) => (
-          <div className="pdf-page-wrap" key={i}>
-            <div className="pdf-page">
-              <img
-                src={p.img}
-                alt={`Page ${i + 1}`}
-                style={{ display: 'block', width: '100%', marginTop: `${rendered.marginTopMm}mm` }}
-              />
-            </div>
-            <span className="pdf-page-num print-hide">Page {i + 1} of {rendered.pages.length}</span>
+          <div className="pdf-page" key={i}>
+            <img src={p.img} alt={`Page ${i + 1}`} style={{ display: 'block', width: '100%' }} />
           </div>
         ))}
       </div>

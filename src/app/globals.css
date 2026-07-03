@@ -125,6 +125,8 @@ body {
 
 .page-container {
   padding: 2rem;
+  /* Clear the iOS home-indicator on mobile / installed PWA */
+  padding-bottom: max(2rem, calc(env(safe-area-inset-bottom) + 1.5rem));
   max-width: 1300px;
   width: 100%;
   margin: 0 auto;
@@ -683,7 +685,7 @@ input::placeholder {
   width: 210mm;
   max-width: 100%;
   margin: 0 auto;
-  padding: 18mm;
+  padding: 12mm 18mm;
   box-sizing: border-box;
   font-family: var(--font-sans);
 }
@@ -698,26 +700,18 @@ input::placeholder {
   pointer-events: none;
 }
 
-/* Paginated, WYSIWYG preview built from the exact page images that download */
+/* Paginated, WYSIWYG preview built from the exact full-page images that
+   download (each already includes the running header/footer). */
 .pdf-pages {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.75rem;
-}
-
-.pdf-page-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  width: 210mm;
-  max-width: 100%;
+  gap: 1.5rem;
 }
 
 .pdf-page {
-  position: relative;
-  width: 100%;
+  width: 210mm;
+  max-width: 100%;
   aspect-ratio: 210 / 297;
   background-color: #ffffff;
   box-shadow: var(--shadow-lg);
@@ -727,19 +721,11 @@ input::placeholder {
 }
 
 .pdf-page--loading {
-  width: 210mm;
-  max-width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-secondary);
   font-size: 0.9rem;
-}
-
-.pdf-page-num {
-  font-size: 0.72rem;
-  font-weight: 500;
-  color: var(--text-muted);
 }
 
 @page {
@@ -778,20 +764,9 @@ input::placeholder {
     animation: none !important;
   }
 
-  .pdf-pages,
-  .pdf-page-wrap {
+  .pdf-pages {
     display: block !important;
     gap: 0 !important;
-  }
-  .pdf-page-wrap {
-    width: 210mm !important;
-    max-width: none !important;
-    break-after: page;
-    page-break-after: always;
-  }
-  .pdf-page-wrap:last-child {
-    break-after: auto;
-    page-break-after: auto;
   }
   .pdf-page {
     width: 210mm !important;
@@ -803,8 +778,14 @@ input::placeholder {
     border-radius: 0 !important;
     box-shadow: none !important;
     overflow: hidden !important;
+    break-after: page;
+    page-break-after: always;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+  .pdf-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
   }
   .pdf-page img {
     width: 210mm !important;
@@ -1174,6 +1155,7 @@ input::placeholder {
 @media (max-width: 768px) {
   .page-container {
     padding: 1.25rem 1rem;
+    padding-bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 1rem));
   }
 
   .header {
@@ -1319,6 +1301,39 @@ input::placeholder {
   .data-table td.actions-cell > div {
     flex-wrap: wrap !important;
     justify-content: flex-end !important;
+  }
+
+  /* Detail-heavy tables (customers): left-aligned stacked fields read better
+     than the right-aligned label:value style used for invoices/quotations. */
+  .data-table--stack td {
+    display: block;
+    text-align: left;
+    padding: 0.3rem 0;
+  }
+  .data-table--stack td::before {
+    display: none;
+  }
+  .data-table--stack td.actions-cell {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 0.75rem;
+  }
+}
+
+/* Orders card: tidy the meta line + stacking on small screens */
+@media (max-width: 600px) {
+  .order-row {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 1rem !important;
+  }
+  .order-meta {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.15rem !important;
+  }
+  .order-dot {
+    display: none;
   }
 }
 

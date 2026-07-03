@@ -232,7 +232,7 @@ function OrdersContent() {
 
             return (
               <div className="card" key={order.id} style={{ borderLeft: isCompleted ? '4px solid var(--success)' : isOverdue ? '4px solid var(--error)' : '4px solid var(--brand-pink)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
+                <div className="order-row" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
                   
                   {/* Left block: Customer & Package info */}
                   <div>
@@ -242,9 +242,9 @@ function OrdersContent() {
                         <span className="u-caps" style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>({order.customer.company})</span>
                       )}
                     </div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div className="order-meta" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       <span>Package: <strong style={{ color: 'var(--text-primary)' }}>{order.package_type} Plan</strong></span>
-                      <span>•</span>
+                      <span className="order-dot">•</span>
                       <span>Total Amount: <strong style={{ color: 'var(--text-primary)' }}>RM {Number(order.total_amount).toFixed(2)}</strong></span>
                     </div>
                   </div>
