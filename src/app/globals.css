@@ -971,6 +971,50 @@ input::placeholder {
   color: var(--text-primary);
 }
 
+/* Project group: progress card, then its invoice cards listed below */
+.track-project-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.track-project-invoices {
+  margin-left: 1.1rem;
+  padding-left: 1.1rem;
+  border-left: 2px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.track-project-invoices-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+@media (max-width: 480px) {
+  .track-project-invoices {
+    margin-left: 0;
+    padding-left: 0.85rem;
+  }
+}
+
+/* Invoice card figures: Paid + Balance on top, Total full-width below */
+.track-inv-stack {
+  grid-template-columns: 1fr 1fr;
+}
+.track-inv-stack .track-inv-total {
+  grid-column: 1 / -1;
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border-color);
+}
+
 @media (max-width: 480px) {
   .track-form {
     flex-direction: column;

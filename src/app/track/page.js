@@ -122,10 +122,10 @@ export default function TrackPage() {
           <span className={`badge ${invoiceBadge(inv.status)}`}>{inv.status}</span>
         </div>
 
-        <div className="track-invoice-figures">
-          <div><div className="track-fig-label">Total</div><div className="track-fig-value">{fmt(inv.total)}</div></div>
+        <div className="track-invoice-figures track-inv-stack">
           <div><div className="track-fig-label">Paid</div><div className="track-fig-value" style={{ color: 'var(--success)' }}>{fmt(inv.amount_paid)}</div></div>
           <div><div className="track-fig-label">Balance</div><div className="track-fig-value" style={{ color: balance > 0 ? 'var(--warning)' : 'var(--text-secondary)' }}>{fmt(balance)}</div></div>
+          <div className="track-inv-total"><div className="track-fig-label">Total</div><div className="track-fig-value">{fmt(inv.total)}</div></div>
         </div>
 
         <button className="btn btn-secondary btn-sm" style={{ marginTop: '0.85rem' }} onClick={() => setPreviewInvoice(inv)}>
@@ -242,7 +242,9 @@ export default function TrackPage() {
                   const projInvoices = invoicesByOrder[order.id] || [];
                   const pay = paymentSummary(projInvoices);
                   return (
-                    <div className="card" key={order.id} style={{ borderLeft: `4px solid ${isMaintenance ? 'var(--info)' : isCompleted ? 'var(--success)' : isOverdue ? 'var(--error)' : 'var(--brand-pink)'}` }}>
+                    <div key={order.id} className="track-project-group">
+                    {/* Project progress card */}
+                    <div className="card" style={{ borderLeft: `4px solid ${isMaintenance ? 'var(--info)' : isCompleted ? 'var(--success)' : isOverdue ? 'var(--error)' : 'var(--brand-pink)'}` }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
                         <div>
                           <div style={{ fontWeight: 700 }}>{order.package_type}{isMaintenance ? ' Retainer' : ' Package'}</div>
@@ -284,16 +286,16 @@ export default function TrackPage() {
                         </div>
                       )}
 
+                    </div>
+
+                      {/* Invoices grouped under this project */}
                       {projInvoices.length > 0 && (
-                        <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px dashed var(--border-color)' }}>
-                          <div className="track-invoice-figures" style={{ marginTop: 0, paddingTop: 0, borderTop: 'none' }}>
-                            <div><div className="track-fig-label">Invoiced</div><div className="track-fig-value">{fmt(pay.total)}</div></div>
-                            <div><div className="track-fig-label">Paid</div><div className="track-fig-value" style={{ color: 'var(--success)' }}>{fmt(pay.paid)}</div></div>
-                            <div><div className="track-fig-label">Balance</div><div className="track-fig-value" style={{ color: pay.balance > 0 ? 'var(--warning)' : 'var(--text-secondary)' }}>{fmt(pay.balance)}</div></div>
+                        <div className="track-project-invoices">
+                          <div className="track-project-invoices-head">
+                            <span><MdReceiptLong size={13} style={{ verticalAlign: '-2px', marginRight: '0.25rem' }} />Invoices ({projInvoices.length})</span>
+                            <span style={{ textTransform: 'none', letterSpacing: 0 }}>Balance: <strong style={{ color: pay.balance > 0 ? 'var(--warning)' : 'var(--success)' }}>{fmt(pay.balance)}</strong></span>
                           </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
-                            {projInvoices.map(renderInvoice)}
-                          </div>
+                          {projInvoices.map(renderInvoice)}
                         </div>
                       )}
                     </div>
