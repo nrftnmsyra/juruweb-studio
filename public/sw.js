@@ -1,5 +1,5 @@
 // Minimal service worker for PWA installability + light offline support
-const CACHE = 'juruweb-cache-v1';
+const CACHE = 'juruweb-cache-v2';
 
 self.addEventListener('install', () => {
   self.skipWaiting();

@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { dbService } from '@/lib/database';
+import { downloadElementAsPdf } from '@/lib/pdf';
 import DatabaseSetupHelper from '@/components/DatabaseSetupHelper';
-import { MdAdd, MdPrint, MdAttachMoney, MdDelete, MdDescription, MdClose } from 'react-icons/md';
+import { MdAdd, MdPrint, MdDownload, MdAttachMoney, MdDelete, MdDescription, MdClose } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -34,6 +35,23 @@ function InvoicesContent() {
 
   // PDF Preview State
   const [activeInvoice, setActiveInvoice] = useState(null);
+  const pdfRef = useRef(null);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadPdf = async () => {
+    if (!activeInvoice || !pdfRef.current) return;
+    setDownloading(true);
+    const t = toast.loading('Generating PDF…');
+    try {
+      const ref = `JUR-INV-${activeInvoice.id.substr(0, 6).toUpperCase()}`;
+      await downloadElementAsPdf(pdfRef.current, `${ref}.pdf`);
+      toast.success('PDF downloaded!', { id: t });
+    } catch {
+      toast.error('Could not generate the PDF', { id: t });
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   // Delete confirmation state
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -301,7 +319,7 @@ function InvoicesContent() {
                           <span className={`badge ${bgStatus}`} style={{ whiteSpace: 'nowrap' }}>{inv.status}</span>
                         </td>
                         <td className="actions-cell">
-                          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'nowrap', justifyContent: 'flex-end' }}>
                             <button className="btn btn-secondary btn-sm" onClick={() => setActiveInvoice(inv)} title="View PDF" style={{ whiteSpace: 'nowrap' }}>
                               <MdDescription />
                               <span>PDF</span>
@@ -343,13 +361,17 @@ function InvoicesContent() {
             <button className="btn btn-secondary" onClick={() => setActiveInvoice(null)}>
               <span>← Back To Invoices</span>
             </button>
-            <button className="btn btn-primary" onClick={() => window.print()} style={{ marginLeft: 'auto' }}>
+            <button className="btn btn-secondary" onClick={() => window.print()} style={{ marginLeft: 'auto' }}>
               <MdPrint />
-              <span>Print or Save PDF</span>
+              <span>Print</span>
+            </button>
+            <button className="btn btn-primary" onClick={handleDownloadPdf} disabled={downloading}>
+              <MdDownload />
+              <span>{downloading ? 'Preparing…' : 'Download PDF'}</span>
             </button>
           </div>
 
-          <div className="pdf-print-area pdf-preview">
+          <div ref={pdfRef} className="pdf-print-area pdf-preview">
             {/* Header info */}
             <div className="pdf-head" style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #e4e4e7', paddingBottom: '2rem', marginBottom: '2rem' }}>
               <div>
@@ -446,6 +468,7 @@ function InvoicesContent() {
                     }}>
                       <span
                         aria-label="Juruweb Studio"
+                        className="pdf-stamp-mark"
                         style={{
                           display: 'block',
                           width: '110px',

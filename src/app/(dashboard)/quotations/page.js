@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { dbService } from '@/lib/database';
+import { downloadElementAsPdf } from '@/lib/pdf';
 import DatabaseSetupHelper from '@/components/DatabaseSetupHelper';
-import { MdAdd, MdPrint, MdDelete, MdDescription, MdClose, MdCheck } from 'react-icons/md';
+import { MdAdd, MdPrint, MdDownload, MdDelete, MdDescription, MdClose, MdCheck } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Image from 'next/image';
@@ -45,6 +46,23 @@ function QuotationsContent() {
   
   // PDF Preview State
   const [activeQuotation, setActiveQuotation] = useState(null);
+  const pdfRef = useRef(null);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadPdf = async () => {
+    if (!activeQuotation || !pdfRef.current) return;
+    setDownloading(true);
+    const t = toast.loading('Generating PDF…');
+    try {
+      const ref = `JUR-QT-${activeQuotation.id.substr(0, 6).toUpperCase()}`;
+      await downloadElementAsPdf(pdfRef.current, `${ref}.pdf`);
+      toast.success('PDF downloaded!', { id: t });
+    } catch {
+      toast.error('Could not generate the PDF', { id: t });
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   // Delete confirmation state
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -258,7 +276,7 @@ function QuotationsContent() {
                       <td data-label="Total" style={{ fontWeight: 700 }}>RM {Number(q.total).toFixed(2)}</td>
                       <td data-label="Date Sent" style={{ whiteSpace: 'nowrap' }}>{new Date(q.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                       <td className="actions-cell">
-                        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'nowrap', justifyContent: 'flex-end' }}>
                           <button className="btn btn-secondary btn-sm" onClick={() => setActiveQuotation(q)}>
                             <MdDescription />
                             <span>View Doc</span>
@@ -284,15 +302,17 @@ function QuotationsContent() {
             <button className="btn btn-secondary" onClick={() => setActiveQuotation(null)}>
               <span>← Back To List</span>
             </button>
-            <div style={{ display: 'flex', gap: '0.75rem', marginLeft: 'auto' }}>
-              <button className="btn btn-primary" onClick={triggerPrint}>
-                <MdPrint />
-                <span>Print or Save PDF</span>
-              </button>
-            </div>
+            <button className="btn btn-secondary" onClick={triggerPrint} style={{ marginLeft: 'auto' }}>
+              <MdPrint />
+              <span>Print</span>
+            </button>
+            <button className="btn btn-primary" onClick={handleDownloadPdf} disabled={downloading}>
+              <MdDownload />
+              <span>{downloading ? 'Preparing…' : 'Download PDF'}</span>
+            </button>
           </div>
 
-          <div className="pdf-print-area pdf-preview">
+          <div ref={pdfRef} className="pdf-print-area pdf-preview">
             {/* PDF Main Header */}
             <div className="pdf-head" style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #e4e4e7', paddingBottom: '2rem', marginBottom: '2rem' }}>
               <div>

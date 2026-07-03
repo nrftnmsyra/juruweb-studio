@@ -1188,11 +1188,11 @@ input::placeholder {
 /* =========================================================
    Mobile & tablet: turn the dense data tables into stacked
    cards (a single container per record) instead of a cramped
-   horizontally-scrolling grid. Covers phones AND tablets
-   (portrait iPads sit at 810/834px), which is why this runs
-   up to 1024px.
+   horizontally-scrolling grid. Covers phones AND tablets in
+   both orientations (landscape iPads reach ~1180px), which is
+   why this runs up to 1200px.
    ========================================================= */
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   /* The scroll wrapper is no longer needed — cards stack vertically */
   .table-container {
     border: none;
