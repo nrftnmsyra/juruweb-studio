@@ -97,9 +97,9 @@ export default function TrackPage() {
       />
 
       <div className="public-container">
-        {/* Header */}
-        <header style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
-          <Image src="/dark-bg-logo.png" alt="Juruweb Studio" width={150} height={44} style={{ maxWidth: '55%', height: 'auto' }} priority />
+        {/* Header (masthead) */}
+        <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
+          <Image src="/dark-bg-logo.png" alt="Juruweb Studio" width={170} height={50} style={{ maxWidth: '60%', height: 'auto' }} priority />
         </header>
 
         {/* Intro + search */}
@@ -148,7 +148,7 @@ export default function TrackPage() {
                   <div className="u-caps" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{record.customer.company}</div>
                 )}
               </div>
-              <div style={{ textAlign: 'right' }}>
+              <div style={{ textAlign: 'right', marginLeft: 'auto' }}>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Total outstanding</div>
                 <div style={{ fontSize: '1.6rem', fontWeight: 800, color: totalOutstanding > 0 ? 'var(--warning)' : 'var(--success)' }}>
                   {fmt(totalOutstanding)}
