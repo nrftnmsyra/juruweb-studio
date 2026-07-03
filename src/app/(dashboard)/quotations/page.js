@@ -390,7 +390,7 @@ function QuotationsContent() {
             </div>
 
             {/* Invoicing Deposit details and conditions */}
-            <div className="pdf-avoid-break" style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '2px solid #e4e4e7', fontSize: '0.8rem', color: '#71717a', lineHeight: '1.6' }}>
+            <div className="pdf-avoid-break" style={{ marginTop: '3rem', fontSize: '0.8rem', color: '#71717a', lineHeight: '1.6' }}>
               <h5 style={{ fontSize: '0.85rem', color: '#18181b', fontWeight: 700, marginBottom: '0.5rem' }}>Payment Terms & Conditions</h5>
               <div>
                 {[
@@ -408,7 +408,7 @@ function QuotationsContent() {
             </div>
 
             {/* Bank details */}
-            <div className="pdf-avoid-break" style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #e4e4e7' }}>
+            <div className="pdf-avoid-break" style={{ marginTop: '2rem' }}>
               <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#a1a1aa', marginBottom: '0.85rem' }}>Payment Details</div>
               <div className="pdf-bank" style={{ display: 'flex', flexWrap: 'wrap', gap: '2.5rem', fontSize: '0.85rem' }}>
                 <div>
