@@ -213,7 +213,6 @@ export default function TrackPage() {
             {/* Greeting + outstanding summary */}
             <div className="card" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               <div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Welcome back</div>
                 <div className="u-caps" style={{ fontSize: '1.25rem', fontWeight: 700 }}>{record.customer?.name}</div>
                 {record.customer?.company && (
                   <div className="u-caps" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{record.customer.company}</div>
