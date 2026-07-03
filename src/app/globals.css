@@ -1432,66 +1432,8 @@ input::placeholder {
   }
 }
 
-/* =========================================================
-   Mobile & tablet: make the A4 PDF preview readable ON SCREEN
-   instead of a shrunk-down full-width A4 sheet. Inline styles are
-   overridden with !important since they win on specificity.
-
-   IMPORTANT: scoped to `screen` only. When saving to PDF on a phone
-   the print viewport is the device width (~400px), which would
-   otherwise match a plain `max-width` query and shrink the printed
-   A4 document. `@media print` (above) keeps the true A4 layout.
-   ========================================================= */
-@media screen and (max-width: 1024px) {
-  .pdf-preview {
-    padding: 1.5rem 1.25rem;
-    min-height: 0;
-    border-radius: 10px;
-    font-size: 0.9rem;
-  }
-
-  /* Header: logo block on top, meta below (both left-aligned) */
-  .pdf-head {
-    flex-direction: column !important;
-    gap: 1.25rem;
-  }
-  .pdf-head-meta {
-    text-align: left !important;
-  }
-  .pdf-head-meta h2 {
-    font-size: 1.6rem !important;
-  }
-
-  /* Bill-to / address: single column */
-  .pdf-parties {
-    grid-template-columns: 1fr !important;
-    gap: 1.25rem !important;
-    margin-bottom: 1.5rem !important;
-  }
-
-  /* Line items: tighter padding so 5 columns fit without overflow */
-  .pdf-items th,
-  .pdf-items td {
-    padding: 0.5rem 0.35rem !important;
-    font-size: 0.78rem !important;
-  }
-  .pdf-items th {
-    width: auto !important;
-  }
-
-  /* Summary row + totals block go full width, stacked */
-  .pdf-summary {
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 1.5rem;
-  }
-  .pdf-totals {
-    width: 100% !important;
-    margin-left: 0 !important;
-  }
-
-  /* Bank details wrap comfortably */
-  .pdf-bank {
-    gap: 1.25rem !important;
-  }
-}
+/* NOTE: the on-screen PDF preview is a set of rendered A4 page images
+   (.pdf-page), so the .pdf-preview element itself is only ever the off-screen
+   html2canvas capture source. It must therefore always keep its full desktop
+   A4 layout (no responsive overrides) so the capture — and the keep-together
+   block measurements — stay consistent on every device. */

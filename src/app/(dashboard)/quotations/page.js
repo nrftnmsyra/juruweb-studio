@@ -328,7 +328,7 @@ function QuotationsContent() {
             <table className="pdf-items" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #18181b' }}>
-                  <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b' }}>Project Scope Item Description</th>
+                  <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b' }}>Item Description</th>
                   <th style={{ textAlign: 'center', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '70px' }}>Qty</th>
                   <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '120px' }}>Unit Price (RM)</th>
                   <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b', width: '110px' }}>Discount</th>
@@ -341,7 +341,7 @@ function QuotationsContent() {
                     <tr key={idx} style={{ borderBottom: '1px solid #e4e4e7' }}>
                       <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', fontWeight: 500 }}>
                         {item.description}
-                        {item.remark && <div style={{ fontSize: '0.8rem', color: '#71717a', fontWeight: 400, marginTop: '0.2rem' }}>{item.remark}</div>}
+                        {item.remark && <div style={{ fontSize: '0.8rem', color: '#71717a', fontWeight: 400, marginTop: '0.2rem', whiteSpace: 'pre-line' }}>{item.remark}</div>}
                       </td>
                       <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', textAlign: 'center' }}>{item.quantity}</td>
                       <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', textAlign: 'right' }}>RM {Number(item.unit_price).toFixed(2)}</td>
@@ -392,12 +392,19 @@ function QuotationsContent() {
             {/* Invoicing Deposit details and conditions */}
             <div className="pdf-avoid-break" style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '2px solid #e4e4e7', fontSize: '0.8rem', color: '#71717a', lineHeight: '1.6' }}>
               <h5 style={{ fontSize: '0.85rem', color: '#18181b', fontWeight: 700, marginBottom: '0.5rem' }}>Payment Terms & Conditions</h5>
-              <ol style={{ paddingLeft: '1rem' }}>
-                <li><strong>50% Outbound Deposit</strong> is required before any development start (RM {(Number(activeQuotation.total) / 2).toFixed(2)}).</li>
-                <li>50% final balance to be cleared immediately upon staging staging approval.</li>
-                <li>Please send transaction receipts/statements to juruweb.info@gmail.com.</li>
-                <li>All website deliveries are subject to standard Juruweb Studio SLA policies.</li>
-              </ol>
+              <div>
+                {[
+                  <><strong>50% Outbound Deposit</strong> is required before any development starts (RM {(Number(activeQuotation.total) / 2).toFixed(2)}).</>,
+                  '50% final balance to be cleared immediately upon staging approval.',
+                  'Please send transaction receipts/statements to juruweb.info@gmail.com.',
+                  'All website deliveries are subject to standard Juruweb Studio SLA policies.',
+                ].map((term, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                    <span style={{ fontWeight: 700, color: '#18181b', flexShrink: 0 }}>{i + 1}.</span>
+                    <span>{term}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Bank details */}
@@ -528,7 +535,7 @@ function QuotationsContent() {
                   <table className="line-items-table">
                     <thead>
                       <tr>
-                        <th>Scoped Item / Description</th>
+                        <th>Item Description</th>
                         <th style={{ width: '60px', textAlign: 'center' }}>Qty</th>
                         <th style={{ width: '100px', textAlign: 'right' }}>Price (RM)</th>
                         <th style={{ width: '180px', textAlign: 'right' }}>Discount</th>
@@ -538,7 +545,7 @@ function QuotationsContent() {
                     <tbody>
                       {lineItems.map((item, idx) => (
                         <tr key={idx}>
-                          <td data-label="Scoped Item / Description">
+                          <td data-label="Item Description">
                             <input
                               type="text"
                               placeholder="e.g. Logo Design, Extra product uploads"
@@ -547,12 +554,12 @@ function QuotationsContent() {
                               style={{ fontSize: '0.85rem' }}
                               required
                             />
-                            <input
-                              type="text"
-                              placeholder="Add a remark (optional)"
+                            <textarea
+                              placeholder="Add a remark (optional) — press Enter for a new line"
                               value={item.remark || ''}
                               onChange={(e) => handleLineItemChange(idx, 'remark', e.target.value)}
-                              style={{ fontSize: '0.78rem', marginTop: '0.35rem', color: 'var(--text-secondary)' }}
+                              rows={2}
+                              style={{ fontSize: '0.78rem', marginTop: '0.35rem', color: 'var(--text-secondary)', resize: 'vertical', lineHeight: 1.4 }}
                             />
                           </td>
                           <td data-label="Qty">

@@ -16,9 +16,45 @@ const MARGIN_TOP_MM = 14;
 const MARGIN_BOTTOM_MM = 16;
 const SIDE_MM = 18;
 
+// The status stamp is drawn with a CSS mask html2canvas can't rasterise. We
+// recolour the (monochrome) logo SVG to the stamp colour and paint it as a
+// background-image instead, which html2canvas does render.
+let _stampSvg = null;
+let _stampTried = false;
+async function loadStampSvg() {
+  if (_stampTried) return _stampSvg;
+  _stampTried = true;
+  try {
+    const res = await fetch('/stamp-logo.svg');
+    _stampSvg = res.ok ? await res.text() : null;
+  } catch {
+    _stampSvg = null;
+  }
+  return _stampSvg;
+}
+
 export async function renderElementToPages(element, meta = {}) {
   if (!element) throw new Error('Nothing to render');
   const { default: html2canvas } = await import('html2canvas');
+  const stampSvg = await loadStampSvg();
+
+  // Measure the status stamp on the source (desktop layout) BEFORE capture. Its
+  // logo is drawn with a CSS mask html2canvas can't rasterise, so we hide it in
+  // the capture and paint the recoloured logo onto the page canvas ourselves.
+  const srcRect0 = element.getBoundingClientRect();
+  let stampRaw = null;
+  const stampEl = element.querySelector('.pdf-stamp-mark');
+  if (stampEl && stampSvg) {
+    const r = stampEl.getBoundingClientRect();
+    stampRaw = {
+      cx: r.left + r.width / 2 - srcRect0.left, // centre (rotation-invariant), CSS px
+      cy: r.top + r.height / 2 - srcRect0.top,
+      w: stampEl.offsetWidth || 110, // unrotated size
+      h: stampEl.offsetHeight || 26,
+      color: getComputedStyle(stampEl).backgroundColor || '#dc2626',
+      angle: -8, // matches the stamp box's rotate(-8deg)
+    };
+  }
 
   const canvas = await html2canvas(element, {
     scale: 2,
@@ -26,9 +62,9 @@ export async function renderElementToPages(element, meta = {}) {
     useCORS: true,
     windowWidth: 1200, // force the desktop A4 layout regardless of device
     onclone: (doc) => {
-      // The status stamp uses a CSS mask-image html2canvas can't rasterise;
-      // hide the masked logo so it doesn't become a solid block.
-      doc.querySelectorAll('.pdf-stamp-mark').forEach((n) => { n.style.display = 'none'; });
+      // Keep the layout (so our measurement stays valid) but render nothing —
+      // the logo is drawn onto the canvas afterwards.
+      doc.querySelectorAll('.pdf-stamp-mark').forEach((n) => { n.style.visibility = 'hidden'; });
     },
   });
 
@@ -37,6 +73,35 @@ export async function renderElementToPages(element, meta = {}) {
   const pageHpx = Math.round(PAGE_H_MM * pxPerMm);
   const marginTopPx = Math.round(MARGIN_TOP_MM * pxPerMm);
   const usableHpx = Math.floor((PAGE_H_MM - MARGIN_TOP_MM - MARGIN_BOTTOM_MM) * pxPerMm);
+
+  // Load the recoloured stamp logo (awaited, so drawImage always has it ready)
+  let stampImg = null;
+  let stamp = null;
+  if (stampRaw) {
+    const sx = W / (element.offsetWidth || W);
+    const sy = canvas.height / (element.offsetHeight || canvas.height);
+    const colored = stampSvg.replace(/#000000/gi, stampRaw.color);
+    const uri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(colored);
+    stampImg = await new Promise((res) => {
+      const im = new Image();
+      im.onload = () => res(im);
+      im.onerror = () => res(null);
+      im.src = uri;
+    });
+    stamp = { cx: stampRaw.cx * sx, cy: stampRaw.cy * sy, w: stampRaw.w * sx, h: stampRaw.h * sy, angle: stampRaw.angle };
+  }
+
+  // Keep-together blocks (terms, payment info, totals): their vertical ranges
+  // in canvas px. A page break must not fall through the middle of one, so a
+  // block that would be split is pushed whole onto the next page.
+  const scaleY = canvas.height / (element.offsetHeight || canvas.height);
+  const srcTop = element.getBoundingClientRect().top;
+  const keepRanges = Array.from(element.querySelectorAll('.pdf-avoid-break'))
+    .map((el) => {
+      const r = el.getBoundingClientRect();
+      return { top: (r.top - srcTop) * scaleY, bottom: (r.bottom - srcTop) * scaleY };
+    })
+    .filter((rng) => rng.bottom - rng.top <= usableHpx); // only if it fits a page
 
   const ctx = canvas.getContext('2d');
   const { data } = ctx.getImageData(0, 0, W, canvas.height);
@@ -54,15 +119,24 @@ export async function renderElementToPages(element, meta = {}) {
   const slices = [];
   let y = 0;
   while (y < canvas.height) {
-    let sliceH = Math.min(usableHpx, canvas.height - y);
-    if (y + sliceH < canvas.height) {
-      const minH = Math.floor(sliceH * 0.72);
-      for (let t = sliceH; t >= minH; t--) {
-        if (isSafeRow(y + t)) { sliceH = t; break; }
+    let cut = Math.min(y + usableHpx, canvas.height);
+    if (cut < canvas.height) {
+      const minCut = y + Math.floor(usableHpx * 0.35);
+      // don't split a keep-together block: pull the cut up to the block's top
+      let target = cut;
+      for (const rng of keepRanges) {
+        if (rng.top >= minCut && rng.top < cut && rng.bottom > cut) {
+          target = Math.min(target, rng.top);
+        }
+      }
+      cut = Math.floor(target);
+      // snap to a run of whitespace so rows/text aren't cut in half
+      for (let t = cut; t >= minCut; t--) {
+        if (isSafeRow(t)) { cut = t; break; }
       }
     }
-    slices.push({ y, h: sliceH });
-    y += sliceH;
+    slices.push({ y, h: cut - y });
+    y = cut;
   }
 
   // 2) composite each slice onto a full A4 page with header/footer
@@ -82,6 +156,15 @@ export async function renderElementToPages(element, meta = {}) {
     p.fillStyle = '#ffffff';
     p.fillRect(0, 0, W, pageHpx);
     p.drawImage(canvas, 0, s.y, W, s.h, 0, marginTopPx, W, s.h);
+
+    // Paint the recoloured status-stamp logo onto the page it lands on
+    if (stampImg && stamp && stamp.cy >= s.y && stamp.cy < s.y + s.h) {
+      p.save();
+      p.translate(stamp.cx, marginTopPx + (stamp.cy - s.y));
+      p.rotate((stamp.angle * Math.PI) / 180);
+      p.drawImage(stampImg, -stamp.w / 2, -stamp.h / 2, stamp.w, stamp.h);
+      p.restore();
+    }
 
     p.textBaseline = 'alphabetic';
     p.font = font;

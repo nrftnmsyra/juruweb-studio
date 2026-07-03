@@ -406,7 +406,7 @@ function InvoicesContent() {
                     <tr key={idx} style={{ borderBottom: '1px solid #e4e4e7' }}>
                       <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', fontWeight: 500 }}>
                         {item.description}
-                        {item.remark && <div style={{ fontSize: '0.8rem', color: '#71717a', fontWeight: 400, marginTop: '0.2rem' }}>{item.remark}</div>}
+                        {item.remark && <div style={{ fontSize: '0.8rem', color: '#71717a', fontWeight: 400, marginTop: '0.2rem', whiteSpace: 'pre-line' }}>{item.remark}</div>}
                       </td>
                       <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', textAlign: 'center' }}>{item.quantity}</td>
                       <td style={{ padding: '1rem 0.5rem', fontSize: '0.95rem', color: '#18181b', textAlign: 'right' }}>RM {Number(item.unit_price).toFixed(2)}</td>
@@ -541,8 +541,24 @@ function InvoicesContent() {
               })()}
             </div>
 
+            {/* Terms & Conditions */}
+            <div className="pdf-avoid-break" style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '2px solid #e4e4e7', fontSize: '0.8rem', color: '#71717a', lineHeight: 1.5 }}>
+              <h5 style={{ fontSize: '0.85rem', color: '#18181b', fontWeight: 700, marginBottom: '0.6rem' }}>Payment Terms &amp; Conditions</h5>
+              {[
+                `Payment is due by ${new Date(activeInvoice.due_date).toLocaleDateString('en-MY')}.`,
+                'Kindly transfer to the bank account below and email your payment receipt to juruweb.info@gmail.com.',
+                `Please quote the invoice reference (INV-${activeInvoice.id.substr(0, 4).toUpperCase()}) in your transfer.`,
+                'All deliverables and services remain subject to Juruweb Studio SLA policies.',
+              ].map((term, i) => (
+                <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                  <span style={{ fontWeight: 700, color: '#18181b', flexShrink: 0 }}>{i + 1}.</span>
+                  <span>{term}</span>
+                </div>
+              ))}
+            </div>
+
             {/* Bank details */}
-            <div className="pdf-avoid-break" style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid #e4e4e7' }}>
+            <div className="pdf-avoid-break" style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #e4e4e7' }}>
               <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#a1a1aa', marginBottom: '0.85rem' }}>Payment Details</div>
               <div className="pdf-bank" style={{ display: 'flex', flexWrap: 'wrap', gap: '2.5rem', fontSize: '0.85rem' }}>
                 <div>
@@ -732,12 +748,12 @@ function InvoicesContent() {
                               style={{ fontSize: '0.85rem' }}
                               required
                             />
-                            <input
-                              type="text"
-                              placeholder="Add a remark (optional)"
+                            <textarea
+                              placeholder="Add a remark (optional) — press Enter for a new line"
                               value={item.remark || ''}
                               onChange={(e) => handleLineItemChange(idx, 'remark', e.target.value)}
-                              style={{ fontSize: '0.78rem', marginTop: '0.35rem', color: 'var(--text-secondary)' }}
+                              rows={2}
+                              style={{ fontSize: '0.78rem', marginTop: '0.35rem', color: 'var(--text-secondary)', resize: 'vertical', lineHeight: 1.4 }}
                             />
                           </td>
                           <td data-label="Qty">
