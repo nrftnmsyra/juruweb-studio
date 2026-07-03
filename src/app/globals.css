@@ -674,49 +674,91 @@ input::placeholder {
   border-bottom: 1px solid var(--border-color);
 }
 
-/* PDF / A4 document preview (Invoices & Quotations) */
+/* PDF / A4 document — the capture source (rendered off-screen for html2canvas).
+   No min-height: the capture is only as tall as the content, so a short
+   document stays on a single page. */
 .pdf-preview {
   background-color: #ffffff;
   color: #18181b;
   width: 210mm;
-  min-height: 297mm;
   max-width: 100%;
   margin: 0 auto;
   padding: 18mm;
   box-sizing: border-box;
-  box-shadow: var(--shadow-lg);
   font-family: var(--font-sans);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
 }
 
-/* Blocks that must never be split across a page break */
-.pdf-preview tr,
-.pdf-avoid-break {
-  break-inside: avoid;
-  page-break-inside: avoid;
+/* Off-screen host for the real document; html2canvas re-renders it at a fixed
+   desktop width, so its on-screen position/size is irrelevant. */
+.pdf-capture-source {
+  position: absolute;
+  left: -10000px;
+  top: 0;
+  width: 210mm;
+  pointer-events: none;
+}
+
+/* Paginated, WYSIWYG preview built from the exact page images that download */
+.pdf-pages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.pdf-page-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 210mm;
+  max-width: 100%;
+}
+
+.pdf-page {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 210 / 297;
+  background-color: #ffffff;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pdf-page--loading {
+  width: 210mm;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.pdf-page-num {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-muted);
 }
 
 @page {
   size: A4;
-  /* Uniform margin on EVERY page so overflow content keeps its border */
-  margin: 14mm;
+  margin: 0;
 }
 
 @media print {
-  /* Hide app chrome so only the document prints */
+  /* Hide app chrome + the off-screen source; print only the page images */
   .sidebar,
   .sidebar-overlay,
   .header,
   .hamburger,
-  .print-hide {
+  .print-hide,
+  .pdf-capture-source {
     display: none !important;
   }
 
-  /* Neutralise the scroll containers & flex layout. The app shell uses
-     `.main-content { height: 100vh; overflow-y: auto }`, which clips the
-     document to a single viewport. Flatten everything to normal flow so a
-     long invoice/quotation paginates naturally across multiple pages. */
+  /* Flatten the app's scroll containers so nothing clips the pages */
   html,
   body {
     height: auto !important;
@@ -736,34 +778,36 @@ input::placeholder {
     animation: none !important;
   }
 
-  /* Keep the document in normal flow (not absolutely positioned) so page
-     breaks and per-page @page margins apply on every page. */
-  .pdf-print-area {
-    position: static !important;
+  .pdf-pages,
+  .pdf-page-wrap {
+    display: block !important;
+    gap: 0 !important;
   }
-
-  .pdf-preview {
-    box-shadow: none;
-    border: none;
-    border-radius: 0;
-    margin: 0;
-    /* @page provides the margin now — fill the printable area and let it grow */
-    width: 100%;
-    max-width: 100%;
-    min-height: 0;
-    padding: 0;
-    /* Keep colours/backgrounds (status stamp, totals rule) in the saved PDF */
+  .pdf-page-wrap {
+    width: 210mm !important;
+    max-width: none !important;
+    break-after: page;
+    page-break-after: always;
+  }
+  .pdf-page-wrap:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+  .pdf-page {
+    width: 210mm !important;
+    height: 297mm !important;
+    max-width: none !important;
+    aspect-ratio: auto !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-
-  /* Repeat the line-item table header at the top of each new page */
-  .pdf-preview thead {
-    display: table-header-group;
-  }
-  .pdf-preview tr {
-    break-inside: avoid;
-    page-break-inside: avoid;
+  .pdf-page img {
+    width: 210mm !important;
   }
 }
 

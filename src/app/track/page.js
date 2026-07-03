@@ -2,11 +2,10 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { dbService } from '@/lib/database';
 import {
   MdSearch, MdCalendarToday, MdAccessTime, MdCheckCircle, MdError,
-  MdReceiptLong, MdWork, MdArrowBack,
+  MdReceiptLong, MdWork,
 } from 'react-icons/md';
 
 // Timeline progress for an order (mirrors the admin Orders view)
@@ -99,11 +98,8 @@ export default function TrackPage() {
 
       <div className="public-container">
         {/* Header */}
-        <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-          <Image src="/dark-bg-logo.png" alt="Juruweb Studio" width={150} height={42} style={{ objectFit: 'contain', maxWidth: '60%', height: 'auto' }} priority />
-          <Link href="/login" className="link-subtle">
-            <MdArrowBack /> Admin login
-          </Link>
+        <header style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
+          <Image src="/dark-bg-logo.png" alt="Juruweb Studio" width={150} height={44} style={{ maxWidth: '55%', height: 'auto' }} priority />
         </header>
 
         {/* Intro + search */}
