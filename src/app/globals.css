@@ -1001,9 +1001,13 @@ input::placeholder {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   position: sticky;
   top: 0;
   z-index: 100;
+  /* Clear the notch / home indicator when the nav is a full-height drawer */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .sidebar-logo {
@@ -1155,6 +1159,7 @@ input::placeholder {
     top: 0;
     left: 0;
     height: 100vh;
+    height: 100dvh;
     transform: translateX(-100%);
     transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: var(--shadow-lg);
