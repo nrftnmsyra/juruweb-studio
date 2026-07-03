@@ -207,23 +207,6 @@ function QuotationsContent() {
 
   return (
     <div className="page-container">
-      {/* Hide elements on printed PDF */}
-      <style>{`
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-          .pdf-print-area, .pdf-print-area * {
-            visibility: visible;
-          }
-          .pdf-print-area {
-            position: absolute;
-            left: 0;
-            top: 0;
-          }
-        }
-      `}</style>
-
       <div className="page-header print-hide" style={{ display: activeQuotation ? 'none' : 'flex' }}>
         <div>
           <h1 className="page-title">Client Quotations</h1>
@@ -256,35 +239,34 @@ function QuotationsContent() {
                     <th>Valid Until</th>
                     <th>Total Valuation</th>
                     <th>Date Sent</th>
-                    <th>View PDF</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {quotations.map((q) => (
                     <tr key={q.id}>
-                      <td>
+                      <td data-label="Reference">
                         <span style={{ fontFamily: 'monospace', fontWeight: 600, color: 'var(--brand-pink)' }}>
                           JUR-QT-{q.id.substr(0, 6).toUpperCase()}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Client">
                         <div style={{ fontWeight: 600 }}>{q.customer?.name}</div>
                         <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{q.customer?.company || 'Personal'}</div>
                       </td>
-                      <td style={{ whiteSpace: 'nowrap' }}>{new Date(q.valid_until).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                      <td style={{ fontWeight: 700 }}>RM {Number(q.total).toFixed(2)}</td>
-                      <td style={{ whiteSpace: 'nowrap' }}>{new Date(q.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                      <td>
-                        <button className="btn btn-secondary btn-sm" onClick={() => setActiveQuotation(q)}>
-                          <MdDescription />
-                          <span>View Doc</span>
-                        </button>
-                      </td>
-                      <td>
-                        <button className="btn btn-secondary icon-btn-sm" onClick={() => setDeleteTarget(q)} title="Delete quotation">
-                          <MdDelete />
-                        </button>
+                      <td data-label="Valid Until" style={{ whiteSpace: 'nowrap' }}>{new Date(q.valid_until).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                      <td data-label="Total" style={{ fontWeight: 700 }}>RM {Number(q.total).toFixed(2)}</td>
+                      <td data-label="Date Sent" style={{ whiteSpace: 'nowrap' }}>{new Date(q.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                      <td className="actions-cell">
+                        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                          <button className="btn btn-secondary btn-sm" onClick={() => setActiveQuotation(q)}>
+                            <MdDescription />
+                            <span>View Doc</span>
+                          </button>
+                          <button className="btn btn-secondary icon-btn-sm" onClick={() => setDeleteTarget(q)} title="Delete quotation">
+                            <MdDelete />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -312,9 +294,9 @@ function QuotationsContent() {
 
           <div className="pdf-print-area pdf-preview">
             {/* PDF Main Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #e4e4e7', paddingBottom: '2rem', marginBottom: '2rem' }}>
+            <div className="pdf-head" style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #e4e4e7', paddingBottom: '2rem', marginBottom: '2rem' }}>
               <div>
-                <Image src="/dark-bg-logo.png" alt="Juruweb Studio" width={180} height={50} style={{ objectFit: 'contain' }} />
+                <Image src="/dark-bg-logo.png" alt="Juruweb Studio" width={180} height={50} style={{ objectFit: 'contain', maxWidth: '100%', height: 'auto' }} />
                 <div style={{ fontSize: '0.85rem', color: '#71717a', marginTop: '0.5rem', lineHeight: '1.4' }}>
                   <strong>Juruweb Studio</strong><br />
                   Digitalization and System Engineering Services<br />
@@ -322,7 +304,7 @@ function QuotationsContent() {
                   Email: juruweb.info@gmail.com
                 </div>
               </div>
-              <div style={{ textAlign: 'right' }}>
+              <div className="pdf-head-meta" style={{ textAlign: 'right' }}>
                 <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#18181b', textTransform: 'uppercase', letterSpacing: '-0.025em' }}>Quotation</h2>
                 <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#18181b', lineHeight: '1.5' }}>
                   <div>Quote Ref: <strong>JUR-QT-{activeQuotation.id.substr(0, 6).toUpperCase()}</strong></div>
@@ -333,7 +315,7 @@ function QuotationsContent() {
             </div>
 
             {/* Bill info */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2.5rem' }}>
+            <div className="pdf-parties" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2.5rem' }}>
               <div>
                 <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#71717a', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Customer Details</h4>
                 <div style={{ fontSize: '0.95rem', color: '#18181b', lineHeight: '1.4' }}>
@@ -354,7 +336,7 @@ function QuotationsContent() {
             </div>
 
             {/* Line items table */}
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem' }}>
+            <table className="pdf-items" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #18181b' }}>
                   <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b' }}>Project Scope Item Description</th>
@@ -383,7 +365,7 @@ function QuotationsContent() {
             </table>
 
             {/* Calculations summaries */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+            <div className="pdf-summary pdf-avoid-break" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
               {(() => {
                 const sub = Number(activeQuotation.subtotal);
                 const tot = Number(activeQuotation.total);
@@ -391,7 +373,7 @@ function QuotationsContent() {
                 const labelStyle = { color: '#71717a' };
                 const valStyle = { fontWeight: 600, color: '#18181b' };
                 return (
-                  <div style={{ width: '300px', fontSize: '0.9rem' }}>
+                  <div className="pdf-totals" style={{ width: '300px', fontSize: '0.9rem' }}>
                     <div style={rowStyle}>
                       <span style={labelStyle}>Subtotal</span>
                       <span style={valStyle}>RM {sub.toFixed(2)}</span>
@@ -419,7 +401,7 @@ function QuotationsContent() {
             </div>
 
             {/* Invoicing Deposit details and conditions */}
-            <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '2px solid #e4e4e7', fontSize: '0.8rem', color: '#71717a', lineHeight: '1.6' }}>
+            <div className="pdf-avoid-break" style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '2px solid #e4e4e7', fontSize: '0.8rem', color: '#71717a', lineHeight: '1.6' }}>
               <h5 style={{ fontSize: '0.85rem', color: '#18181b', fontWeight: 700, marginBottom: '0.5rem' }}>Payment Terms & Conditions</h5>
               <ol style={{ paddingLeft: '1rem' }}>
                 <li><strong>50% Outbound Deposit</strong> is required before any development start (RM {(Number(activeQuotation.total) / 2).toFixed(2)}).</li>
@@ -430,9 +412,9 @@ function QuotationsContent() {
             </div>
 
             {/* Bank details */}
-            <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #e4e4e7' }}>
+            <div className="pdf-avoid-break" style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #e4e4e7' }}>
               <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#a1a1aa', marginBottom: '0.85rem' }}>Payment Details</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2.5rem', fontSize: '0.85rem' }}>
+              <div className="pdf-bank" style={{ display: 'flex', flexWrap: 'wrap', gap: '2.5rem', fontSize: '0.85rem' }}>
                 <div>
                   <div style={{ color: '#a1a1aa', fontSize: '0.72rem', marginBottom: '0.15rem' }}>Bank</div>
                   <div style={{ fontWeight: 600, color: '#18181b' }}>Maybank</div>

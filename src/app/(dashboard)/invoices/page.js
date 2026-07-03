@@ -221,22 +221,6 @@ function InvoicesContent() {
 
   return (
     <div className="page-container">
-      <style>{`
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-          .pdf-print-area, .pdf-print-area * {
-            visibility: visible;
-          }
-          .pdf-print-area {
-            position: absolute;
-            left: 0;
-            top: 0;
-          }
-        }
-      `}</style>
-
       <div className="page-header print-hide" style={{ display: activeInvoice ? 'none' : 'flex' }}>
         <div>
           <h1 className="page-title">Client Invoices</h1>
@@ -300,24 +284,24 @@ function InvoicesContent() {
 
                     return (
                       <tr key={inv.id}>
-                        <td>
+                        <td data-label="Customer">
                           <div style={{ fontWeight: 600 }}>{inv.customer?.name}</div>
                           <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{inv.customer?.company || 'Personal'}</div>
                           <div style={{ fontFamily: 'monospace', fontSize: '0.72rem', color: 'var(--brand-pink)', marginTop: '0.2rem' }}>
                             JUR-INV-{inv.id.substr(0, 6).toUpperCase()}
                           </div>
                         </td>
-                        <td style={{ whiteSpace: 'nowrap' }}>{new Date(inv.due_date).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                        <td style={{ whiteSpace: 'nowrap' }}>RM {Number(inv.total).toFixed(2)}</td>
-                        <td style={{ color: 'var(--success)', whiteSpace: 'nowrap' }}>RM {Number(inv.amount_paid).toFixed(2)}</td>
-                        <td style={{ fontWeight: 700, whiteSpace: 'nowrap', color: outstanding > 0 ? 'var(--warning)' : 'var(--text-secondary)' }}>
+                        <td data-label="Date Due" style={{ whiteSpace: 'nowrap' }}>{new Date(inv.due_date).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                        <td data-label="Invoice Total" style={{ whiteSpace: 'nowrap' }}>RM {Number(inv.total).toFixed(2)}</td>
+                        <td data-label="Paid" style={{ color: 'var(--success)', whiteSpace: 'nowrap' }}>RM {Number(inv.amount_paid).toFixed(2)}</td>
+                        <td data-label="Balance Due" style={{ fontWeight: 700, whiteSpace: 'nowrap', color: outstanding > 0 ? 'var(--warning)' : 'var(--text-secondary)' }}>
                           RM {outstanding.toFixed(2)}
                         </td>
-                        <td>
+                        <td data-label="Status">
                           <span className={`badge ${bgStatus}`} style={{ whiteSpace: 'nowrap' }}>{inv.status}</span>
                         </td>
-                        <td>
-                          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'nowrap', justifyContent: 'flex-end' }}>
+                        <td className="actions-cell">
+                          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                             <button className="btn btn-secondary btn-sm" onClick={() => setActiveInvoice(inv)} title="View PDF" style={{ whiteSpace: 'nowrap' }}>
                               <MdDescription />
                               <span>PDF</span>
@@ -367,9 +351,9 @@ function InvoicesContent() {
 
           <div className="pdf-print-area pdf-preview">
             {/* Header info */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #e4e4e7', paddingBottom: '2rem', marginBottom: '2rem' }}>
+            <div className="pdf-head" style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #e4e4e7', paddingBottom: '2rem', marginBottom: '2rem' }}>
               <div>
-                <Image src="/dark-bg-logo.png" alt="Juruweb Studio" width={180} height={50} style={{ objectFit: 'contain' }} />
+                <Image src="/dark-bg-logo.png" alt="Juruweb Studio" width={180} height={50} style={{ objectFit: 'contain', maxWidth: '100%', height: 'auto' }} />
                 <div style={{ fontSize: '0.85rem', color: '#71717a', marginTop: '0.5rem', lineHeight: '1.4' }}>
                   <strong>Juruweb Studio</strong><br />
                   Digitalization and System Engineering Services<br />
@@ -377,7 +361,7 @@ function InvoicesContent() {
                   Email: juruweb.info@gmail.com
                 </div>
               </div>
-              <div style={{ textAlign: 'right' }}>
+              <div className="pdf-head-meta" style={{ textAlign: 'right' }}>
                 <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: '#18181b', textTransform: 'uppercase', letterSpacing: '-0.025em' }}>Tax Invoice</h2>
                 <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#18181b', lineHeight: '1.5' }}>
                   <div>Invoice Ref: <strong>JUR-INV-{activeInvoice.id.substr(0, 6).toUpperCase()}</strong></div>
@@ -388,7 +372,7 @@ function InvoicesContent() {
             </div>
 
             {/* Billing names */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2.5rem' }}>
+            <div className="pdf-parties" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2.5rem' }}>
               <div>
                 <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#71717a', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Invoiced To</h4>
                 <div style={{ fontSize: '0.95rem', color: '#18181b', lineHeight: '1.4' }}>
@@ -409,7 +393,7 @@ function InvoicesContent() {
             </div>
 
             {/* Line items */}
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem' }}>
+            <table className="pdf-items" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #18181b' }}>
                   <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', color: '#52525b' }}>Description</th>
@@ -438,7 +422,7 @@ function InvoicesContent() {
             </table>
 
             {/* Calculations summaries */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem' }}>
+            <div className="pdf-summary pdf-avoid-break" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem' }}>
               <div style={{ maxWidth: '350px', display: 'flex', alignItems: 'center' }}>
                 {(() => {
                   const paid = Number(activeInvoice.amount_paid);
@@ -504,7 +488,7 @@ function InvoicesContent() {
                 const labelStyle = { color: '#71717a' };
                 const valStyle = { fontWeight: 600, color: '#18181b' };
                 return (
-                  <div style={{ width: '300px', fontSize: '0.9rem', marginLeft: 'auto' }}>
+                  <div className="pdf-totals" style={{ width: '300px', fontSize: '0.9rem', marginLeft: 'auto' }}>
                     {(sub - tot) > 0.001 && (
                       <>
                         <div style={rowStyle}>
@@ -560,9 +544,9 @@ function InvoicesContent() {
             </div>
 
             {/* Bank details */}
-            <div style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid #e4e4e7' }}>
+            <div className="pdf-avoid-break" style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid #e4e4e7' }}>
               <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#a1a1aa', marginBottom: '0.85rem' }}>Payment Details</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2.5rem', fontSize: '0.85rem' }}>
+              <div className="pdf-bank" style={{ display: 'flex', flexWrap: 'wrap', gap: '2.5rem', fontSize: '0.85rem' }}>
                 <div>
                   <div style={{ color: '#a1a1aa', fontSize: '0.72rem', marginBottom: '0.15rem' }}>Bank</div>
                   <div style={{ fontWeight: 600, color: '#18181b' }}>Maybank</div>

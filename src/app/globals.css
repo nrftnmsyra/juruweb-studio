@@ -182,7 +182,13 @@ body {
   border: 1px solid transparent;
   cursor: pointer;
   text-decoration: none;
+  white-space: nowrap;
   transition: var(--transition-smooth);
+}
+
+/* Keep icons from being squeezed and the label from wrapping to a 2nd line */
+.btn svg {
+  flex-shrink: 0;
 }
 
 .btn-primary {
@@ -617,19 +623,77 @@ input::placeholder {
   border-radius: 12px;
 }
 
+/* Blocks that must never be split across a page break */
+.pdf-preview tr,
+.pdf-avoid-break {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
 @page {
   size: A4;
-  margin: 0;
+  /* Uniform margin on EVERY page so overflow content keeps its border */
+  margin: 14mm;
 }
 
 @media print {
+  /* Hide app chrome so only the document prints */
+  .sidebar,
+  .sidebar-overlay,
+  .header,
+  .hamburger,
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Neutralise the scroll containers & flex layout. The app shell uses
+     `.main-content { height: 100vh; overflow-y: auto }`, which clips the
+     document to a single viewport. Flatten everything to normal flow so a
+     long invoice/quotation paginates naturally across multiple pages. */
+  html,
+  body {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+  .dashboard-layout,
+  .main-content {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .page-container {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    animation: none !important;
+  }
+
+  /* Keep the document in normal flow (not absolutely positioned) so page
+     breaks and per-page @page margins apply on every page. */
+  .pdf-print-area {
+    position: static !important;
+  }
+
   .pdf-preview {
     box-shadow: none;
     border: none;
     border-radius: 0;
     margin: 0;
-    width: 210mm;
-    min-height: 297mm;
+    /* @page provides the margin now — fill the printable area and let it grow */
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    padding: 0;
+  }
+
+  /* Repeat the line-item table header at the top of each new page */
+  .pdf-preview thead {
+    display: table-header-group;
+  }
+  .pdf-preview tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }
 
@@ -891,5 +955,155 @@ input::placeholder {
 
   .modal-footer .btn {
     width: 100%;
+  }
+}
+
+/* =========================================================
+   Mobile & tablet: turn the dense data tables into stacked
+   cards (a single container per record) instead of a cramped
+   horizontally-scrolling grid.
+   ========================================================= */
+@media (max-width: 768px) {
+  /* The scroll wrapper is no longer needed — cards stack vertically */
+  .table-container {
+    border: none;
+    background: transparent;
+    overflow: visible;
+    border-radius: 0;
+  }
+
+  .data-table {
+    min-width: 0;
+  }
+
+  .data-table thead {
+    display: none;
+  }
+
+  .data-table tbody,
+  .data-table tr,
+  .data-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .data-table tr {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 1rem 1.15rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .data-table tbody tr:hover {
+    background-color: var(--bg-card);
+  }
+
+  .data-table td {
+    border: none !important;
+    padding: 0.35rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    text-align: right;
+  }
+
+  /* Field label pulled from the column's data-label attribute */
+  .data-table td::before {
+    content: attr(data-label);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    text-align: left;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* First cell acts as the card header (full width, no label) */
+  .data-table td:first-child {
+    display: block;
+    text-align: left;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color) !important;
+  }
+  .data-table td:first-child::before {
+    display: none;
+  }
+
+  /* Action cells: no label, buttons wrap and align to the right */
+  .data-table td.actions-cell::before {
+    display: none;
+  }
+  .data-table td.actions-cell {
+    justify-content: flex-end;
+    padding-top: 0.6rem;
+  }
+  .data-table td.actions-cell > div {
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+  }
+}
+
+/* =========================================================
+   Mobile & tablet: make the A4 PDF preview readable instead of
+   a shrunk-down full-width A4 sheet. Inline styles are overridden
+   with !important since they win on specificity otherwise.
+   ========================================================= */
+@media (max-width: 768px) {
+  .pdf-preview {
+    padding: 1.5rem 1.25rem;
+    min-height: 0;
+    border-radius: 10px;
+    font-size: 0.9rem;
+  }
+
+  /* Header: logo block on top, meta below (both left-aligned) */
+  .pdf-head {
+    flex-direction: column !important;
+    gap: 1.25rem;
+  }
+  .pdf-head-meta {
+    text-align: left !important;
+  }
+  .pdf-head-meta h2 {
+    font-size: 1.6rem !important;
+  }
+
+  /* Bill-to / address: single column */
+  .pdf-parties {
+    grid-template-columns: 1fr !important;
+    gap: 1.25rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  /* Line items: tighter padding so 5 columns fit without overflow */
+  .pdf-items th,
+  .pdf-items td {
+    padding: 0.5rem 0.35rem !important;
+    font-size: 0.78rem !important;
+  }
+  .pdf-items th {
+    width: auto !important;
+  }
+
+  /* Summary row + totals block go full width, stacked */
+  .pdf-summary {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1.5rem;
+  }
+  .pdf-totals {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  /* Bank details wrap comfortably */
+  .pdf-bank {
+    gap: 1.25rem !important;
   }
 }
