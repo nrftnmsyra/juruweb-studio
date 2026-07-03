@@ -157,12 +157,19 @@ export async function renderElementToPages(element, meta = {}) {
     p.fillRect(0, 0, W, pageHpx);
     p.drawImage(canvas, 0, s.y, W, s.h, 0, marginTopPx, W, s.h);
 
-    // Paint the recoloured status-stamp logo onto the page it lands on
+    // Paint the recoloured status-stamp logo onto the page it lands on,
+    // preserving its aspect ratio (contain) so it isn't squashed.
     if (stampImg && stamp && stamp.cy >= s.y && stamp.cy < s.y + s.h) {
+      const natAspect = (stampImg.naturalWidth || 1) / (stampImg.naturalHeight || 1);
+      const boxAspect = stamp.w / stamp.h;
+      let dw = stamp.w;
+      let dh = stamp.h;
+      if (natAspect > boxAspect) dh = stamp.w / natAspect; // limited by width
+      else dw = stamp.h * natAspect; // limited by height
       p.save();
       p.translate(stamp.cx, marginTopPx + (stamp.cy - s.y));
       p.rotate((stamp.angle * Math.PI) / 180);
-      p.drawImage(stampImg, -stamp.w / 2, -stamp.h / 2, stamp.w, stamp.h);
+      p.drawImage(stampImg, -dw / 2, -dh / 2, dw, dh);
       p.restore();
     }
 
