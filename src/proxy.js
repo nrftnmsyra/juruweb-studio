@@ -5,25 +5,26 @@ export function proxy(request) {
   const { pathname } = request.nextUrl;
   const isAuthed = request.cookies.get(AUTH_COOKIE_NAME)?.value === AUTH_COOKIE_VALUE;
 
-  // Public customer-facing order/payment tracker — no auth required
-  if (pathname.startsWith('/track')) {
-    return NextResponse.next();
-  }
-
-  if (pathname.startsWith('/login')) {
+  // Authenticated users skip the login screen and land on the dashboard
+  if (pathname === '/login') {
     if (isAuthed) {
-      return NextResponse.redirect(new URL('/', request.url));
+      return NextResponse.redirect(new URL('/admin', request.url));
     }
     return NextResponse.next();
   }
 
-  if (!isAuthed) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  // Only the admin dashboard is passcode-protected
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    if (!isAuthed) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+    return NextResponse.next();
   }
 
+  // Landing page, /track, and everything else are public
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|sw.js|.*\\.(?:png|jpg|jpeg|svg|ico|webmanifest)$).*)'],
+  matcher: ['/login', '/admin', '/admin/:path*'],
 };

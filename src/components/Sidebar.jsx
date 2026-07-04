@@ -16,17 +16,17 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
   const pathname = usePathname();
 
   const menuItems = [
-    { name: 'Dashboard', path: '/', icon: <MdSpaceDashboard /> },
-    { name: 'Customers', path: '/customers', icon: <MdPeople /> },
-    { name: 'Orders', path: '/orders', icon: <MdWork /> },
-    { name: 'Quotations', path: '/quotations', icon: <MdDescription /> },
-    { name: 'Invoices', path: '/invoices', icon: <MdReceiptLong /> }
+    { name: 'Dashboard', path: '/admin', icon: <MdSpaceDashboard /> },
+    { name: 'Customers', path: '/admin/customers', icon: <MdPeople /> },
+    { name: 'Orders', path: '/admin/orders', icon: <MdWork /> },
+    { name: 'Quotations', path: '/admin/quotations', icon: <MdDescription /> },
+    { name: 'Invoices', path: '/admin/invoices', icon: <MdReceiptLong /> }
   ];
 
   return (
     <aside className={`sidebar ${open ? 'open' : ''}`}>
       <div className="sidebar-logo">
-        <Link href="/" onClick={onClose} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <Link href="/admin" onClick={onClose} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Image
             src="/dark-bg-logo.png"
             alt="Juruweb Studio Logo"
@@ -40,7 +40,7 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
 
       <nav className="sidebar-menu">
         {menuItems.map((item) => {
-          const isActive = pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
+          const isActive = pathname === item.path || (item.path !== '/admin' && pathname.startsWith(item.path));
           return (
             <Link
               key={item.name}

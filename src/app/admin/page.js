@@ -111,7 +111,7 @@ export default function Home() {
       <div style={{ marginTop: '2rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <h2 style={{ fontSize: '1rem', fontWeight: 600 }}>Recent Orders</h2>
-          <Link href="/orders" className="link-subtle">
+          <Link href="/admin/orders" className="link-subtle">
             <span>View all</span>
             <MdArrowForward />
           </Link>
@@ -165,19 +165,19 @@ export default function Home() {
       <div style={{ marginTop: '2.5rem' }}>
         <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>Quick Actions</h2>
         <div className="overview-actions">
-          <Link href="/customers?new=true" className="overview-action">
+          <Link href="/admin/customers?new=true" className="overview-action">
             <span className="quick-action-icon"><MdAdd /></span>
             <span>Add Client</span>
           </Link>
-          <Link href="/orders?new=true" className="overview-action">
+          <Link href="/admin/orders?new=true" className="overview-action">
             <span className="quick-action-icon"><MdAdd /></span>
             <span>New Order</span>
           </Link>
-          <Link href="/quotations?new=true" className="overview-action">
+          <Link href="/admin/quotations?new=true" className="overview-action">
             <span className="quick-action-icon"><MdAdd /></span>
             <span>New Quotation</span>
           </Link>
-          <Link href="/invoices?new=true" className="overview-action">
+          <Link href="/admin/invoices?new=true" className="overview-action">
             <span className="quick-action-icon"><MdAdd /></span>
             <span>New Invoice</span>
           </Link>

@@ -20,7 +20,7 @@ export async function loginAction(prevState, formData) {
     maxAge: 60 * 60 * 24 * 30,
   });
 
-  redirect('/');
+  redirect('/admin');
 }
 
 export async function logoutAction() {
