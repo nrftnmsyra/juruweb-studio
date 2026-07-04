@@ -4,9 +4,9 @@ import './landing.css';
 import {
   MdArrowForward,
   MdChat,
-  MdCode,
-  MdPhoneIphone,
-  MdCampaign,
+  MdDevices,
+  MdStorefront,
+  MdExtension,
   MdCheckCircle,
   MdBolt,
   MdHub,
@@ -16,9 +16,9 @@ import {
 } from 'react-icons/md';
 
 export const metadata = {
-  title: 'Juruweb Studio — Malaysia\'s Digital Solutions Partner',
+  title: 'Juruweb Studio — Affordable Websites for Malaysian SMEs',
   description:
-    'We help Malaysian SMEs scale with custom websites, mobile apps, and results-driven digital marketing.',
+    'Juruweb Studio builds fast, affordable, mobile-friendly websites for Malaysian SMEs — with WhatsApp integration, product catalogs, and booking, from RM699.',
 };
 
 // WhatsApp contact link. Set NEXT_PUBLIC_WHATSAPP_URL in the environment
@@ -27,55 +27,68 @@ const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_URL || 'https://wa.me/60123456
 
 const solutions = [
   {
-    icon: <MdCode />,
-    title: 'Web & System',
-    desc: 'Fast, secure, and scalable web solutions tailored to your operations.',
-    items: ['Company Website', 'Landing Page', 'Custom Web App / Dashboard', 'Booking System', 'Internal System (CRM)'],
+    icon: <MdDevices />,
+    title: 'Business Websites',
+    desc: 'Fast, responsive websites that make Malaysian SMEs look professional online.',
+    items: ['1-page & multi-section sites', 'WhatsApp integration', 'Mobile-first responsive design', 'Custom brand design'],
   },
   {
-    icon: <MdPhoneIphone />,
-    title: 'Mobile Apps',
-    desc: 'Bring your ideas to life on the App Store and Google Play.',
-    items: ['UI/UX Design', 'MVP App Development', 'Android & iOS Apps', 'Maintenance'],
+    icon: <MdStorefront />,
+    title: 'Catalog & Booking',
+    desc: 'Showcase your products and take bookings directly from your website.',
+    items: ['Full product catalog', 'Online booking system', 'Content & catalog uploads'],
   },
   {
-    icon: <MdCampaign />,
-    title: 'Digital Marketing',
-    desc: 'Drive traffic, build brand awareness, and get real leads.',
-    items: ['Social Media Management', 'Content Planning', 'Post Design', 'Video Editing', 'Monthly Packages'],
+    icon: <MdExtension />,
+    title: 'Add-On Services',
+    desc: 'Extend and maintain your site as your business grows.',
+    items: ['Domain registration', 'Monthly website management', 'Brand logo design', 'Extra revisions & landing pages'],
   },
 ];
 
-const pricing = [
+// Website packages (from the Juruweb pricing sheet)
+const packages = [
   {
-    category: 'Web & Systems',
-    tiers: [
-      { name: 'Starter Website', price: 'From RM800' },
-      { name: 'Business Website', price: 'From RM1,500' },
-      { name: 'Custom Web App', price: 'From RM3,000' },
-    ],
-    cta: 'Get Quote',
+    name: 'Basic',
+    price: 'RM 699',
+    tagline: 'Perfect for getting online fast.',
+    features: ['1-page responsive website', 'WhatsApp integration', 'Mobile-friendly design', 'Delivery in 3-5 days'],
     featured: false,
   },
   {
-    category: 'Digital Marketing',
-    tiers: [
-      { name: 'Basic Plan', price: 'From RM500/mo' },
-      { name: 'Growth Plan', price: 'From RM1,000/mo' },
-      { name: 'Advanced Plan', price: 'From RM2,000/mo' },
-    ],
-    cta: 'Start Growing',
+    name: 'Standard',
+    price: 'RM 999',
+    tagline: 'Our most popular package for growing SMEs.',
+    features: ['Multi-section professional website', '5 revisions included', 'WhatsApp integration', 'Delivery in 5-7 days'],
     featured: true,
   },
   {
-    category: 'Mobile Apps',
-    tiers: [
-      { name: 'MVP App', price: 'From RM5,000' },
-      { name: 'Full Application', price: 'From RM8,000' },
-    ],
-    cta: 'Get Quote',
+    name: 'Premium',
+    price: 'RM 1,499',
+    tagline: 'Full-featured store and booking site.',
+    features: ['Premium custom design', 'Full product catalog & booking', 'Unlimited revisions', 'Delivery in 7-14 days'],
     featured: false,
   },
+];
+
+const addons = [
+  { label: 'Domain Registration (.com / .com.my)', price: 'RM 100' },
+  { label: 'Monthly Website Management', price: 'RM 120/mo' },
+  { label: 'Extra Catalog Uploads (per 10 items)', price: 'RM 30' },
+  { label: 'Additional Revision (per request)', price: 'RM 50' },
+  { label: 'Additional Landing Page (per page)', price: 'RM 100' },
+  { label: 'Brand Logo Design', price: 'RM 200' },
+];
+
+// Live client websites built by Juruweb Studio
+const portfolio = [
+  { title: 'Air Compressor', category: 'Industrial Equipment', domain: 'air-compressor.my' },
+  { title: 'Cat Rumah', category: 'Home Painting Services', domain: 'cat-rumah.my' },
+  { title: 'Cold Room Rental', category: 'Equipment Rental', domain: 'coldroomrental.my' },
+  { title: 'Motor Sewa', category: 'Motorbike Rental', domain: 'motorsewa.com.my' },
+  { title: 'Roller Shutter Doors', category: 'Doors & Security', domain: 'rollershutterdoors.my' },
+  { title: 'Servis Aircond Rumah', category: 'Aircond Services', domain: 'servisaircondrumah.my' },
+  { title: 'Table & Chair Rentals', category: 'Event Rentals', domain: 'tablechairrentals.my' },
 ];
 
 const benefits = [
@@ -118,6 +131,7 @@ export default function LandingPage() {
           </Link>
           <nav className="lp-nav-links">
             <a href="#solutions">Services</a>
+            <a href="#work">Portfolio</a>
             <a href="#pricing">Pricing</a>
             <a href="#why">Why Us</a>
           </nav>
@@ -130,18 +144,18 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="lp-hero">
         <div className="lp-container">
-          <span className="lp-eyebrow">Your Digital Solutions Partner</span>
-          <h1 className="lp-hero-title">Malaysia&apos;s Top Digital Solutions Partner</h1>
+          <span className="lp-eyebrow">Websites for Malaysian SMEs</span>
+          <h1 className="lp-hero-title">Professional Websites That Grow Your Business</h1>
           <p className="lp-hero-sub">
-            We help Malaysian SMEs scale effortlessly with custom websites, robust mobile apps, and
-            results-driven digital marketing.
+            Juruweb Studio builds fast, affordable, mobile-friendly websites for Malaysian
+            SMEs — with WhatsApp integration, product catalogs, and booking, from RM699.
           </p>
           <div className="lp-hero-actions">
             <a href={WHATSAPP} className="btn btn-primary" target="_blank" rel="noopener noreferrer">
-              <span>Start Your Project</span>
+              <span>Get Your Website</span>
               <MdArrowForward />
             </a>
-            <a href="#pricing" className="btn btn-secondary">Book Consultation</a>
+            <a href="#pricing" className="btn btn-secondary">View Packages</a>
           </div>
 
           <div className="lp-stats">
@@ -159,8 +173,8 @@ export default function LandingPage() {
       <section id="solutions" className="lp-section">
         <div className="lp-container">
           <div className="lp-section-head">
-            <h2 className="lp-section-title">Solutions Designed For Growth</h2>
-            <p className="lp-section-tagline">We don&apos;t just build websites; we build engines for your business.</p>
+            <h2 className="lp-section-title">What We Build For You</h2>
+            <p className="lp-section-tagline">Everything your business needs to look great and sell online.</p>
           </div>
           <div className="lp-grid-3">
             {solutions.map((s) => (
@@ -179,31 +193,77 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="lp-section lp-section--tint">
+      {/* Portfolio */}
+      <section id="work" className="lp-section lp-section--tint">
         <div className="lp-container">
           <div className="lp-section-head">
-            <h2 className="lp-section-title">Simple, Transparent Pricing</h2>
-            <p className="lp-section-tagline">Premium quality suited for SME budgets.</p>
+            <h2 className="lp-section-title">Recent Work</h2>
+            <p className="lp-section-tagline">Live websites we&apos;ve built for Malaysian businesses.</p>
+          </div>
+          <div className="lp-work-grid">
+            {portfolio.map((p) => (
+              <a
+                key={p.domain}
+                href={`https://${p.domain}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="lp-work"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  className="lp-work-favicon"
+                  src={`https://www.google.com/s2/favicons?domain=${p.domain}&sz=64`}
+                  alt=""
+                  width={36}
+                  height={36}
+                  loading="lazy"
+                />
+                <h3 className="lp-work-title">{p.title}</h3>
+                <span className="lp-work-cat">{p.category}</span>
+                <span className="lp-work-link">{p.domain} <MdArrowForward /></span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="lp-section">
+        <div className="lp-container">
+          <div className="lp-section-head">
+            <h2 className="lp-section-title">Simple, Transparent Packages</h2>
+            <p className="lp-section-tagline">Premium quality websites, priced for SME budgets. No hidden charges.</p>
           </div>
           <div className="lp-grid-3">
-            {pricing.map((p) => (
-              <div key={p.category} className={`lp-price-card ${p.featured ? 'lp-price-card--featured' : ''}`}>
-                {p.featured && <span className="lp-badge-value">Most Value</span>}
-                <h3 className="lp-card-title">{p.category}</h3>
-                <ul className="lp-price-list">
-                  {p.tiers.map((t) => (
-                    <li key={t.name}>
-                      <span>{t.name}</span>
-                      <strong>{t.price}</strong>
-                    </li>
+            {packages.map((p) => (
+              <div key={p.name} className={`lp-price-card ${p.featured ? 'lp-price-card--featured' : ''}`}>
+                {p.featured && <span className="lp-badge-value">Most Popular</span>}
+                <h3 className="lp-card-title">{p.name}</h3>
+                <div className="lp-price-amount">{p.price}</div>
+                <p className="lp-price-tagline">{p.tagline}</p>
+                <ul className="lp-list">
+                  {p.features.map((f) => (
+                    <li key={f}><MdCheckCircle /> <span>{f}</span></li>
                   ))}
                 </ul>
-                <a href={WHATSAPP} className={`btn ${p.featured ? 'btn-primary' : 'btn-secondary'}`} style={{ width: '100%' }} target="_blank" rel="noopener noreferrer">
-                  {p.cta}
+                <a href={WHATSAPP} className={`btn ${p.featured ? 'btn-primary' : 'btn-secondary'}`} style={{ width: '100%', marginTop: '1.5rem' }} target="_blank" rel="noopener noreferrer">
+                  Choose {p.name}
                 </a>
               </div>
             ))}
+          </div>
+
+          {/* Add-ons */}
+          <div className="lp-addons">
+            <h3 className="lp-addons-title">Optional Add-Ons</h3>
+            <div className="lp-addons-grid">
+              {addons.map((a) => (
+                <div key={a.label} className="lp-addon">
+                  <span>{a.label}</span>
+                  <strong>{a.price}</strong>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
