@@ -363,7 +363,7 @@ function InvoicesContent() {
       {/* PDF Viewer Area */}
       {activeInvoice && (
         <PdfDocumentPreview
-          docKey={activeInvoice.id}
+          docKey={`${activeInvoice.id}-${activeInvoice.status}-${activeInvoice.amount_paid}`}
           filename={`JUR-INV-${activeInvoice.id.substr(0, 6).toUpperCase()}.pdf`}
           docLabel={`JUR-INV-${activeInvoice.id.substr(0, 6).toUpperCase()}`}
           docTitle="Tax Invoice"
