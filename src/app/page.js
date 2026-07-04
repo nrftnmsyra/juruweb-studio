@@ -1,13 +1,15 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { Inter } from 'next/font/google';
+import { FaWhatsapp } from 'react-icons/fa';
 import './landing.css';
 import {
   MdArrowForward,
-  MdChat,
+  MdCheckCircle,
+  MdClose,
   MdDevices,
   MdStorefront,
   MdExtension,
-  MdCheckCircle,
   MdBolt,
   MdHub,
   MdAutoAwesome,
@@ -15,15 +17,25 @@ import {
   MdFormatQuote,
 } from 'react-icons/md';
 
+// Landing page uses Inter (the admin dashboard keeps Google Sans).
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
+
 export const metadata = {
   title: 'Juruweb Studio — Affordable Websites for Malaysian SMEs',
   description:
     'Juruweb Studio builds fast, affordable, mobile-friendly websites for Malaysian SMEs — with WhatsApp integration, product catalogs, and booking, from RM699.',
 };
 
-// WhatsApp contact link. Set NEXT_PUBLIC_WHATSAPP_URL in the environment
-// (e.g. https://wa.me/60123456789) to configure it without editing code.
-const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_URL || 'https://wa.me/60123456789';
+// Main call-to-action link (Linktree hub).
+const CTA_LINK = process.env.NEXT_PUBLIC_CTA_URL || 'https://linktr.ee/juruweb';
+
+// Background images (business related), shown under an overlay.
+const IMG_CODE = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&q=60';
+const IMG_TEAM = 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=60';
+
+// Live site screenshot thumbnail (WordPress mShots — free, no key).
+const shot = (domain) =>
+  `https://s.wordpress.com/mshots/v1/${encodeURIComponent('https://' + domain)}?w=640&h=420`;
 
 const solutions = [
   {
@@ -46,27 +58,30 @@ const solutions = [
   },
 ];
 
-// Website packages (from the Juruweb pricing sheet)
+// Website packages (from the Juruweb pricing sheet).
 const packages = [
   {
     name: 'Basic',
     price: 'RM 699',
     tagline: 'Perfect for getting online fast.',
-    features: ['1-page responsive website', 'WhatsApp integration', 'Mobile-friendly design', 'Delivery in 3-5 days'],
+    included: ['1-page responsive website', 'WhatsApp integration', 'Mobile-friendly design', 'Delivery in 3-5 days'],
+    notIncluded: ['Multiple pages / sections', 'Product catalog', 'Booking system'],
     featured: false,
   },
   {
     name: 'Standard',
     price: 'RM 999',
     tagline: 'Our most popular package for growing SMEs.',
-    features: ['Multi-section professional website', '5 revisions included', 'WhatsApp integration', 'Delivery in 5-7 days'],
+    included: ['Multi-section professional website', '5 revisions included', 'WhatsApp integration', 'Delivery in 5-7 days'],
+    notIncluded: ['Product catalog & booking', 'Unlimited revisions'],
     featured: true,
   },
   {
     name: 'Premium',
     price: 'RM 1,499',
     tagline: 'Full-featured store and booking site.',
-    features: ['Premium custom design', 'Full product catalog & booking', 'Unlimited revisions', 'Delivery in 7-14 days'],
+    included: ['Premium custom design', 'Full product catalog & booking', 'Unlimited revisions', 'Delivery in 7-14 days'],
+    notIncluded: ['Mobile app development', 'Monthly digital marketing'],
     featured: false,
   },
 ];
@@ -80,15 +95,32 @@ const addons = [
   { label: 'Brand Logo Design', price: 'RM 200' },
 ];
 
-// Live client websites built by Juruweb Studio
-const portfolio = [
-  { title: 'Air Compressor', category: 'Industrial Equipment', domain: 'air-compressor.my' },
-  { title: 'Cat Rumah', category: 'Home Painting Services', domain: 'cat-rumah.my' },
-  { title: 'Cold Room Rental', category: 'Equipment Rental', domain: 'coldroomrental.my' },
-  { title: 'Motor Sewa', category: 'Motorbike Rental', domain: 'motorsewa.com.my' },
-  { title: 'Roller Shutter Doors', category: 'Doors & Security', domain: 'rollershutterdoors.my' },
-  { title: 'Servis Aircond Rumah', category: 'Aircond Services', domain: 'servisaircondrumah.my' },
-  { title: 'Table & Chair Rentals', category: 'Event Rentals', domain: 'tablechairrentals.my' },
+// Featured client sites (with a name).
+const portfolioFeatured = [
+  { title: 'Business Cat Rumah', domain: 'catrumah.com.my' },
+  { title: 'Servis Pemasangan Wall Panel', domain: 'wallpanel.my' },
+  { title: 'Servis Katering Makanan', domain: 'cateringservice.my' },
+];
+
+// More live client sites (thumbnail only, clickable).
+const portfolioMore = [
+  'electrician24hour.my',
+  'sleeptest.my',
+  'kerusimeja.my',
+  'catboarding.my',
+  'plumbingservices.my',
+  'lorikren.com.my',
+  'concretemixer.my',
+  'ibnusinacare.com.my',
+  'sewavanjohor.my',
+  'oxygentank.my',
+  'air-compressor.my',
+  'cat-rumah.my',
+  'coldroomrental.my',
+  'motorsewa.com.my',
+  'rollershutterdoors.my',
+  'servisaircondrumah.my',
+  'tablechairrentals.my',
 ];
 
 const benefits = [
@@ -109,20 +141,20 @@ const testimonials = [
   { name: 'Hafiz', role: 'Logistics Manager', quote: 'Juruweb built our delivery tracking system perfectly. They understood exactly what we needed and delivered ahead of time.' },
   { name: 'Sarah', role: 'Boutique Owner', quote: 'We used to get zero leads from our website. After Juruweb redesigned it, enquiries started coming in every week.' },
   { name: 'Lim', role: 'Retail SME', quote: 'Very fast, very responsive, and no hidden charges. It is hard to find an honest team like this.' },
-  { name: 'Aisyah', role: 'Tech Startup CEO', quote: 'We needed an MVP app launched within a tight deadline to secure funding — Juruweb made it happen.' },
-  { name: 'David', role: 'F&B Chain Owner', quote: 'Since letting Juruweb handle our digital marketing and rebranding, our foot traffic has grown noticeably.' },
+  { name: 'Aisyah', role: 'Startup Founder', quote: 'We needed a site launched within a tight deadline — Juruweb made it happen without any stress.' },
+  { name: 'David', role: 'F&B Chain Owner', quote: 'Since letting Juruweb handle our website and branding, our foot traffic has grown noticeably.' },
   { name: 'Wei Jie', role: 'Real Estate Agency', quote: 'The lead-generation landing pages they built for our property listings convert far better than before.' },
 ];
 
 const stats = [
-  { value: '50+', label: 'Projects Delivered' },
-  { value: '14 Days', label: 'Avg. Completion' },
-  { value: '3+ Years', label: 'Experience' },
+  { value: '20+', label: 'Websites Delivered' },
+  { value: '3-14', label: 'Days to Launch' },
+  { value: '100%', label: 'SME Focused' },
 ];
 
 export default function LandingPage() {
   return (
-    <div className="lp">
+    <div className={`lp ${inter.variable}`}>
       {/* Nav */}
       <header className="lp-nav">
         <div className="lp-container lp-nav-inner">
@@ -135,8 +167,9 @@ export default function LandingPage() {
             <a href="#pricing">Pricing</a>
             <a href="#why">Why Us</a>
           </nav>
-          <a href={WHATSAPP} className="btn btn-primary lp-nav-cta" target="_blank" rel="noopener noreferrer">
-            Let&apos;s Talk
+          <a href={CTA_LINK} className="btn btn-whatsapp lp-nav-cta" target="_blank" rel="noopener noreferrer">
+            <FaWhatsapp />
+            <span>Let&apos;s Talk</span>
           </a>
         </div>
       </header>
@@ -151,11 +184,14 @@ export default function LandingPage() {
             SMEs — with WhatsApp integration, product catalogs, and booking, from RM699.
           </p>
           <div className="lp-hero-actions">
-            <a href={WHATSAPP} className="btn btn-primary" target="_blank" rel="noopener noreferrer">
+            <a href={CTA_LINK} className="btn btn-whatsapp" target="_blank" rel="noopener noreferrer">
+              <FaWhatsapp />
               <span>Get Your Website</span>
+            </a>
+            <a href="#pricing" className="btn lp-btn-light">
+              <span>View Packages</span>
               <MdArrowForward />
             </a>
-            <a href="#pricing" className="btn btn-secondary">View Packages</a>
           </div>
 
           <div className="lp-stats">
@@ -200,27 +236,29 @@ export default function LandingPage() {
             <h2 className="lp-section-title">Recent Work</h2>
             <p className="lp-section-tagline">Live websites we&apos;ve built for Malaysian businesses.</p>
           </div>
+
           <div className="lp-work-grid">
-            {portfolio.map((p) => (
-              <a
-                key={p.domain}
-                href={`https://${p.domain}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="lp-work"
-              >
+            {portfolioFeatured.map((p) => (
+              <a key={p.domain} href={`https://${p.domain}`} target="_blank" rel="noopener noreferrer" className="lp-work">
+                <div className="lp-work-shot">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={shot(p.domain)} alt={p.title} loading="lazy" />
+                </div>
+                <div className="lp-work-body">
+                  <h3 className="lp-work-title">{p.title}</h3>
+                  <span className="lp-work-link">Visit site <MdArrowForward /></span>
+                </div>
+              </a>
+            ))}
+          </div>
+
+          <h3 className="lp-work-more-title">More websites we&apos;ve launched</h3>
+          <div className="lp-work-more-grid">
+            {portfolioMore.map((d) => (
+              <a key={d} href={`https://${d}`} target="_blank" rel="noopener noreferrer" className="lp-work-thumb" aria-label={`Visit ${d}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className="lp-work-favicon"
-                  src={`https://www.google.com/s2/favicons?domain=${p.domain}&sz=64`}
-                  alt=""
-                  width={36}
-                  height={36}
-                  loading="lazy"
-                />
-                <h3 className="lp-work-title">{p.title}</h3>
-                <span className="lp-work-cat">{p.category}</span>
-                <span className="lp-work-link">{p.domain} <MdArrowForward /></span>
+                <img src={shot(d)} alt="" loading="lazy" />
+                <span className="lp-work-thumb-overlay"><MdArrowForward /></span>
               </a>
             ))}
           </div>
@@ -242,12 +280,16 @@ export default function LandingPage() {
                 <div className="lp-price-amount">{p.price}</div>
                 <p className="lp-price-tagline">{p.tagline}</p>
                 <ul className="lp-list">
-                  {p.features.map((f) => (
+                  {p.included.map((f) => (
                     <li key={f}><MdCheckCircle /> <span>{f}</span></li>
                   ))}
+                  {p.notIncluded.map((f) => (
+                    <li key={f} className="lp-list-no"><MdClose /> <span>{f}</span></li>
+                  ))}
                 </ul>
-                <a href={WHATSAPP} className={`btn ${p.featured ? 'btn-primary' : 'btn-secondary'}`} style={{ width: '100%', marginTop: '1.5rem' }} target="_blank" rel="noopener noreferrer">
-                  Choose {p.name}
+                <a href={CTA_LINK} className="btn btn-whatsapp" style={{ width: '100%', marginTop: '1.5rem' }} target="_blank" rel="noopener noreferrer">
+                  <FaWhatsapp />
+                  <span>Choose {p.name}</span>
                 </a>
               </div>
             ))}
@@ -268,8 +310,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Why us */}
-      <section id="why" className="lp-section">
+      {/* Why us (background image + overlay) */}
+      <section
+        id="why"
+        className="lp-section lp-section--image"
+        style={{ backgroundImage: `linear-gradient(rgba(246,246,249,0.93), rgba(246,246,249,0.96)), url(${IMG_TEAM})` }}
+      >
         <div className="lp-container">
           <div className="lp-section-head">
             <h2 className="lp-section-title">Your Trusted Local Partner</h2>
@@ -325,14 +371,17 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Final CTA */}
+      {/* Final CTA (background image + dark overlay) */}
       <section className="lp-cta">
-        <div className="lp-container lp-cta-inner">
+        <div
+          className="lp-container lp-cta-inner"
+          style={{ backgroundImage: `linear-gradient(rgba(24,16,24,0.86), rgba(24,24,27,0.92)), url(${IMG_CODE})` }}
+        >
           <h2 className="lp-cta-title">Ready to Upgrade Your Business?</h2>
           <p className="lp-cta-body">Don&apos;t let your competitors get ahead. Let&apos;s build something great together.</p>
-          <a href={WHATSAPP} className="btn btn-primary lp-cta-btn" target="_blank" rel="noopener noreferrer">
-            <MdChat />
-            <span>Contact Us on WhatsApp</span>
+          <a href={CTA_LINK} className="btn btn-whatsapp lp-cta-btn" target="_blank" rel="noopener noreferrer">
+            <FaWhatsapp />
+            <span>Talk to Us on WhatsApp</span>
           </a>
         </div>
       </section>
@@ -341,10 +390,11 @@ export default function LandingPage() {
       <footer className="lp-footer">
         <div className="lp-container lp-footer-inner">
           <Image src="/dark-bg-logo.png" alt="Juruweb Studio" width={140} height={40} style={{ objectFit: 'contain' }} />
-          <p className="lp-footer-copy">© 2026 Juruweb Studio. Delivering premium digital solutions for SMEs.</p>
+          <p className="lp-footer-copy">© 2026 Juruweb Studio. Affordable websites for Malaysian SMEs.</p>
           <div className="lp-footer-links">
             <a href="#solutions">Services</a>
             <a href="#pricing">Pricing</a>
+            <a href={CTA_LINK} target="_blank" rel="noopener noreferrer">Contact</a>
             <Link href="/login">Admin</Link>
           </div>
         </div>
