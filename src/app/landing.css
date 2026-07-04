@@ -244,7 +244,7 @@
 /* Pricing */
 .lp-price-card {
   position: relative;
-  background: var(--bg-app);
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 18px;
   padding: 1.75rem;
@@ -291,6 +291,115 @@
 .lp-price-list strong {
   color: var(--brand-pink-hover);
   white-space: nowrap;
+}
+
+/* Package price header */
+.lp-price-amount {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin-top: 0.25rem;
+}
+.lp-price-tagline {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0.35rem 0 1.25rem;
+  line-height: 1.5;
+}
+.lp-price-card .lp-list {
+  margin-top: 0;
+}
+
+/* Add-ons */
+.lp-addons {
+  margin-top: 3rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 1.75rem;
+}
+.lp-addons-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  text-align: center;
+}
+.lp-addons-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem 2rem;
+}
+@media (max-width: 780px) {
+  .lp-addons-grid { grid-template-columns: 1fr; }
+}
+.lp-addon {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.92rem;
+}
+.lp-addon strong {
+  color: var(--brand-pink-hover);
+  white-space: nowrap;
+}
+
+/* Portfolio */
+.lp-work-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+@media (max-width: 900px) {
+  .lp-work-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+  .lp-work-grid { grid-template-columns: 1fr; }
+}
+.lp-work {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.4rem;
+  transition: var(--transition-smooth);
+}
+.lp-work:hover {
+  border-color: var(--brand-pink);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+.lp-work-favicon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  margin-bottom: 0.9rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 4px;
+  object-fit: contain;
+}
+.lp-work-title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.lp-work-cat {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-top: 0.15rem;
+}
+.lp-work-link {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--brand-pink-hover);
+  margin-top: 1rem;
 }
 
 /* Benefits / process */
