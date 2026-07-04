@@ -93,11 +93,22 @@ export default function InvoiceDocument({ invoice }) {
           {(() => {
             const paid = Number(invoice.amount_paid);
             const tot = Number(invoice.total);
+            const status = invoice.status;
+            // The stamp follows the invoice status; Draft/Sent fall back to the paid amount.
             let color = '#dc2626';
             let label = 'Unpaid';
             let logo = '/stamp-logo-unpaid.svg';
-            if (paid >= tot) { color = '#059669'; label = 'Paid'; logo = '/stamp-logo-paid.svg'; }
-            else if (paid > 0) { color = '#d97706'; label = 'Partially Paid'; logo = '/stamp-logo-partial.svg'; }
+            if (status === 'Paid') {
+              color = '#059669'; label = 'Paid'; logo = '/stamp-logo-paid.svg';
+            } else if (status === 'Partially Paid') {
+              color = '#d97706'; label = 'Partially Paid'; logo = '/stamp-logo-partial.svg';
+            } else if (status === 'Cancelled') {
+              color = '#6b7280'; label = 'Cancelled'; logo = '/stamp-logo-cancelled.svg';
+            } else if (paid >= tot && tot > 0) {
+              color = '#059669'; label = 'Paid'; logo = '/stamp-logo-paid.svg';
+            } else if (paid > 0) {
+              color = '#d97706'; label = 'Partially Paid'; logo = '/stamp-logo-partial.svg';
+            }
             return (
               <div style={{
                 border: `2px solid ${color}`,
@@ -114,7 +125,9 @@ export default function InvoiceDocument({ invoice }) {
                 <img
                   src={logo}
                   alt="Juruweb Studio"
-                  style={{ width: '110px', height: '26px', objectFit: 'contain', display: 'block' }}
+                  width={96}
+                  height={32}
+                  style={{ width: '96px', height: '32px', display: 'block' }}
                 />
                 <span style={{
                   color,
