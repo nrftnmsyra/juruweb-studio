@@ -413,6 +413,34 @@ export const dbService = {
     }
   },
 
+  async updateInvoiceStatus(invoiceId, status) {
+    try {
+      const { data, error } = await supabase.from('invoices').update({ status }).eq('id', invoiceId).select();
+      if (error) {
+        const check = handleDbError(error);
+        if (check) {
+          const list = getLocalStorageData('juruweb_invoices');
+          const idx = list.findIndex(i => i.id === invoiceId);
+          if (idx !== -1) {
+            list[idx].status = status;
+            setLocalStorageData('juruweb_invoices', list);
+          }
+          return { data, ...check };
+        }
+        throw error;
+      }
+      return { data };
+    } catch {
+      const list = getLocalStorageData('juruweb_invoices');
+      const idx = list.findIndex(i => i.id === invoiceId);
+      if (idx !== -1) {
+        list[idx].status = status;
+        setLocalStorageData('juruweb_invoices', list);
+      }
+      return { success: true };
+    }
+  },
+
   // ---- PUBLIC CUSTOMER TRACKING (lookup by phone number) ----
   // Returns { data: { customer, orders, invoices } } or { data: null } when
   // no customer matches. Matches on the trailing digits so leading zeros and

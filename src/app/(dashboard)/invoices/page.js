@@ -208,6 +208,16 @@ function InvoicesContent() {
     }
   };
 
+  const handleStatusChange = async (invoiceId, status) => {
+    try {
+      await dbService.updateInvoiceStatus(invoiceId, status);
+      toast.success(`Invoice status updated to: ${status}`);
+      loadData();
+    } catch {
+      toast.error('Failed to update status');
+    }
+  };
+
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
@@ -284,11 +294,6 @@ function InvoicesContent() {
                 <tbody>
                   {filteredInvoices.map((inv) => {
                     const outstanding = Number(inv.total) - Number(inv.amount_paid);
-                    
-                    let bgStatus = 'badge-draft';
-                    if (inv.status === 'Sent') bgStatus = 'badge-sent';
-                    else if (inv.status === 'Partially Paid') bgStatus = 'badge-partial';
-                    else if (inv.status === 'Paid') bgStatus = 'badge-paid';
 
                     return (
                       <tr key={inv.id}>
@@ -306,7 +311,18 @@ function InvoicesContent() {
                           RM {outstanding.toFixed(2)}
                         </td>
                         <td data-label="Status">
-                          <span className={`badge ${bgStatus}`} style={{ whiteSpace: 'nowrap' }}>{inv.status}</span>
+                          <select
+                            value={inv.status}
+                            onChange={(e) => handleStatusChange(inv.id, e.target.value)}
+                            title="Change status"
+                            style={{ width: 'auto', height: 'var(--control-height-sm)', fontSize: '0.78rem', fontWeight: 600, borderRadius: '9999px', paddingLeft: '0.9rem' }}
+                          >
+                            <option value="Draft">Draft</option>
+                            <option value="Sent">Sent</option>
+                            <option value="Partially Paid">Partially Paid</option>
+                            <option value="Paid">Paid</option>
+                            <option value="Cancelled">Cancelled</option>
+                          </select>
                         </td>
                         <td className="actions-cell">
                           <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'nowrap', justifyContent: 'flex-end' }}>

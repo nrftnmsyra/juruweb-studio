@@ -95,8 +95,9 @@ export default function InvoiceDocument({ invoice }) {
             const tot = Number(invoice.total);
             let color = '#dc2626';
             let label = 'Unpaid';
-            if (paid >= tot) { color = '#059669'; label = 'Paid'; }
-            else if (paid > 0) { color = '#d97706'; label = 'Partially Paid'; }
+            let logo = '/stamp-logo-unpaid.svg';
+            if (paid >= tot) { color = '#059669'; label = 'Paid'; logo = '/stamp-logo-paid.svg'; }
+            else if (paid > 0) { color = '#d97706'; label = 'Partially Paid'; logo = '/stamp-logo-partial.svg'; }
             return (
               <div style={{
                 border: `2px solid ${color}`,
@@ -104,29 +105,16 @@ export default function InvoiceDocument({ invoice }) {
                 padding: '0.7rem 1.2rem',
                 transform: 'rotate(-8deg)',
                 opacity: 0.82,
-                mixBlendMode: 'multiply',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '0.4rem',
               }}>
-                <span
-                  aria-label="Juruweb Studio"
-                  className="pdf-stamp-mark"
-                  style={{
-                    display: 'block',
-                    width: '110px',
-                    height: '26px',
-                    backgroundColor: color,
-                    WebkitMaskImage: 'url(/stamp-logo.svg)',
-                    maskImage: 'url(/stamp-logo.svg)',
-                    WebkitMaskRepeat: 'no-repeat',
-                    maskRepeat: 'no-repeat',
-                    WebkitMaskSize: 'contain',
-                    maskSize: 'contain',
-                    WebkitMaskPosition: 'center',
-                    maskPosition: 'center',
-                  }}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={logo}
+                  alt="Juruweb Studio"
+                  style={{ width: '110px', height: '26px', objectFit: 'contain', display: 'block' }}
                 />
                 <span style={{
                   color,
