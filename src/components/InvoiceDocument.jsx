@@ -97,17 +97,17 @@ export default function InvoiceDocument({ invoice }) {
             // The stamp follows the invoice status; Draft/Sent fall back to the paid amount.
             let color = '#dc2626';
             let label = 'Unpaid';
-            let logo = '/stamp-logo-unpaid.svg';
+            let logo = '/stamp-logo-unpaid.png';
             if (status === 'Paid') {
-              color = '#059669'; label = 'Paid'; logo = '/stamp-logo-paid.svg';
+              color = '#059669'; label = 'Paid'; logo = '/stamp-logo-paid.png';
             } else if (status === 'Partially Paid') {
-              color = '#d97706'; label = 'Partially Paid'; logo = '/stamp-logo-partial.svg';
+              color = '#d97706'; label = 'Partially Paid'; logo = '/stamp-logo-partial.png';
             } else if (status === 'Cancelled') {
-              color = '#6b7280'; label = 'Cancelled'; logo = '/stamp-logo-cancelled.svg';
+              color = '#6b7280'; label = 'Cancelled'; logo = '/stamp-logo-cancelled.png';
             } else if (paid >= tot && tot > 0) {
-              color = '#059669'; label = 'Paid'; logo = '/stamp-logo-paid.svg';
+              color = '#059669'; label = 'Paid'; logo = '/stamp-logo-paid.png';
             } else if (paid > 0) {
-              color = '#d97706'; label = 'Partially Paid'; logo = '/stamp-logo-partial.svg';
+              color = '#d97706'; label = 'Partially Paid'; logo = '/stamp-logo-partial.png';
             }
             return (
               <div style={{
