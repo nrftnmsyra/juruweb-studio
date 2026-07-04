@@ -85,7 +85,7 @@ const benefits = [
   { icon: <MdSavings />, title: 'Affordable For SMEs', desc: 'Premium corporate-level quality priced for local businesses.' },
 ];
 
-const process = [
+const processSteps = [
   { step: '01', title: 'Discussion', desc: 'We learn your goals, challenges, and vision.' },
   { step: '02', title: 'Planning', desc: 'We scope the work and map a clear timeline.' },
   { step: '03', title: 'Design & Dev', desc: 'We craft and build with real code and strategy.' },
@@ -233,7 +233,7 @@ export default function LandingPage() {
             <h2 className="lp-section-title">Our Process</h2>
           </div>
           <div className="lp-grid-4">
-            {process.map((p) => (
+            {processSteps.map((p) => (
               <div key={p.step} className="lp-step">
                 <span className="lp-step-num">{p.step}</span>
                 <h3 className="lp-benefit-title">{p.title}</h3>
