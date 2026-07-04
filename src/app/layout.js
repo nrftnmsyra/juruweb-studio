@@ -1,7 +1,6 @@
 import { Google_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
-import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 const googleSans = Google_Sans({
   subsets: ["latin"],
@@ -10,20 +9,13 @@ const googleSans = Google_Sans({
 });
 
 export const metadata = {
-  title: "Juruweb Studio - Admin Dashboard",
-  description: "Manage client orders, generate quotations, and track payment invoices.",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Juruweb",
-  },
+  title: "Juruweb Studio",
+  description: "Affordable websites for Malaysian SMEs.",
 };
 
 export const viewport = {
-  themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
   viewportFit: "cover",
 };
 
@@ -31,7 +23,6 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={googleSans.variable}>
       <body>
-        <ServiceWorkerRegister />
         {children}
         <Toaster
           position="bottom-right"
