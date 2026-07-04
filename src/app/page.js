@@ -21,8 +21,9 @@ export const metadata = {
     'We help Malaysian SMEs scale with custom websites, mobile apps, and results-driven digital marketing.',
 };
 
-// Update this to your real WhatsApp number (international format, no +).
-const WHATSAPP = 'https://wa.me/60123456789';
+// WhatsApp contact link. Set NEXT_PUBLIC_WHATSAPP_URL in the environment
+// (e.g. https://wa.me/60123456789) to configure it without editing code.
+const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_URL || 'https://wa.me/60123456789';
 
 const solutions = [
   {
