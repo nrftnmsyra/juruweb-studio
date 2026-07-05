@@ -5,14 +5,14 @@ html { scroll-behavior: smooth; }
 
 .lp {
   --pink: #ff66c4;
-  --purple: #a855f7;
+  --purple: #ffa8d6;
   --lp-bg: #0b0b14;
   --lp-text: #ffffff;
   --lp-dim: rgba(255, 255, 255, 0.62);
   --lp-card: rgba(255, 255, 255, 0.045);
   --lp-card-hover: rgba(255, 255, 255, 0.07);
   --lp-border: rgba(255, 255, 255, 0.09);
-  --lp-grad: linear-gradient(120deg, #ff66c4 0%, #a855f7 100%);
+  --lp-grad: linear-gradient(120deg, #ff66c4 0%, #ffa8d6 100%);
   position: relative;
   color: var(--lp-text);
   background-color: var(--lp-bg);
@@ -28,7 +28,7 @@ html { scroll-behavior: smooth; }
   pointer-events: none;
   background:
     radial-gradient(closest-side at 15% 8%, rgba(255, 102, 196, 0.18), transparent),
-    radial-gradient(closest-side at 85% 12%, rgba(168, 85, 247, 0.18), transparent),
+    radial-gradient(closest-side at 85% 12%, rgba(255, 120, 200, 0.18), transparent),
     radial-gradient(closest-side at 60% 90%, rgba(255, 102, 196, 0.1), transparent);
 }
 .lp > * { position: relative; z-index: 1; }
@@ -143,7 +143,7 @@ html { scroll-behavior: smooth; }
   max-width: 900px;
   height: 900px;
   transform: translateX(-50%);
-  background: radial-gradient(closest-side, rgba(168, 85, 247, 0.35), rgba(255, 102, 196, 0.18), transparent 70%);
+  background: radial-gradient(closest-side, rgba(255, 120, 200, 0.35), rgba(255, 102, 196, 0.18), transparent 70%);
   filter: blur(40px);
   animation: lpFloat 12s ease-in-out infinite;
   pointer-events: none;
@@ -268,7 +268,7 @@ html { scroll-behavior: smooth; }
   color: #fff;
   font-size: 1.7rem;
   margin-bottom: 1.2rem;
-  box-shadow: 0 8px 22px rgba(168, 85, 247, 0.35);
+  box-shadow: 0 8px 22px rgba(255, 120, 200, 0.35);
 }
 .lp-card-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
 .lp-card-desc { font-size: 0.94rem; color: var(--lp-dim); line-height: 1.6; }
@@ -333,7 +333,7 @@ html { scroll-behavior: smooth; }
     linear-gradient(var(--lp-bg), var(--lp-bg)) padding-box,
     var(--lp-grad) border-box;
   border: 1.5px solid transparent;
-  box-shadow: 0 20px 50px -20px rgba(168, 85, 247, 0.5);
+  box-shadow: 0 20px 50px -20px rgba(255, 120, 200, 0.5);
 }
 .lp-badge-value {
   position: absolute; top: -0.8rem; left: 50%; transform: translateX(-50%);
@@ -378,8 +378,8 @@ html { scroll-behavior: smooth; }
 }
 .lp-why-card:hover {
   transform: translateY(-5px);
-  border-color: rgba(168, 85, 247, 0.5);
-  box-shadow: 0 20px 40px -20px rgba(168, 85, 247, 0.5);
+  border-color: rgba(255, 120, 200, 0.5);
+  box-shadow: 0 20px 40px -20px rgba(255, 120, 200, 0.5);
 }
 .lp-why-icon {
   display: inline-flex; align-items: center; justify-content: center;
@@ -404,7 +404,7 @@ html { scroll-behavior: smooth; }
   width: 56px; height: 56px; border-radius: 50%;
   font-size: 1.5rem; font-weight: 800; color: #fff;
   background: var(--lp-grad);
-  box-shadow: 0 10px 24px rgba(168, 85, 247, 0.4);
+  box-shadow: 0 10px 24px rgba(255, 120, 200, 0.4);
   margin-bottom: 1rem;
 }
 .lp-step-title { font-size: 1.15rem; font-weight: 700; color: #fff; margin-bottom: 0.4rem; }
@@ -456,7 +456,7 @@ html { scroll-behavior: smooth; }
   border-radius: 28px;
   padding: 4rem 2rem;
   background:
-    linear-gradient(135deg, rgba(255, 102, 196, 0.18), rgba(168, 85, 247, 0.18)),
+    linear-gradient(135deg, rgba(255, 102, 196, 0.18), rgba(255, 120, 200, 0.18)),
     #10101c;
   border: 1px solid var(--lp-border);
 }
@@ -472,3 +472,96 @@ html { scroll-behavior: smooth; }
 .lp-footer-links a { font-size: 0.88rem; color: var(--lp-dim); transition: color 0.2s ease; }
 .lp-footer-links a:hover { color: #fff; }
 @media (max-width: 560px) { .lp-footer-links { margin-left: 0; width: 100%; } }
+
+/* ===== Refinements ===== */
+
+/* Hero — slowly moving "alive" elements */
+.lp-hero-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.lp-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.6;
+}
+.lp-orb-1 { width: 460px; height: 460px; top: -140px; left: -80px; background: radial-gradient(circle, rgba(255, 102, 196, 0.55), transparent 70%); animation: lpDrift1 18s ease-in-out infinite; }
+.lp-orb-2 { width: 380px; height: 380px; top: -60px; right: -60px; background: radial-gradient(circle, rgba(255, 168, 214, 0.5), transparent 70%); animation: lpDrift2 22s ease-in-out infinite; }
+.lp-orb-3 { width: 420px; height: 420px; bottom: -180px; left: 40%; background: radial-gradient(circle, rgba(255, 79, 174, 0.4), transparent 70%); animation: lpDrift3 26s ease-in-out infinite; }
+.lp-grid-lines {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000, transparent 75%);
+}
+@keyframes lpDrift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(60px,40px) scale(1.12); } }
+@keyframes lpDrift2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-50px,50px) scale(1.15); } }
+@keyframes lpDrift3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(40px,-40px) scale(1.1); } }
+@media (prefers-reduced-motion: reduce) { .lp-orb { animation: none !important; } }
+
+/* Solutions — informational bullets */
+.lp-solution { display: flex; flex-direction: column; }
+.lp-solution .lp-list { margin-top: 1.25rem; }
+
+/* Portfolio — uniform thumbnails, title on hover */
+.lp-work {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 11;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--lp-border);
+  background: #15151f;
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+.lp-work:hover { transform: translateY(-3px); border-color: var(--pink); }
+.lp-work-img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; transition: transform 0.4s ease; }
+.lp-work:hover .lp-work-img { transform: scale(1.06); }
+.lp-work-cap {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 2.5rem 1rem 0.9rem;
+  background: linear-gradient(to top, rgba(11, 11, 20, 0.92), rgba(11, 11, 20, 0.6) 55%, transparent);
+  color: #fff; font-weight: 700; font-size: 0.9rem;
+  transform: translateY(100%);
+  transition: transform 0.28s ease;
+}
+.lp-work:hover .lp-work-cap { transform: translateY(0); }
+
+/* Pricing — push CTA/bonus to the bottom so cards align */
+.lp-price-card .lp-list { flex: 1 1 auto; }
+.lp-price-card .btn-whatsapp { margin-top: auto; }
+
+/* Why us — split, attractive layout */
+.lp-why-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 3rem; align-items: center; }
+@media (max-width: 860px) { .lp-why-grid { grid-template-columns: 1fr; gap: 2rem; } }
+.lp-why-intro .lp-section-title { text-align: left; }
+.lp-why-intro .lp-section-tagline { text-align: left; margin-bottom: 1.75rem; }
+.lp-why-intro .btn { display: inline-flex; }
+.lp-why-list { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 520px) { .lp-why-list { grid-template-columns: 1fr; } }
+.lp-why-item {
+  display: flex; gap: 0.9rem; align-items: flex-start;
+  padding: 1.3rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--lp-border);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.lp-why-item:hover { transform: translateY(-3px); border-color: rgba(255, 102, 196, 0.5); background: rgba(255, 255, 255, 0.06); }
+.lp-why-item .lp-why-icon { margin-bottom: 0; flex-shrink: 0; width: 42px; height: 42px; font-size: 1.3rem; }
+
+/* Reviews — Google badge */
+.lp-review-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
+.lp-review-google { font-size: 1.35rem; }
+
+/* Final CTA — full-bleed with background image, no inner box */
+.lp-cta {
+  padding: 6rem 0;
+  background-size: cover;
+  background-position: center;
+  background-color: #10101c;
+  border-top: 1px solid var(--lp-border);
+}
+.lp-cta-content { text-align: center; position: relative; z-index: 1; }
+
+/* Section background image */
+.lp-section-img { background-size: cover; background-position: center; background-attachment: fixed; }

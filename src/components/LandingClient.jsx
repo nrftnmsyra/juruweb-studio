@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Inter } from 'next/font/google';
 import { FaWhatsapp } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
 import {
   MdArrowForward,
   MdCheckCircle,
@@ -26,6 +27,9 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'sw
 
 const CTA_LINK = process.env.NEXT_PUBLIC_CTA_URL || 'https://linktr.ee/juruweb';
 const shot = (d) => `https://s.wordpress.com/mshots/v1/${encodeURIComponent('https://' + d)}?w=640&h=420`;
+
+// Business-related background image (shown under a dark overlay).
+const IMG_WORKSPACE = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&q=60';
 
 // ---- Localised copy (EN / MS / ZH) ----
 const T = {
@@ -248,16 +252,31 @@ const addons = [
   { label: 'Logo design', price: 'RM 100-300' },
 ];
 
-// Featured client sites (named) + more (thumbnail only) — 16 total.
-const portfolioFeatured = [
-  { title: 'Business Cat Rumah', domain: 'catrumah.com.my' },
-  { title: 'Servis Pemasangan Wall Panel', domain: 'wallpanel.my' },
-  { title: 'Servis Katering Makanan', domain: 'cateringservice.my' },
+// Live client sites — 16 previews (title shown on hover).
+const portfolio = [
+  { title: 'Cat Rumah', domain: 'catrumah.com.my' },
+  { title: 'Wall Panel', domain: 'wallpanel.my' },
+  { title: 'Catering Service', domain: 'cateringservice.my' },
+  { title: 'Electrician 24 Hour', domain: 'electrician24hour.my' },
+  { title: 'Sleep Test', domain: 'sleeptest.my' },
+  { title: 'Kerusi Meja', domain: 'kerusimeja.my' },
+  { title: 'Cat Boarding', domain: 'catboarding.my' },
+  { title: 'Plumbing Services', domain: 'plumbingservices.my' },
+  { title: 'Lori Kren', domain: 'lorikren.com.my' },
+  { title: 'Concrete Mixer', domain: 'concretemixer.my' },
+  { title: 'Ibnu Sina Care', domain: 'ibnusinacare.com.my' },
+  { title: 'Sewa Van Johor', domain: 'sewavanjohor.my' },
+  { title: 'Oxygen Tank', domain: 'oxygentank.my' },
+  { title: 'Air Compressor', domain: 'air-compressor.my' },
+  { title: 'Cold Room Rental', domain: 'coldroomrental.my' },
+  { title: 'Motor Sewa', domain: 'motorsewa.com.my' },
 ];
-const portfolioMore = [
-  'electrician24hour.my', 'sleeptest.my', 'kerusimeja.my', 'catboarding.my',
-  'plumbingservices.my', 'lorikren.com.my', 'concretemixer.my', 'ibnusinacare.com.my',
-  'sewavanjohor.my', 'oxygentank.my', 'air-compressor.my', 'coldroomrental.my', 'motorsewa.com.my',
+
+// Feature bullets for the "What we build" cards (technical terms kept in English).
+const solutionBullets = [
+  ['Responsive & mobile-first', 'Custom brand design', 'Fast, SEO-ready pages'],
+  ['Product catalog', 'Booking & enquiry forms', 'WhatsApp order button'],
+  ['Google Business & Maps', 'Basic SEO setup', 'Analytics & Ads ready'],
 ];
 
 // Reviews split into two marquee rows.
@@ -319,7 +338,12 @@ export default function LandingClient() {
 
       {/* Hero */}
       <section className="lp-hero">
-        <div className="lp-hero-glow" aria-hidden />
+        <div className="lp-hero-bg" aria-hidden>
+          <span className="lp-orb lp-orb-1" />
+          <span className="lp-orb lp-orb-2" />
+          <span className="lp-orb lp-orb-3" />
+          <span className="lp-grid-lines" />
+        </div>
         <div className="lp-container lp-hero-inner">
           <span className="lp-eyebrow">{t.hero.eyebrow}</span>
           <h1 className="lp-hero-title">{t.hero.title}</h1>
@@ -339,18 +363,23 @@ export default function LandingClient() {
       </section>
 
       {/* Solutions */}
-      <section id="solutions" className="lp-section">
+      <section id="solutions" className="lp-section lp-section-img" style={{ backgroundImage: `linear-gradient(rgba(11,11,20,0.92), rgba(11,11,20,0.96)), url(${IMG_WORKSPACE})` }}>
         <div className="lp-container">
           <div className="lp-section-head">
             <h2 className="lp-section-title">{t.solutions.title}</h2>
             <p className="lp-section-tagline">{t.solutions.tagline}</p>
           </div>
           <div className="lp-grid-3">
-            {t.solutions.items.map((s) => (
-              <div key={s.title} className="lp-card">
+            {t.solutions.items.map((s, i) => (
+              <div key={s.title} className="lp-card lp-solution">
                 <span className="lp-card-icon">{s.icon}</span>
                 <h3 className="lp-card-title">{s.title}</h3>
                 <p className="lp-card-desc">{s.desc}</p>
+                <ul className="lp-list">
+                  {solutionBullets[i].map((b) => (
+                    <li key={b}><MdCheckCircle /> <span>{b}</span></li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
@@ -365,25 +394,11 @@ export default function LandingClient() {
             <p className="lp-section-tagline">{t.work.tagline}</p>
           </div>
           <div className="lp-work-grid">
-            {portfolioFeatured.map((p) => (
-              <a key={p.domain} href={`https://${p.domain}`} target="_blank" rel="noopener noreferrer" className="lp-work">
-                <div className="lp-work-shot">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={shot(p.domain)} alt={p.title} loading="lazy" />
-                </div>
-                <div className="lp-work-body">
-                  <h3 className="lp-work-title">{p.title}</h3>
-                  <span className="lp-work-link">{t.work.visit} <MdArrowForward /></span>
-                </div>
-              </a>
-            ))}
-          </div>
-          <div className="lp-work-more-grid">
-            {portfolioMore.map((d) => (
-              <a key={d} href={`https://${d}`} target="_blank" rel="noopener noreferrer" className="lp-work-thumb" aria-label={`Visit ${d}`}>
+            {portfolio.map((p) => (
+              <a key={p.domain} href={`https://${p.domain}`} target="_blank" rel="noopener noreferrer" className="lp-work" aria-label={p.title}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={shot(d)} alt="" loading="lazy" />
-                <span className="lp-work-thumb-overlay"><MdArrowForward /></span>
+                <img className="lp-work-img" src={shot(p.domain)} alt={p.title} loading="lazy" />
+                <span className="lp-work-cap"><span>{p.title}</span></span>
               </a>
             ))}
           </div>
@@ -438,19 +453,24 @@ export default function LandingClient() {
         </div>
       </section>
 
-      {/* Why us — solid dark band */}
+      {/* Why us — split, attractive dark band */}
       <section id="why" className="lp-why">
-        <div className="lp-container">
-          <div className="lp-section-head">
+        <div className="lp-container lp-why-grid">
+          <div className="lp-why-intro">
             <h2 className="lp-section-title lp-white">{t.why.title}</h2>
             <p className="lp-section-tagline lp-white-dim">{t.why.tagline}</p>
+            <a href={CTA_LINK} className="btn btn-whatsapp" target="_blank" rel="noopener noreferrer">
+              <FaWhatsapp /><span>{t.nav.cta}</span>
+            </a>
           </div>
-          <div className="lp-grid-4">
+          <div className="lp-why-list">
             {t.why.items.map((b) => (
-              <div key={b.title} className="lp-why-card">
+              <div key={b.title} className="lp-why-item">
                 <span className="lp-why-icon">{b.icon}</span>
-                <h3 className="lp-why-title">{b.title}</h3>
-                <p className="lp-why-desc">{b.desc}</p>
+                <div>
+                  <h3 className="lp-why-title">{b.title}</h3>
+                  <p className="lp-why-desc">{b.desc}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -495,10 +515,9 @@ export default function LandingClient() {
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="lp-cta">
-        <div className="lp-container lp-cta-inner">
-          <div className="lp-hero-glow" aria-hidden />
+      {/* Final CTA — full-bleed, no container box */}
+      <section className="lp-cta" style={{ backgroundImage: `linear-gradient(rgba(11,11,20,0.82), rgba(11,11,20,0.9)), url(${IMG_WORKSPACE})` }}>
+        <div className="lp-container lp-cta-content">
           <h2 className="lp-cta-title">{t.finalCta.title}</h2>
           <p className="lp-cta-body">{t.finalCta.body}</p>
           <a href={CTA_LINK} className="btn btn-whatsapp lp-cta-btn" target="_blank" rel="noopener noreferrer">
@@ -526,8 +545,11 @@ export default function LandingClient() {
 function Review({ r }) {
   return (
     <div className="lp-review">
-      <div className="lp-review-stars">{[0, 1, 2, 3, 4].map((i) => <MdStar key={i} />)}</div>
-      <p className="lp-review-text"><MdFormatQuote className="lp-review-quote" />{r.quote}</p>
+      <div className="lp-review-top">
+        <div className="lp-review-stars">{[0, 1, 2, 3, 4].map((i) => <MdStar key={i} />)}</div>
+        <FcGoogle className="lp-review-google" title="Google review" />
+      </div>
+      <p className="lp-review-text">{r.quote}</p>
       <div className="lp-review-author"><strong>{r.name}</strong><span>{r.role}</span></div>
     </div>
   );
