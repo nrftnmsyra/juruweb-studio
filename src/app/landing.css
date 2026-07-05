@@ -46,20 +46,9 @@ html { scroll-behavior: smooth; }
 .lp > * { position: relative; z-index: 1; }
 .lp .btn { font-family: inherit; }
 
-/* Display font (Space Grotesk) for headings + numbers; Inter for body */
-.lp-hero-title,
-.lp-section-title,
-.lp-card-title,
-.lp-price-amount,
-.lp-price-card > .lp-card-title,
-.lp-stat-value,
-.lp-cta-title,
-.lp-step-num,
-.lp-step-title,
-.lp-work-title,
-.lp-why-title,
-.lp-fomo-timer {
-  font-family: var(--font-display), var(--font-inter), sans-serif;
+/* Poppins across the whole landing page */
+.lp, .lp .btn, .lp input, .lp button {
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .lp-container {
