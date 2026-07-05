@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Inter } from 'next/font/google';
@@ -26,7 +26,8 @@ import {
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 
 const CTA_LINK = process.env.NEXT_PUBLIC_CTA_URL || 'https://linktr.ee/juruweb';
-const shot = (d) => `https://s.wordpress.com/mshots/v1/${encodeURIComponent('https://' + d)}?w=640&h=420`;
+// Full-page screenshot (tall) so the tile can pan to reveal the whole site on hover.
+const shot = (d) => `https://s.wordpress.com/mshots/v1/${encodeURIComponent('https://' + d)}?w=900`;
 
 // Business-related background image (shown under a dark overlay).
 const IMG_WORKSPACE = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&q=60';
@@ -43,7 +44,7 @@ const T = {
       secondary: 'View Packages',
     },
     stats: [['20+', 'Websites Launched'], ['3-14', 'Days to Launch'], ['100%', 'SME Focused']],
-    fomo: ['Only a few build slots left this month', 'Your website live in as fast as 3 days', 'Trusted by 20+ Malaysian businesses', 'Free consultation — no obligation'],
+    offer: { label: 'Limited launch offer ends in', cta: 'Claim Your Slot' },
     solutions: {
       title: 'What we build',
       tagline: 'Clean, modern websites designed to win customers.',
@@ -101,7 +102,7 @@ const T = {
       secondary: 'Lihat Pakej',
     },
     stats: [['20+', 'Laman Web Siap'], ['3-14', 'Hari Siap'], ['100%', 'Fokus PKS']],
-    fomo: ['Tinggal beberapa slot bulan ini', 'Laman web siap sepantas 3 hari', 'Dipercayai 20+ bisnes Malaysia', 'Konsultasi percuma — tanpa ikatan'],
+    offer: { label: 'Tawaran pelancaran tamat dalam', cta: 'Tempah Slot Anda' },
     solutions: {
       title: 'Apa yang kami bina',
       tagline: 'Laman web moden & kemas yang menarik pelanggan.',
@@ -159,7 +160,7 @@ const T = {
       secondary: '查看配套',
     },
     stats: [['20+', '已上线网站'], ['3-14', '天上线'], ['100%', '专注中小企业']],
-    fomo: ['本月名额仅剩几个', '最快 3 天上线', '20+ 马来西亚企业信赖', '免费咨询 — 无任何义务'],
+    offer: { label: '限时优惠倒计时', cta: '立即预订名额' },
     solutions: {
       title: '我们打造什么',
       tagline: '简洁现代的网站，助您赢得客户。',
@@ -348,7 +349,6 @@ export default function LandingClient() {
           <span className="lp-orb lp-orb-5" />
         </div>
         <div className="lp-container lp-hero-inner">
-          <span className="lp-eyebrow">{t.hero.eyebrow}</span>
           <h1 className="lp-hero-title">{t.hero.title}</h1>
           <p className="lp-hero-sub">{t.hero.sub}</p>
           <div className="lp-hero-actions">
@@ -359,23 +359,17 @@ export default function LandingClient() {
           </div>
           <div className="lp-stats">
             {t.stats.map(([v, l]) => (
-              <div key={l} className="lp-stat"><span className="lp-stat-value">{v}</span><span className="lp-stat-label">{l}</span></div>
+              <div key={l} className="lp-stat"><span className="lp-stat-value"><CountUp value={v} /></span><span className="lp-stat-label">{l}</span></div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FOMO banner */}
-      <div className="lp-fomo" aria-label="Announcements">
-        <div className="lp-fomo-track">
-          {[...t.fomo, ...t.fomo, ...t.fomo].map((item, i) => (
-            <span key={i} className="lp-fomo-item"><MdBolt />{item}</span>
-          ))}
-        </div>
-      </div>
+      {/* FOMO — red urgency bar with live countdown + CTA */}
+      <FomoBar offer={t.offer} />
 
       {/* Solutions */}
-      <section id="solutions" className="lp-section lp-section-img" style={{ backgroundImage: `linear-gradient(rgba(11,11,20,0.92), rgba(11,11,20,0.96)), url(${IMG_WORKSPACE})` }}>
+      <section id="solutions" className="lp-section">
         <div className="lp-container">
           <div className="lp-section-head">
             <h2 className="lp-section-title">{t.solutions.title}</h2>
@@ -405,11 +399,13 @@ export default function LandingClient() {
             <h2 className="lp-section-title">{t.work.title}</h2>
             <p className="lp-section-tagline">{t.work.tagline}</p>
           </div>
-          <div className="lp-work-grid">
+          <div className="lp-work-masonry">
             {portfolio.map((p) => (
               <a key={p.domain} href={`https://${p.domain}`} target="_blank" rel="noopener noreferrer" className="lp-work" aria-label={p.title}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="lp-work-img" src={shot(p.domain)} alt={p.title} loading="lazy" />
+                <span className="lp-work-frame">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className="lp-work-img" src={shot(p.domain)} alt={p.title} loading="lazy" />
+                </span>
                 <span className="lp-work-cap"><span>{p.title}</span></span>
               </a>
             ))}
@@ -563,6 +559,78 @@ function Review({ r }) {
       </div>
       <p className="lp-review-text">{r.quote}</p>
       <div className="lp-review-author"><strong>{r.name}</strong><span>{r.role}</span></div>
+    </div>
+  );
+}
+
+// Count-up animation that triggers when scrolled into view.
+function CountUp({ value }) {
+  const m = /^(\d+)([%+]*)$/.exec(String(value));
+  const ref = useRef(null);
+  const [display, setDisplay] = useState(m ? `0${m[2] || ''}` : value);
+
+  useEffect(() => {
+    if (!m) { setDisplay(value); return; }
+    const target = parseInt(m[1], 10);
+    const suffix = m[2] || '';
+    const el = ref.current;
+    if (!el) return;
+    let done = false;
+    const run = () => {
+      if (done) return;
+      done = true;
+      const dur = 1400;
+      const t0 = performance.now();
+      const step = (now) => {
+        const p = Math.min(1, (now - t0) / dur);
+        const eased = 1 - Math.pow(1 - p, 3);
+        setDisplay(`${Math.round(target * eased)}${suffix}`);
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { run(); io.disconnect(); } });
+    }, { threshold: 0.5 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [value]);
+
+  return <span ref={ref}>{display}</span>;
+}
+
+// Red urgency bar with a live countdown to the end of the day + CTA.
+function FomoBar({ offer }) {
+  const [tl, setTl] = useState(null);
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date();
+      const end = new Date(now);
+      end.setHours(23, 59, 59, 999);
+      let d = Math.max(0, Math.floor((end - now) / 1000));
+      const h = Math.floor(d / 3600); d %= 3600;
+      const m = Math.floor(d / 60);
+      const s = d % 60;
+      setTl({ h, m, s });
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  const pad = (n) => String(n).padStart(2, '0');
+  return (
+    <div className="lp-fomo">
+      <div className="lp-container lp-fomo-inner">
+        <span className="lp-fomo-label"><MdBolt /> {offer.label}</span>
+        <span className="lp-fomo-timer" suppressHydrationWarning>
+          {tl ? (
+            <>
+              <b>{pad(tl.h)}</b><i>:</i><b>{pad(tl.m)}</b><i>:</i><b>{pad(tl.s)}</b>
+            </>
+          ) : (<><b>00</b><i>:</i><b>00</b><i>:</i><b>00</b></>)}
+        </span>
+        <a href={CTA_LINK} className="lp-fomo-cta" target="_blank" rel="noopener noreferrer">{offer.cta}</a>
+      </div>
     </div>
   );
 }
