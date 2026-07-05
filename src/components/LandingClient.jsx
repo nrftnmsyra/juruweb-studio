@@ -43,6 +43,7 @@ const T = {
       secondary: 'View Packages',
     },
     stats: [['20+', 'Websites Launched'], ['3-14', 'Days to Launch'], ['100%', 'SME Focused']],
+    fomo: ['Only a few build slots left this month', 'Your website live in as fast as 3 days', 'Trusted by 20+ Malaysian businesses', 'Free consultation — no obligation'],
     solutions: {
       title: 'What we build',
       tagline: 'Clean, modern websites designed to win customers.',
@@ -100,6 +101,7 @@ const T = {
       secondary: 'Lihat Pakej',
     },
     stats: [['20+', 'Laman Web Siap'], ['3-14', 'Hari Siap'], ['100%', 'Fokus PKS']],
+    fomo: ['Tinggal beberapa slot bulan ini', 'Laman web siap sepantas 3 hari', 'Dipercayai 20+ bisnes Malaysia', 'Konsultasi percuma — tanpa ikatan'],
     solutions: {
       title: 'Apa yang kami bina',
       tagline: 'Laman web moden & kemas yang menarik pelanggan.',
@@ -157,6 +159,7 @@ const T = {
       secondary: '查看配套',
     },
     stats: [['20+', '已上线网站'], ['3-14', '天上线'], ['100%', '专注中小企业']],
+    fomo: ['本月名额仅剩几个', '最快 3 天上线', '20+ 马来西亚企业信赖', '免费咨询 — 无任何义务'],
     solutions: {
       title: '我们打造什么',
       tagline: '简洁现代的网站，助您赢得客户。',
@@ -258,7 +261,6 @@ const portfolio = [
   { title: 'Wall Panel', domain: 'wallpanel.my' },
   { title: 'Catering Service', domain: 'cateringservice.my' },
   { title: 'Electrician 24 Hour', domain: 'electrician24hour.my' },
-  { title: 'Sleep Test', domain: 'sleeptest.my' },
   { title: 'Kerusi Meja', domain: 'kerusimeja.my' },
   { title: 'Cat Boarding', domain: 'catboarding.my' },
   { title: 'Plumbing Services', domain: 'plumbingservices.my' },
@@ -338,11 +340,12 @@ export default function LandingClient() {
 
       {/* Hero */}
       <section className="lp-hero">
-        <div className="lp-hero-bg" aria-hidden>
+        <div className="lp-aurora" aria-hidden>
           <span className="lp-orb lp-orb-1" />
           <span className="lp-orb lp-orb-2" />
           <span className="lp-orb lp-orb-3" />
-          <span className="lp-grid-lines" />
+          <span className="lp-orb lp-orb-4" />
+          <span className="lp-orb lp-orb-5" />
         </div>
         <div className="lp-container lp-hero-inner">
           <span className="lp-eyebrow">{t.hero.eyebrow}</span>
@@ -361,6 +364,15 @@ export default function LandingClient() {
           </div>
         </div>
       </section>
+
+      {/* FOMO banner */}
+      <div className="lp-fomo" aria-label="Announcements">
+        <div className="lp-fomo-track">
+          {[...t.fomo, ...t.fomo, ...t.fomo].map((item, i) => (
+            <span key={i} className="lp-fomo-item"><MdBolt />{item}</span>
+          ))}
+        </div>
+      </div>
 
       {/* Solutions */}
       <section id="solutions" className="lp-section lp-section-img" style={{ backgroundImage: `linear-gradient(rgba(11,11,20,0.92), rgba(11,11,20,0.96)), url(${IMG_WORKSPACE})` }}>
