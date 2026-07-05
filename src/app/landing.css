@@ -39,11 +39,9 @@ html { scroll-behavior: smooth; }
   z-index: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size: 56px 56px;
-  -webkit-mask-image: radial-gradient(ellipse 100% 80% at 50% 0%, #000, transparent 80%);
-  mask-image: radial-gradient(ellipse 100% 80% at 50% 0%, #000, transparent 80%);
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 60px 60px;
 }
 .lp > * { position: relative; z-index: 1; }
 .lp .btn { font-family: inherit; }
@@ -234,8 +232,20 @@ html { scroll-behavior: smooth; }
 .lp-stat-label { font-size: 0.72rem; color: var(--lp-dim); text-transform: uppercase; letter-spacing: 0.14em; font-family: var(--font-inter), monospace; }
 
 /* Sections */
-.lp-section { padding: 5rem 0; }
+.lp-section { padding: 5rem 0; position: relative; }
 .lp-section-head { text-align: center; max-width: 640px; margin: 0 auto 3rem; }
+/* Techie monospace kicker above each section title */
+.lp-kicker {
+  display: inline-block;
+  font-family: var(--font-inter), ui-monospace, monospace;
+  font-size: 0.74rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--pink);
+  margin-bottom: 0.85rem;
+  opacity: 0.9;
+}
 .lp-section-title {
   font-size: clamp(1.7rem, 3.6vw, 2.4rem);
   font-weight: 500;
@@ -270,9 +280,24 @@ html { scroll-behavior: smooth; }
 }
 .lp-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(255, 102, 196, 0.4);
+  border-color: rgba(255, 102, 196, 0.45);
   background: var(--lp-card-hover);
+  box-shadow: 0 18px 44px -22px rgba(255, 102, 196, 0.55);
 }
+/* Techie corner accent on cards */
+.lp-card { position: relative; }
+.lp-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 34px; height: 34px;
+  border-top: 2px solid rgba(255, 102, 196, 0.5);
+  border-left: 2px solid rgba(255, 102, 196, 0.5);
+  border-top-left-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.lp-card:hover::before { opacity: 1; }
 .lp-card-icon {
   display: inline-flex;
   align-items: center;

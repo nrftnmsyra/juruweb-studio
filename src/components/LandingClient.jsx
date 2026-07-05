@@ -29,8 +29,8 @@ const CTA_LINK = process.env.NEXT_PUBLIC_CTA_URL || 'https://linktr.ee/juruweb';
 const shot = (d) => `https://s.wordpress.com/mshots/v1/${encodeURIComponent('https://' + d)}?w=640&h=420`;
 
 // Background images (shown under a dark overlay).
-const IMG_WORKSPACE = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&q=60';
 const IMG_HERO = 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=60';
+const IMG_CTA = 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=60';
 
 // ---- Localised copy (EN / MS / ZH) ----
 const T = {
@@ -369,6 +369,7 @@ export default function LandingClient() {
       <section id="solutions" className="lp-section">
         <div className="lp-container">
           <div className="lp-section-head">
+            <span className="lp-kicker">// Services</span>
             <h2 className="lp-section-title">{t.solutions.title}</h2>
             <p className="lp-section-tagline">{t.solutions.tagline}</p>
           </div>
@@ -393,6 +394,7 @@ export default function LandingClient() {
       <section id="pricing" className="lp-section">
         <div className="lp-container">
           <div className="lp-section-head">
+            <span className="lp-kicker">// Packages</span>
             <h2 className="lp-section-title">{t.pricing.title}</h2>
             <p className="lp-section-tagline">{t.pricing.tagline}</p>
           </div>
@@ -441,6 +443,7 @@ export default function LandingClient() {
       <section id="why" className="lp-why">
         <div className="lp-container lp-why-grid">
           <div className="lp-why-intro">
+            <span className="lp-kicker">// Why Juruweb</span>
             <h2 className="lp-section-title lp-white">{t.why.title}</h2>
             <p className="lp-section-tagline lp-white-dim">{t.why.tagline}</p>
             <a href={CTA_LINK} className="btn btn-whatsapp" target="_blank" rel="noopener noreferrer">
@@ -465,6 +468,7 @@ export default function LandingClient() {
       <section id="work" className="lp-section">
         <div className="lp-container">
           <div className="lp-section-head">
+            <span className="lp-kicker">// Portfolio</span>
             <h2 className="lp-section-title">{t.work.title}</h2>
             <p className="lp-section-tagline">{t.work.tagline}</p>
           </div>
@@ -484,6 +488,7 @@ export default function LandingClient() {
       <section className="lp-section">
         <div className="lp-container">
           <div className="lp-section-head">
+            <span className="lp-kicker">// Process</span>
             <h2 className="lp-section-title">{t.process.title}</h2>
           </div>
           <div className="lp-steps">
@@ -503,6 +508,7 @@ export default function LandingClient() {
       <section id="reviews" className="lp-section">
         <div className="lp-container">
           <div className="lp-section-head">
+            <span className="lp-kicker">// Reviews</span>
             <h2 className="lp-section-title">{t.reviews.title}</h2>
           </div>
         </div>
@@ -519,7 +525,7 @@ export default function LandingClient() {
       </section>
 
       {/* Final CTA — full-bleed, no container box */}
-      <section className="lp-cta" style={{ backgroundImage: `linear-gradient(rgba(11,11,20,0.82), rgba(11,11,20,0.9)), url(${IMG_WORKSPACE})` }}>
+      <section className="lp-cta" style={{ backgroundImage: `linear-gradient(rgba(11,11,20,0.84), rgba(11,11,20,0.92)), url(${IMG_CTA})` }}>
         <div className="lp-container lp-cta-content">
           <h2 className="lp-cta-title">{t.finalCta.title}</h2>
           <p className="lp-cta-body">{t.finalCta.body}</p>
