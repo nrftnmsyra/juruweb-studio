@@ -26,11 +26,11 @@ import {
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 
 const CTA_LINK = process.env.NEXT_PUBLIC_CTA_URL || 'https://linktr.ee/juruweb';
-// Full-page screenshot (tall) so the tile can pan to reveal the whole site on hover.
-const shot = (d) => `https://s.wordpress.com/mshots/v1/${encodeURIComponent('https://' + d)}?w=900`;
+const shot = (d) => `https://s.wordpress.com/mshots/v1/${encodeURIComponent('https://' + d)}?w=640&h=420`;
 
-// Business-related background image (shown under a dark overlay).
+// Background images (shown under a dark overlay).
 const IMG_WORKSPACE = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&q=60';
+const IMG_HERO = 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=60';
 
 // ---- Localised copy (EN / MS / ZH) ----
 const T = {
@@ -340,7 +340,7 @@ export default function LandingClient() {
       </header>
 
       {/* Hero */}
-      <section className="lp-hero">
+      <section className="lp-hero" style={{ backgroundImage: `linear-gradient(rgba(11,11,20,0.72), rgba(11,11,20,0.9)), url(${IMG_HERO})` }}>
         <div className="lp-aurora" aria-hidden>
           <span className="lp-orb lp-orb-1" />
           <span className="lp-orb lp-orb-2" />
@@ -399,13 +399,11 @@ export default function LandingClient() {
             <h2 className="lp-section-title">{t.work.title}</h2>
             <p className="lp-section-tagline">{t.work.tagline}</p>
           </div>
-          <div className="lp-work-masonry">
+          <div className="lp-work-grid">
             {portfolio.map((p) => (
               <a key={p.domain} href={`https://${p.domain}`} target="_blank" rel="noopener noreferrer" className="lp-work" aria-label={p.title}>
-                <span className="lp-work-frame">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className="lp-work-img" src={shot(p.domain)} alt={p.title} loading="lazy" />
-                </span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="lp-work-img" src={shot(p.domain)} alt={p.title} loading="lazy" />
                 <span className="lp-work-cap"><span>{p.title}</span></span>
               </a>
             ))}

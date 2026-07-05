@@ -148,6 +148,8 @@ html { scroll-behavior: smooth; }
   padding: 6.5rem 0 5rem;
   text-align: center;
   overflow: hidden;
+  background-size: cover;
+  background-position: center;
 }
 .lp-hero-glow {
   position: absolute;
@@ -572,19 +574,15 @@ html { scroll-behavior: smooth; }
 .lp-solution { display: flex; flex-direction: column; }
 .lp-solution .lp-list { margin-top: 1.25rem; }
 
-/* Portfolio — scattered masonry; hover pans to reveal the full site */
-.lp-work-masonry {
-  column-count: 4;
-  column-gap: 1rem;
-}
-@media (max-width: 900px) { .lp-work-masonry { column-count: 3; } }
-@media (max-width: 640px) { .lp-work-masonry { column-count: 2; } }
-@media (max-width: 400px) { .lp-work-masonry { column-count: 1; } }
+/* Portfolio — uniform grid; title revealed on hover */
+.lp-work-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+@media (max-width: 900px) { .lp-work-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px) { .lp-work-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 400px) { .lp-work-grid { grid-template-columns: 1fr; } }
 .lp-work {
   position: relative;
   display: block;
-  break-inside: avoid;
-  margin-bottom: 1rem;
+  aspect-ratio: 16 / 11;
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid var(--lp-border);
@@ -596,33 +594,17 @@ html { scroll-behavior: smooth; }
   border-color: var(--pink);
   box-shadow: 0 18px 40px -18px rgba(255, 102, 196, 0.6);
 }
-/* Varied frame heights create the scattered look */
-.lp-work-frame { display: block; overflow: hidden; }
-.lp-work:nth-child(6n + 1) .lp-work-frame { height: 240px; }
-.lp-work:nth-child(6n + 2) .lp-work-frame { height: 190px; }
-.lp-work:nth-child(6n + 3) .lp-work-frame { height: 300px; }
-.lp-work:nth-child(6n + 4) .lp-work-frame { height: 200px; }
-.lp-work:nth-child(6n + 5) .lp-work-frame { height: 270px; }
-.lp-work:nth-child(6n + 6) .lp-work-frame { height: 220px; }
-.lp-work-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
-  display: block;
-  transition: object-position 3.5s ease;
-}
-/* On hover, pan down the full-length screenshot */
-.lp-work:hover .lp-work-img { object-position: bottom center; }
+.lp-work-img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; transition: transform 0.4s ease; }
+.lp-work:hover .lp-work-img { transform: scale(1.06); }
 .lp-work-cap {
   position: absolute; left: 0; right: 0; bottom: 0;
   padding: 2.5rem 1rem 0.9rem;
   background: linear-gradient(to top, rgba(11, 11, 20, 0.95), rgba(11, 11, 20, 0.6) 55%, transparent);
   color: #fff; font-weight: 500; font-size: 0.9rem;
-  opacity: 0;
-  transition: opacity 0.28s ease;
+  transform: translateY(100%);
+  transition: transform 0.28s ease;
 }
-.lp-work:hover .lp-work-cap { opacity: 1; }
+.lp-work:hover .lp-work-cap { transform: translateY(0); }
 
 /* Pricing — push CTA/bonus to the bottom so cards align */
 .lp-price-card .lp-list { flex: 1 1 auto; }
