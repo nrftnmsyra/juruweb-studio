@@ -262,6 +262,7 @@ const portfolio = [
   { title: 'Wall Panel', domain: 'wallpanel.my' },
   { title: 'Catering Service', domain: 'cateringservice.my' },
   { title: 'Electrician 24 Hour', domain: 'electrician24hour.my' },
+  { title: 'Sleep Test', domain: 'sleeptest.my' },
   { title: 'Kerusi Meja', domain: 'kerusimeja.my' },
   { title: 'Cat Boarding', domain: 'catboarding.my' },
   { title: 'Plumbing Services', domain: 'plumbingservices.my' },
@@ -300,7 +301,7 @@ const reviewsRow2 = [
   { name: 'Zul', role: 'Workshop', quote: 'Finally look professional online. Worth every ringgit.' },
 ];
 
-const LANGS = [['en', 'EN'], ['ms', 'MS'], ['zh', 'ZH']];
+const LANGS = [['en', 'gb', 'English'], ['ms', 'my', 'Bahasa Melayu'], ['zh', 'cn', '中文']];
 
 export default function LandingClient() {
   const [lang, setLang] = useState('en');
@@ -321,14 +322,17 @@ export default function LandingClient() {
             <a href="#reviews">{t.nav.reviews}</a>
           </nav>
           <div className="lp-lang" role="group" aria-label="Language">
-            {LANGS.map(([code, label]) => (
+            {LANGS.map(([code, flag, label]) => (
               <button
                 key={code}
                 type="button"
                 className={`lp-lang-btn ${lang === code ? 'active' : ''}`}
                 onClick={() => setLang(code)}
+                title={label}
+                aria-label={label}
               >
-                {label}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`https://flagcdn.com/w40/${flag}.png`} alt="" width={24} height={24} loading="lazy" />
               </button>
             ))}
           </div>
@@ -341,13 +345,6 @@ export default function LandingClient() {
 
       {/* Hero */}
       <section className="lp-hero" style={{ backgroundImage: `linear-gradient(rgba(11,11,20,0.72), rgba(11,11,20,0.9)), url(${IMG_HERO})` }}>
-        <div className="lp-aurora" aria-hidden>
-          <span className="lp-orb lp-orb-1" />
-          <span className="lp-orb lp-orb-2" />
-          <span className="lp-orb lp-orb-3" />
-          <span className="lp-orb lp-orb-4" />
-          <span className="lp-orb lp-orb-5" />
-        </div>
         <div className="lp-container lp-hero-inner">
           <h1 className="lp-hero-title">{t.hero.title}</h1>
           <p className="lp-hero-sub">{t.hero.sub}</p>
@@ -387,25 +384,6 @@ export default function LandingClient() {
                   ))}
                 </ul>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Portfolio */}
-      <section id="work" className="lp-section">
-        <div className="lp-container">
-          <div className="lp-section-head">
-            <h2 className="lp-section-title">{t.work.title}</h2>
-            <p className="lp-section-tagline">{t.work.tagline}</p>
-          </div>
-          <div className="lp-work-grid">
-            {portfolio.map((p) => (
-              <a key={p.domain} href={`https://${p.domain}`} target="_blank" rel="noopener noreferrer" className="lp-work" aria-label={p.title}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="lp-work-img" src={shot(p.domain)} alt={p.title} loading="lazy" />
-                <span className="lp-work-cap"><span>{p.title}</span></span>
-              </a>
             ))}
           </div>
         </div>
@@ -478,6 +456,25 @@ export default function LandingClient() {
                   <p className="lp-why-desc">{b.desc}</p>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Portfolio — moved under "trusted local partner" */}
+      <section id="work" className="lp-section">
+        <div className="lp-container">
+          <div className="lp-section-head">
+            <h2 className="lp-section-title">{t.work.title}</h2>
+            <p className="lp-section-tagline">{t.work.tagline}</p>
+          </div>
+          <div className="lp-work-grid">
+            {portfolio.map((p) => (
+              <a key={p.domain} href={`https://${p.domain}`} target="_blank" rel="noopener noreferrer" className="lp-work" aria-label={p.title}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="lp-work-img" src={shot(p.domain)} alt={p.title} loading="lazy" />
+                <span className="lp-work-cap"><span>{p.title}</span></span>
+              </a>
             ))}
           </div>
         </div>
