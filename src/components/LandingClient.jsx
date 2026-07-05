@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Inter } from 'next/font/google';
+import { Inter, Space_Grotesk } from 'next/font/google';
 import { FaWhatsapp } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 import {
@@ -24,6 +24,7 @@ import {
 } from 'react-icons/md';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-display', display: 'swap' });
 
 const CTA_LINK = process.env.NEXT_PUBLIC_CTA_URL || 'https://linktr.ee/juruweb';
 const shot = (d) => `https://s.wordpress.com/mshots/v1/${encodeURIComponent('https://' + d)}?w=640&h=420`;
@@ -308,7 +309,7 @@ export default function LandingClient() {
   const t = T[lang];
 
   return (
-    <div className={`lp ${inter.variable}`}>
+    <div className={`lp ${inter.variable} ${spaceGrotesk.variable}`}>
       {/* Nav */}
       <header className="lp-nav">
         <div className="lp-container lp-nav-inner">

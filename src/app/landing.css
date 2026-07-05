@@ -46,6 +46,22 @@ html { scroll-behavior: smooth; }
 .lp > * { position: relative; z-index: 1; }
 .lp .btn { font-family: inherit; }
 
+/* Display font (Space Grotesk) for headings + numbers; Inter for body */
+.lp-hero-title,
+.lp-section-title,
+.lp-card-title,
+.lp-price-amount,
+.lp-price-card > .lp-card-title,
+.lp-stat-value,
+.lp-cta-title,
+.lp-step-num,
+.lp-step-title,
+.lp-work-title,
+.lp-why-title,
+.lp-fomo-timer {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+}
+
 .lp-container {
   width: 100%;
   max-width: 1180px;
@@ -300,8 +316,9 @@ html { scroll-behavior: smooth; }
 .lp-card:hover::before { opacity: 1; }
 .lp-card-icon {
   display: inline-flex;
+  align-self: flex-start;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   color: var(--pink);
   font-size: 2.4rem;
   margin-bottom: 1rem;
