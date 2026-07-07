@@ -236,7 +236,7 @@ function QuotationsContent() {
                     <th>Valid Until</th>
                     <th>Total Valuation</th>
                     <th>Date Sent</th>
-                    <th>Actions</th>
+                    <th style={{ textAlign: 'center' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>

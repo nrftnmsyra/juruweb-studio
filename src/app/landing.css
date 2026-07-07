@@ -61,6 +61,13 @@
   }
 }
 
+/* Mobile: drop the WhatsApp CTA from the nav for a cleaner header */
+@media (max-width: 600px) {
+  .lp-nav-cta {
+    display: none;
+  }
+}
+
 /* Hero */
 .lp-hero {
   position: relative;
@@ -85,6 +92,7 @@
   letter-spacing: 0.12em;
   color: var(--brand-pink-hover);
   background: var(--brand-pink-glow);
+  border: 1px solid rgba(255, 102, 196, 0.25);
   padding: 0.4rem 0.9rem;
   border-radius: 9999px;
   margin-bottom: 1.5rem;
@@ -114,6 +122,21 @@
   height: 52px;
   padding: 0 1.8rem;
   font-size: 0.98rem;
+  /* Both hero buttons share the same width */
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 220px;
+  justify-content: center;
+}
+@media (max-width: 480px) {
+  .lp-hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .lp-hero-actions .btn {
+    max-width: none;
+    width: 100%;
+  }
 }
 
 /* Stats */
@@ -138,6 +161,27 @@
 .lp-stat-label {
   font-size: 0.85rem;
   color: var(--text-secondary);
+}
+
+/* Mobile: keep the three stats on a single row */
+@media (max-width: 560px) {
+  .lp-stats {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 2.5rem;
+  }
+  .lp-stat {
+    flex: 1;
+    align-items: center;
+    text-align: center;
+  }
+  .lp-stat-value {
+    font-size: 1.4rem;
+  }
+  .lp-stat-label {
+    font-size: 0.7rem;
+  }
 }
 
 /* Sections */

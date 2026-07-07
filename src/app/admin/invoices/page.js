@@ -288,7 +288,7 @@ function InvoicesContent() {
                     <th>Paid Amount</th>
                     <th>Balance Due</th>
                     <th>Payment Status</th>
-                    <th>Actions</th>
+                    <th style={{ textAlign: 'center' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
