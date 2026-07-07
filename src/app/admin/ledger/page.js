@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { dbService } from '@/lib/database';
 import DatabaseSetupHelper from '@/components/DatabaseSetupHelper';
 import ConfirmDialog from '@/components/ConfirmDialog';
-import { MdAdd, MdClose, MdDelete, MdArrowDownward, MdArrowUpward } from 'react-icons/md';
+import { MdAdd, MdClose, MdDelete, MdArrowDownward, MdArrowUpward, MdChevronRight } from 'react-icons/md';
 import toast from 'react-hot-toast';
 
 const todayStr = () => new Date().toISOString().split('T')[0];
@@ -31,6 +31,9 @@ function LedgerContent() {
 
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Mobile: tap a compact row to view the full entry details
+  const [detailTarget, setDetailTarget] = useState(null);
 
   useEffect(() => {
     if (searchParams.get('new') === 'true') {
@@ -140,7 +143,7 @@ function LedgerContent() {
       {dbSetupRequired && <DatabaseSetupHelper />}
 
       {/* KPI row */}
-      <div className="overview-stats">
+      <div className="overview-stats overview-stats--3">
         <div className="overview-stat">
           <span className="overview-stat-label">Total Credit (In)</span>
           <span className="overview-stat-value" style={{ color: 'var(--success)' }}>{fmt(totalCredit)}</span>
@@ -156,7 +159,7 @@ function LedgerContent() {
       </div>
 
       {/* Type filter */}
-      <div className="filter-bar">
+      <div className="filter-bar ledger-filter">
         <label htmlFor="ledger-type-filter">Filter by type</label>
         <select
           id="ledger-type-filter"
@@ -178,7 +181,9 @@ function LedgerContent() {
           </p>
         </div>
       ) : (
-        <div className="table-container">
+        <>
+        {/* Full table — desktop / tablet */}
+        <div className="table-container ledger-table-wrap">
           <table className="data-table data-table--stack">
             <thead>
               <tr>
@@ -217,6 +222,86 @@ function LedgerContent() {
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* Compact tappable rows — mobile */}
+        <div className="ledger-compact">
+          {filteredEntries.map((entry) => {
+            const isCredit = entry.type === 'Credit';
+            return (
+              <button
+                type="button"
+                key={entry.id}
+                className="ledger-compact-row"
+                onClick={() => setDetailTarget(entry)}
+              >
+                <span className="ledger-compact-main">
+                  <span className={`ledger-compact-icon ${isCredit ? 'ledger-compact-icon--credit' : 'ledger-compact-icon--debit'}`}>
+                    {isCredit ? <MdArrowDownward /> : <MdArrowUpward />}
+                  </span>
+                  <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                    <span className="ledger-compact-type">{entry.type}</span>
+                    <span className="ledger-compact-date">{fmtDate(entry.entry_date)}</span>
+                  </span>
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <span className="ledger-compact-amount" style={{ color: isCredit ? 'var(--success)' : 'var(--error)' }}>
+                    {isCredit ? '+' : '−'} {fmt(entry.amount)}
+                  </span>
+                  <MdChevronRight style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        </>
+      )}
+
+      {/* Modal: Entry details (opened from the compact mobile list) */}
+      {detailTarget && (
+        <div className="modal-overlay" onClick={() => setDetailTarget(null)}>
+          <div className="modal-content" style={{ maxWidth: '440px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">Entry Details</h3>
+              <button className="modal-close" onClick={() => setDetailTarget(null)}>
+                <MdClose />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+                <div style={{ fontSize: '1.75rem', fontWeight: 800, color: detailTarget.type === 'Credit' ? 'var(--success)' : 'var(--error)' }}>
+                  {detailTarget.type === 'Credit' ? '+' : '−'} {fmt(detailTarget.amount)}
+                </div>
+                <span className={`badge ${detailTarget.type === 'Credit' ? 'badge-paid' : 'badge-cancelled'}`} style={{ marginTop: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                  {detailTarget.type === 'Credit' ? <MdArrowDownward size={12} /> : <MdArrowUpward size={12} />}
+                  {detailTarget.type}
+                </span>
+              </div>
+              <div className="ledger-detail-row">
+                <span className="ledger-detail-label">Date</span>
+                <span className="ledger-detail-value">{fmtDate(detailTarget.entry_date)}</span>
+              </div>
+              <div className="ledger-detail-row">
+                <span className="ledger-detail-label">Reference No.</span>
+                <span className="ledger-detail-value">{detailTarget.reference_no || '—'}</span>
+              </div>
+              <div className="ledger-detail-row">
+                <span className="ledger-detail-label">Details</span>
+                <span className="ledger-detail-value">{detailTarget.description || '—'}</span>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => { const t = detailTarget; setDetailTarget(null); setDeleteTarget(t); }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+              >
+                <MdDelete /> Delete
+              </button>
+              <button type="button" className="btn btn-primary" onClick={() => setDetailTarget(null)}>Close</button>
+            </div>
+          </div>
         </div>
       )}
 

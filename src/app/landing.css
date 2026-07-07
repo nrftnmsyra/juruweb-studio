@@ -214,7 +214,20 @@ html { scroll-behavior: smooth; }
   justify-content: center;
   flex-wrap: wrap;
 }
-.lp-hero-actions .btn { height: 54px; padding: 0 1.9rem; font-size: 1rem; }
+/* Both hero buttons share the same width */
+.lp-hero-actions .btn {
+  height: 54px;
+  padding: 0 1.9rem;
+  font-size: 1rem;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 230px;
+  justify-content: center;
+}
+@media (max-width: 480px) {
+  .lp-hero-actions { flex-direction: column; align-items: stretch; }
+  .lp-hero-actions .btn { max-width: none; width: 100%; }
+}
 
 /* Stats */
 .lp-stats {
@@ -223,6 +236,17 @@ html { scroll-behavior: smooth; }
   gap: 3.5rem;
   margin-top: 4rem;
   flex-wrap: wrap;
+}
+/* Mobile: keep the three stats on a single row */
+@media (max-width: 560px) {
+  .lp-stats {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2.5rem;
+  }
+  .lp-stat { flex: 1; align-items: center; text-align: center; }
+  .lp-stat-value { font-size: 1.5rem; }
 }
 .lp-stat { display: flex; flex-direction: column; gap: 0.3rem; }
 .lp-stat-value {

@@ -1426,11 +1426,23 @@ input::placeholder {
   }
   .data-table td.actions-cell {
     justify-content: flex-end;
-    padding-top: 0.6rem;
+    padding-top: 0.75rem;
+    margin-top: 0.35rem;
+    border-top: 1px solid var(--border-color);
   }
+  /* Keep the action buttons on one tidy row that fills the card width */
   .data-table td.actions-cell > div {
-    flex-wrap: wrap !important;
+    width: 100%;
+    flex-wrap: nowrap !important;
     justify-content: flex-end !important;
+    gap: 0.5rem !important;
+  }
+  /* Labelled buttons share the row equally; icon-only buttons stay compact */
+  .data-table td.actions-cell .btn {
+    flex: 1 1 0;
+  }
+  .data-table td.actions-cell .btn.icon-btn-sm {
+    flex: 0 0 auto;
   }
 
   /* Detail-heavy tables (customers, dashboard recent orders): left-aligned
@@ -1486,3 +1498,139 @@ input::placeholder {
    html2canvas capture source. It must therefore always keep its full desktop
    A4 layout (no responsive overrides) so the capture — and the keep-together
    block measurements — stay consistent on every device. */
+
+/* =========================================================
+   Ledger
+   ========================================================= */
+
+/* Credit / Debit / Balance KPI row — keep all three on one row, even on mobile
+   (overrides the 2-column stacking that plain .overview-stats uses < 800px). */
+.overview-stats--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+@media (max-width: 800px) {
+  .overview-stats--3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .overview-stats--3 .overview-stat:nth-child(1),
+  .overview-stats--3 .overview-stat:nth-child(2) {
+    border-bottom: none;
+  }
+  .overview-stats--3 .overview-stat:nth-child(2) {
+    border-right: 1px solid var(--border-color);
+  }
+  .overview-stats--3 .overview-stat {
+    padding: 1rem 0.75rem;
+  }
+}
+@media (max-width: 600px) {
+  .overview-stats--3 .overview-stat {
+    padding: 0.8rem 0.5rem;
+  }
+  .overview-stats--3 .overview-stat-value {
+    font-size: 1.05rem;
+  }
+  .overview-stats--3 .overview-stat-label {
+    font-size: 0.66rem;
+  }
+}
+
+/* Breathing room between the KPI row and the filter dropdown */
+.ledger-filter {
+  margin-top: 1.5rem;
+}
+
+/* Compact, tappable ledger rows shown only on mobile; the full table is used
+   on larger screens. Each row shows just money in/out — tap opens the details. */
+.ledger-compact {
+  display: none;
+}
+@media (max-width: 640px) {
+  .ledger-table-wrap {
+    display: none;
+  }
+  .ledger-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+}
+.ledger-compact-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 0.8rem 1rem;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+.ledger-compact-row:hover {
+  border-color: #d4d4d8;
+}
+.ledger-compact-main {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+.ledger-compact-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  font-size: 1.05rem;
+}
+.ledger-compact-icon--credit {
+  background: var(--success-glow);
+  color: var(--success);
+}
+.ledger-compact-icon--debit {
+  background: var(--error-glow);
+  color: var(--error);
+}
+.ledger-compact-type {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.ledger-compact-date {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+.ledger-compact-amount {
+  font-size: 1rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Read-only detail rows inside the ledger details modal */
+.ledger-detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem;
+}
+.ledger-detail-row:last-child {
+  border-bottom: none;
+}
+.ledger-detail-label {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.ledger-detail-value {
+  text-align: right;
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-word;
+}
