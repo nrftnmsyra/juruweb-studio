@@ -98,8 +98,14 @@ CREATE TABLE IF NOT EXISTS public.ledger (
     reference_no TEXT, -- payment reference / transaction number
     description TEXT, -- details for that payment
     entry_date DATE DEFAULT CURRENT_DATE NOT NULL,
+    attachment_url TEXT, -- receipt/proof as a base64 data URL (image or PDF)
+    attachment_name TEXT, -- original filename of the attachment
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Migration for existing databases: add the attachment columns if missing
+ALTER TABLE public.ledger ADD COLUMN IF NOT EXISTS attachment_url TEXT;
+ALTER TABLE public.ledger ADD COLUMN IF NOT EXISTS attachment_name TEXT;
 
 -- Enable RLS for Ledger
 ALTER TABLE public.ledger ENABLE ROW LEVEL SECURITY;

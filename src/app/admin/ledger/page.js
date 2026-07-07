@@ -5,10 +5,16 @@ import { useSearchParams } from 'next/navigation';
 import { dbService } from '@/lib/database';
 import DatabaseSetupHelper from '@/components/DatabaseSetupHelper';
 import ConfirmDialog from '@/components/ConfirmDialog';
-import { MdAdd, MdClose, MdDelete, MdArrowDownward, MdArrowUpward, MdChevronRight } from 'react-icons/md';
+import { MdAdd, MdClose, MdDelete, MdArrowDownward, MdArrowUpward, MdChevronRight, MdAttachFile, MdImage, MdPictureAsPdf, MdOpenInNew } from 'react-icons/md';
 import toast from 'react-hot-toast';
 
 const todayStr = () => new Date().toISOString().split('T')[0];
+
+const MAX_ATTACHMENT_MB = 5;
+
+// A PDF attachment is either a PDF data URL or a filename ending in .pdf
+const isPdfAttachment = (url = '', name = '') =>
+  /^data:application\/pdf/i.test(url) || /\.pdf$/i.test(name);
 
 const emptyForm = () => ({
   type: 'Credit',
@@ -16,6 +22,8 @@ const emptyForm = () => ({
   reference_no: '',
   description: '',
   entry_date: todayStr(),
+  attachment_url: '',
+  attachment_name: '',
 });
 
 function LedgerContent() {
@@ -63,6 +71,31 @@ function LedgerContent() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const isImage = file.type.startsWith('image/');
+    const isPdf = file.type === 'application/pdf';
+    if (!isImage && !isPdf) {
+      toast.error('Only image or PDF files are allowed');
+      e.target.value = '';
+      return;
+    }
+    if (file.size > MAX_ATTACHMENT_MB * 1024 * 1024) {
+      toast.error(`File must be under ${MAX_ATTACHMENT_MB}MB`);
+      e.target.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () =>
+      setFormData((prev) => ({ ...prev, attachment_url: reader.result, attachment_name: file.name }));
+    reader.onerror = () => toast.error('Could not read that file');
+    reader.readAsDataURL(file);
+  };
+
+  const removeAttachment = () =>
+    setFormData((prev) => ({ ...prev, attachment_url: '', attachment_name: '' }));
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const amount = Number(formData.amount);
@@ -83,6 +116,8 @@ function LedgerContent() {
         reference_no: formData.reference_no.trim(),
         description: formData.description.trim(),
         entry_date: formData.entry_date,
+        attachment_url: formData.attachment_url || null,
+        attachment_name: formData.attachment_name || null,
       });
       if (res.isDbSetupRequired) setDbSetupRequired(true);
       toast.success(`${formData.type} entry recorded!`);
@@ -208,7 +243,22 @@ function LedgerContent() {
                       </span>
                     </td>
                     <td data-label="Reference No.">{entry.reference_no || <span style={{ color: 'var(--text-muted)' }}>—</span>}</td>
-                    <td data-label="Details">{entry.description || <span style={{ color: 'var(--text-muted)' }}>—</span>}</td>
+                    <td data-label="Details">
+                      <span>{entry.description || <span style={{ color: 'var(--text-muted)' }}>—</span>}</span>
+                      {entry.attachment_url && (
+                        <a
+                          href={entry.attachment_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          download={entry.attachment_name || undefined}
+                          className="ledger-attach-link"
+                          title={entry.attachment_name || 'View attachment'}
+                        >
+                          {isPdfAttachment(entry.attachment_url, entry.attachment_name) ? <MdPictureAsPdf /> : <MdImage />}
+                          <span>Receipt</span>
+                        </a>
+                      )}
+                    </td>
                     <td data-label="Amount" style={{ textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 600, color: isCredit ? 'var(--success)' : 'var(--error)' }}>
                       {isCredit ? '+' : '−'} {fmt(entry.amount)}
                     </td>
@@ -240,7 +290,10 @@ function LedgerContent() {
                     {isCredit ? <MdArrowDownward /> : <MdArrowUpward />}
                   </span>
                   <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                    <span className="ledger-compact-type">{entry.type}</span>
+                    <span className="ledger-compact-type">
+                      {entry.type}
+                      {entry.attachment_url && <MdAttachFile size={13} style={{ color: 'var(--text-muted)', marginLeft: '0.3rem', verticalAlign: 'middle' }} />}
+                    </span>
                     <span className="ledger-compact-date">{fmtDate(entry.entry_date)}</span>
                   </span>
                 </span>
@@ -289,6 +342,23 @@ function LedgerContent() {
                 <span className="ledger-detail-label">Details</span>
                 <span className="ledger-detail-value">{detailTarget.description || '—'}</span>
               </div>
+              {detailTarget.attachment_url && (
+                <div className="ledger-detail-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '0.5rem' }}>
+                  <span className="ledger-detail-label">Receipt / Proof</span>
+                  {isPdfAttachment(detailTarget.attachment_url, detailTarget.attachment_name) ? (
+                    <a href={detailTarget.attachment_url} target="_blank" rel="noopener noreferrer" className="ledger-attach-chip" download={detailTarget.attachment_name || 'receipt.pdf'}>
+                      <span className="ledger-attach-chip-icon"><MdPictureAsPdf /></span>
+                      <span className="ledger-attach-chip-name">{detailTarget.attachment_name || 'View PDF'}</span>
+                      <MdOpenInNew style={{ flexShrink: 0, color: 'var(--text-muted)' }} />
+                    </a>
+                  ) : (
+                    <a href={detailTarget.attachment_url} target="_blank" rel="noopener noreferrer">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={detailTarget.attachment_url} alt={detailTarget.attachment_name || 'Receipt'} className="ledger-attach-preview" />
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
             <div className="modal-footer">
               <button
@@ -373,6 +443,39 @@ function LedgerContent() {
                     value={formData.description}
                     onChange={handleInputChange}
                   />
+                </div>
+
+                <div className="form-group" style={{ marginTop: '1.25rem' }}>
+                  <label>Receipt / Proof (image or PDF)</label>
+                  {formData.attachment_url ? (
+                    <div className="ledger-attach-chip">
+                      <span className="ledger-attach-chip-icon">
+                        {isPdfAttachment(formData.attachment_url, formData.attachment_name)
+                          ? <MdPictureAsPdf />
+                          : <MdImage />}
+                      </span>
+                      <span className="ledger-attach-chip-name">{formData.attachment_name || 'Attachment'}</span>
+                      <button
+                        type="button"
+                        className="ledger-attach-chip-remove"
+                        onClick={removeAttachment}
+                        aria-label="Remove attachment"
+                      >
+                        <MdClose />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="ledger-attach-drop">
+                      <MdAttachFile />
+                      <span>Click to upload an image or PDF (max {MAX_ATTACHMENT_MB}MB)</span>
+                      <input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        onChange={handleFileChange}
+                        style={{ display: 'none' }}
+                      />
+                    </label>
+                  )}
                 </div>
               </div>
 

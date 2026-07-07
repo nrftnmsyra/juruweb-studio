@@ -119,8 +119,7 @@ html { scroll-behavior: smooth; }
   .lp-nav-links { display: none; }
 }
 @media (max-width: 520px) {
-  .lp-nav-cta span { display: none; }
-  .lp-nav-cta { width: 44px; padding: 0; }
+  .lp-nav-cta { display: none; }
 }
 
 /* Buttons */
@@ -226,7 +225,13 @@ html { scroll-behavior: smooth; }
 }
 @media (max-width: 480px) {
   .lp-hero-actions { flex-direction: column; align-items: stretch; }
-  .lp-hero-actions .btn { max-width: none; width: 100%; }
+  .lp-hero-actions .btn {
+    max-width: none;
+    width: 100%;
+    flex: 0 0 auto;
+    height: 50px;
+    box-sizing: border-box;
+  }
 }
 
 /* Stats */
@@ -263,17 +268,21 @@ html { scroll-behavior: smooth; }
 /* Sections */
 .lp-section { padding: 5rem 0; position: relative; }
 .lp-section-head { text-align: center; max-width: 640px; margin: 0 auto 3rem; }
-/* Techie monospace kicker above each section title */
+/* Pill-style kicker above each section title */
 .lp-kicker {
   display: inline-block;
   font-family: var(--font-inter), ui-monospace, monospace;
   font-size: 0.74rem;
-  font-weight: 500;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   color: var(--pink);
   margin-bottom: 0.85rem;
-  opacity: 0.9;
+  padding: 0.4rem 0.9rem;
+  background: rgba(255, 102, 196, 0.1);
+  border: 1px solid rgba(255, 102, 196, 0.28);
+  border-radius: 9999px;
+  line-height: 1;
 }
 .lp-section-title {
   font-size: clamp(1.7rem, 3.6vw, 2.4rem);

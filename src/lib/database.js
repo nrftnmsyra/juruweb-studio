@@ -474,7 +474,12 @@ export const dbService = {
 
   async addLedgerEntry(entry) {
     try {
-      const { data, error } = await supabase.from('ledger').insert([entry]).select();
+      let { data, error } = await supabase.from('ledger').insert([entry]).select();
+      // Gracefully handle DBs where the optional attachment columns haven't been added yet
+      if (error && /attachment_url|attachment_name/.test(error.message || '')) {
+        const { attachment_url, attachment_name, ...rest } = entry;
+        ({ data, error } = await supabase.from('ledger').insert([rest]).select());
+      }
       if (error) {
         const check = handleDbError(error);
         if (check) {

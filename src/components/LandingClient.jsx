@@ -369,7 +369,7 @@ export default function LandingClient() {
       <section id="solutions" className="lp-section">
         <div className="lp-container">
           <div className="lp-section-head">
-            <span className="lp-kicker">// Services</span>
+            <span className="lp-kicker">Services</span>
             <h2 className="lp-section-title">{t.solutions.title}</h2>
             <p className="lp-section-tagline">{t.solutions.tagline}</p>
           </div>
@@ -394,7 +394,7 @@ export default function LandingClient() {
       <section id="pricing" className="lp-section">
         <div className="lp-container">
           <div className="lp-section-head">
-            <span className="lp-kicker">// Packages</span>
+            <span className="lp-kicker">Packages</span>
             <h2 className="lp-section-title">{t.pricing.title}</h2>
             <p className="lp-section-tagline">{t.pricing.tagline}</p>
           </div>
@@ -443,7 +443,7 @@ export default function LandingClient() {
       <section id="why" className="lp-why">
         <div className="lp-container lp-why-grid">
           <div className="lp-why-intro">
-            <span className="lp-kicker">// Why Juruweb</span>
+            <span className="lp-kicker">Why Juruweb</span>
             <h2 className="lp-section-title lp-white">{t.why.title}</h2>
             <p className="lp-section-tagline lp-white-dim">{t.why.tagline}</p>
             <a href={CTA_LINK} className="btn btn-whatsapp" target="_blank" rel="noopener noreferrer">
@@ -468,7 +468,7 @@ export default function LandingClient() {
       <section id="work" className="lp-section">
         <div className="lp-container">
           <div className="lp-section-head">
-            <span className="lp-kicker">// Portfolio</span>
+            <span className="lp-kicker">Portfolio</span>
             <h2 className="lp-section-title">{t.work.title}</h2>
             <p className="lp-section-tagline">{t.work.tagline}</p>
           </div>
@@ -488,7 +488,7 @@ export default function LandingClient() {
       <section className="lp-section">
         <div className="lp-container">
           <div className="lp-section-head">
-            <span className="lp-kicker">// Process</span>
+            <span className="lp-kicker">Process</span>
             <h2 className="lp-section-title">{t.process.title}</h2>
           </div>
           <div className="lp-steps">
@@ -508,7 +508,7 @@ export default function LandingClient() {
       <section id="reviews" className="lp-section">
         <div className="lp-container">
           <div className="lp-section-head">
-            <span className="lp-kicker">// Reviews</span>
+            <span className="lp-kicker">Reviews</span>
             <h2 className="lp-section-title">{t.reviews.title}</h2>
           </div>
         </div>
