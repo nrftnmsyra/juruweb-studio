@@ -7,9 +7,10 @@ import {
   MdSpaceDashboard, 
   MdPeople, 
   MdDescription, 
-  MdReceiptLong, 
-  MdWork, 
-  MdLogout 
+  MdReceiptLong,
+  MdWork,
+  MdAccountBalanceWallet,
+  MdLogout
 } from 'react-icons/md';
 
 export default function Sidebar({ open = false, onClose = () => {} }) {
@@ -20,7 +21,8 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
     { name: 'Customers', path: '/admin/customers', icon: <MdPeople /> },
     { name: 'Orders', path: '/admin/orders', icon: <MdWork /> },
     { name: 'Quotations', path: '/admin/quotations', icon: <MdDescription /> },
-    { name: 'Invoices', path: '/admin/invoices', icon: <MdReceiptLong /> }
+    { name: 'Invoices', path: '/admin/invoices', icon: <MdReceiptLong /> },
+    { name: 'Ledger', path: '/admin/ledger', icon: <MdAccountBalanceWallet /> }
   ];
 
   return (

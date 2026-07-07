@@ -14,6 +14,12 @@ const setLocalStorageData = (key, data) => {
   localStorage.setItem(key, JSON.stringify(data));
 };
 
+// Order ledger entries newest-first to mirror the Supabase query ordering
+const sortLedger = (entries) => [...entries].sort((a, b) => {
+  const byDate = String(b.entry_date || '').localeCompare(String(a.entry_date || ''));
+  return byDate !== 0 ? byDate : String(b.created_at || '').localeCompare(String(a.created_at || ''));
+});
+
 // Initial Mock Data to wow the user straight out of the box!
 const mockCustomers = [
   { id: 'c1', name: 'John Doe', email: 'john@example.com', phone: '+60123456789', company: 'JD Tech Solutions', address: '12, Jalan Ampang, Kuala Lumpur', created_at: new Date().toISOString() },
@@ -62,12 +68,18 @@ const mockInvoices = [
   }
 ];
 
+const mockLedger = [
+  { id: 'l1', type: 'Credit', amount: 499.50, reference_no: 'TXN-88213', description: 'Deposit received — Standard Package (John Doe)', entry_date: '2026-07-02', created_at: new Date().toISOString() },
+  { id: 'l2', type: 'Debit', amount: 55.00, reference_no: 'DO-2026-14', description: 'Domain renewal — juruweb.studio', entry_date: '2026-07-03', created_at: new Date().toISOString() },
+];
+
 // Initialize localStorage if empty
 if (typeof window !== 'undefined') {
   if (!localStorage.getItem('juruweb_customers')) setLocalStorageData('juruweb_customers', mockCustomers);
   if (!localStorage.getItem('juruweb_orders')) setLocalStorageData('juruweb_orders', mockOrders);
   if (!localStorage.getItem('juruweb_quotations')) setLocalStorageData('juruweb_quotations', mockQuotations);
   if (!localStorage.getItem('juruweb_invoices')) setLocalStorageData('juruweb_invoices', mockInvoices);
+  if (!localStorage.getItem('juruweb_ledger')) setLocalStorageData('juruweb_ledger', mockLedger);
 }
 
 // Error handling helper to detect if a table is missing
@@ -437,6 +449,67 @@ export const dbService = {
         list[idx].status = status;
         setLocalStorageData('juruweb_invoices', list);
       }
+      return { success: true };
+    }
+  },
+
+  // ---- LEDGER (company cash book) ----
+  async getLedgerEntries() {
+    try {
+      const { data, error } = await supabase
+        .from('ledger')
+        .select('*')
+        .order('entry_date', { ascending: false })
+        .order('created_at', { ascending: false });
+      if (error) {
+        const check = handleDbError(error);
+        if (check) return { data: sortLedger(getLocalStorageData('juruweb_ledger')), ...check };
+        throw error;
+      }
+      return { data };
+    } catch {
+      return { data: sortLedger(getLocalStorageData('juruweb_ledger')), error: true };
+    }
+  },
+
+  async addLedgerEntry(entry) {
+    try {
+      const { data, error } = await supabase.from('ledger').insert([entry]).select();
+      if (error) {
+        const check = handleDbError(error);
+        if (check) {
+          const list = getLocalStorageData('juruweb_ledger');
+          const newEntry = { ...entry, id: 'l_' + Math.random().toString(36).substr(2, 9), created_at: new Date().toISOString() };
+          list.unshift(newEntry);
+          setLocalStorageData('juruweb_ledger', list);
+          return { data: [newEntry], ...check };
+        }
+        throw error;
+      }
+      return { data };
+    } catch {
+      const list = getLocalStorageData('juruweb_ledger');
+      const newEntry = { ...entry, id: 'l_' + Math.random().toString(36).substr(2, 9), created_at: new Date().toISOString() };
+      list.unshift(newEntry);
+      setLocalStorageData('juruweb_ledger', list);
+      return { data: [newEntry] };
+    }
+  },
+
+  async deleteLedgerEntry(id) {
+    try {
+      const { error } = await supabase.from('ledger').delete().eq('id', id);
+      if (error) {
+        const check = handleDbError(error);
+        if (check) {
+          setLocalStorageData('juruweb_ledger', getLocalStorageData('juruweb_ledger').filter(l => l.id !== id));
+          return { ...check };
+        }
+        throw error;
+      }
+      return { success: true };
+    } catch {
+      setLocalStorageData('juruweb_ledger', getLocalStorageData('juruweb_ledger').filter(l => l.id !== id));
       return { success: true };
     }
   },
