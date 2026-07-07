@@ -92,7 +92,25 @@ ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public read" ON public.invoices FOR SELECT USING (true);
 CREATE POLICY "Allow public insert" ON public.invoices FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public update" ON public.invoices FOR UPDATE USING (true);
-CREATE POLICY "Allow public delete" ON public.invoices FOR DELETE USING (true);`;
+CREATE POLICY "Allow public delete" ON public.invoices FOR DELETE USING (true);
+
+-- 5. LEDGER TABLE (company cash book: credit = money in, debit = money out)
+CREATE TABLE IF NOT EXISTS public.ledger (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    type TEXT NOT NULL,
+    amount NUMERIC(10, 2) DEFAULT 0.00 NOT NULL,
+    reference_no TEXT,
+    description TEXT,
+    entry_date DATE DEFAULT CURRENT_DATE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Enable RLS for Ledger
+ALTER TABLE public.ledger ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow public read" ON public.ledger FOR SELECT USING (true);
+CREATE POLICY "Allow public insert" ON public.ledger FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update" ON public.ledger FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete" ON public.ledger FOR DELETE USING (true);`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(sqlCode);
