@@ -526,54 +526,20 @@ export const dbService = {
   async getCustomerRecordByPhone(rawPhone) {
     const digits = (rawPhone || '').replace(/\D/g, '');
     if (digits.length < 6) return { data: null, invalid: true };
-    const tail = digits.slice(-8);
 
-    // Resolve each invoice's project: prefer its own order_id, else inherit the
-    // order_id of the quotation it was generated from. Lets invoices group under
-    // their project on the tracker even if the link wasn't set directly.
-    const linkToProjects = (invs, quotes) => {
-      const qOrder = {};
-      (quotes || []).forEach((q) => { if (q && q.order_id) qOrder[q.id] = q.order_id; });
-      return (invs || []).map((inv) =>
-        inv.order_id ? inv : { ...inv, order_id: (inv.quotation_id && qOrder[inv.quotation_id]) || null }
-      );
-    };
-
-    const buildLocal = (extra = {}) => {
-      const custs = getLocalStorageData('juruweb_customers');
-      const customer = custs.find(c => (c.phone || '').replace(/\D/g, '').includes(tail));
-      if (!customer) return { data: null, ...extra };
-      const orders = getLocalStorageData('juruweb_orders')
-        .filter(o => o.customer_id === customer.id);
-      const quotations = getLocalStorageData('juruweb_quotations')
-        .filter(q => q.customer_id === customer.id);
-      const invoices = linkToProjects(
-        getLocalStorageData('juruweb_invoices').filter(i => i.customer_id === customer.id),
-        quotations,
-      );
-      return { data: { customer, orders, invoices }, ...extra };
-    };
-
+    // Goes through /api/track so the service key stays on the server: RLS now
+    // blocks the browser's anon key from reading customers, orders or invoices.
     try {
-      const { data: custs, error } = await supabase
-        .from('customers')
-        .select('*')
-        .ilike('phone', `%${tail}%`);
-      if (error) {
-        if (handleDbError(error)) return buildLocal({ isDbSetupRequired: true });
-        throw error;
-      }
-      const customer = (custs || [])[0];
-      if (!customer) return { data: null };
-      const [ordersRes, invoicesRes, quotesRes] = await Promise.all([
-        supabase.from('orders').select('*').eq('customer_id', customer.id).order('created_at', { ascending: false }),
-        supabase.from('invoices').select('*').eq('customer_id', customer.id).order('created_at', { ascending: false }),
-        supabase.from('quotations').select('id, order_id').eq('customer_id', customer.id),
-      ]);
-      const invoices = linkToProjects(invoicesRes.data || [], quotesRes.data || []);
-      return { data: { customer, orders: ordersRes.data || [], invoices } };
+      const res = await fetch('/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: rawPhone }),
+      });
+      const payload = await res.json();
+      if (!res.ok) return { data: null, error: payload.error };
+      return payload;
     } catch {
-      return buildLocal();
+      return { data: null, error: 'Could not reach the server. Check your connection.' };
     }
   }
 };

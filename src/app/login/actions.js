@@ -1,30 +1,35 @@
 'use server';
 
-import { cookies } from 'next/headers';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { AUTH_COOKIE_NAME, AUTH_COOKIE_VALUE, PASSCODE } from '@/lib/auth';
+import { getServerSupabase } from '@/lib/supabaseServer';
 
-export async function loginAction(prevState, formData) {
-  const passcode = formData.get('passcode');
+/** Starts the Google sign-in and hands the visitor off to Google. */
+export async function signInWithGoogle() {
+  const supabase = await getServerSupabase();
+  const headerList = await headers();
+  const origin =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    `${headerList.get('x-forwarded-proto') ?? 'https'}://${headerList.get('host')}`;
 
-  if (passcode !== PASSCODE) {
-    return { error: 'Incorrect passcode. Please try again.' };
-  }
-
-  const cookieStore = await cookies();
-  cookieStore.set(AUTH_COOKIE_NAME, AUTH_COOKIE_VALUE, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 60 * 60 * 24 * 30,
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${origin}/auth/callback`,
+      queryParams: { access_type: 'offline', prompt: 'select_account' },
+    },
   });
 
-  redirect('/admin');
+  if (error) {
+    redirect(`/login?error=${encodeURIComponent(error.message)}`);
+  }
+  redirect(data.url);
 }
 
 export async function logoutAction() {
-  const cookieStore = await cookies();
-  cookieStore.delete(AUTH_COOKIE_NAME);
+  const supabase = await getServerSupabase();
+  // Log first: after signOut there is no JWT left to attribute the event to.
+  await supabase.rpc('log_auth_event', { p_action: 'LOGOUT', p_detail: null });
+  await supabase.auth.signOut();
   redirect('/login');
 }

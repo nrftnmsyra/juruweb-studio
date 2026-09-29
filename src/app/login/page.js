@@ -1,47 +1,20 @@
-'use client';
-
-import { useRef, useState } from 'react';
-import { useActionState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MdLock, MdArrowForward } from 'react-icons/md';
-import { loginAction } from './actions';
+import { MdLock } from 'react-icons/md';
+import { FcGoogle } from 'react-icons/fc';
+import { signInWithGoogle } from './actions';
 
-const CODE_LENGTH = 6;
+const ERRORS = {
+  not_allowed:
+    'That Google account is not on the admin list. Ask the owner to add it, then try again.',
+  missing_code: 'Google did not send a sign-in code back. Please try again.',
+  access_denied: 'Sign-in was cancelled.',
+};
 
-export default function LoginPage() {
-  const [state, formAction, pending] = useActionState(loginAction, null);
-  const [digits, setDigits] = useState(Array(CODE_LENGTH).fill(''));
-  const inputsRef = useRef([]);
-
-  const passcode = digits.join('');
-
-  const handleChange = (index, value) => {
-    const char = value.replace(/[^0-9]/g, '').slice(-1);
-    const next = [...digits];
-    next[index] = char;
-    setDigits(next);
-
-    if (char && index < CODE_LENGTH - 1) {
-      inputsRef.current[index + 1]?.focus();
-    }
-  };
-
-  const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !digits[index] && index > 0) {
-      inputsRef.current[index - 1]?.focus();
-    }
-  };
-
-  const handlePaste = (e) => {
-    const pasted = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, CODE_LENGTH);
-    if (!pasted) return;
-    e.preventDefault();
-    const next = Array(CODE_LENGTH).fill('');
-    for (let i = 0; i < pasted.length; i++) next[i] = pasted[i];
-    setDigits(next);
-    inputsRef.current[Math.min(pasted.length, CODE_LENGTH - 1)]?.focus();
-  };
+export default async function LoginPage({ searchParams }) {
+  const params = await searchParams;
+  const raw = typeof params?.error === 'string' ? params.error : null;
+  const message = raw ? (ERRORS[raw] ?? raw) : null;
 
   return (
     <div className="login-page">
@@ -56,13 +29,7 @@ export default function LoginPage() {
         }}
       />
 
-      <form
-        action={formAction}
-        onPaste={handlePaste}
-        className="login-card"
-      >
-        <input type="hidden" name="passcode" value={passcode} />
-
+      <form action={signInWithGoogle} className="login-card">
         <Image
           src="/dark-bg-logo.png"
           alt="Juruweb Studio"
@@ -90,50 +57,57 @@ export default function LoginPage() {
           >
             <MdLock />
           </div>
-          <h1 style={{ fontSize: '1.4rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
+          <h1
+            style={{
+              fontSize: '1.4rem',
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              color: 'var(--text-primary)',
+            }}
+          >
             Welcome back
           </h1>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
-            Enter your passcode to access the admin dashboard.
+            Sign in with the Google account on the admin list.
           </p>
         </div>
 
-        <div className="passcode-inputs">
-          {digits.map((digit, index) => (
-            <input
-              key={index}
-              ref={(el) => (inputsRef.current[index] = el)}
-              type="text"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              maxLength={1}
-              value={digit}
-              onChange={(e) => handleChange(index, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(index, e)}
-              autoFocus={index === 0}
-              className="passcode-input"
-            />
-          ))}
-        </div>
-
-        {state?.error && (
-          <p style={{ color: 'var(--error)', fontSize: '0.85rem', fontWeight: 500, marginTop: '-0.5rem' }}>
-            {state.error}
+        {message && (
+          <p
+            role="alert"
+            style={{
+              color: 'var(--error)',
+              background: 'var(--error-glow)',
+              border: '1px solid var(--error)',
+              borderRadius: '10px',
+              padding: '0.7rem 0.9rem',
+              fontSize: '0.85rem',
+              fontWeight: 500,
+              lineHeight: 1.5,
+            }}
+          >
+            {message}
           </p>
         )}
 
-        <button
-          type="submit"
-          className="btn btn-primary"
-          disabled={pending || passcode.length !== CODE_LENGTH}
-          style={{ width: '100%', opacity: pending || passcode.length !== CODE_LENGTH ? 0.6 : 1 }}
-        >
-          <span>{pending ? 'Verifying...' : 'Unlock Dashboard'}</span>
-          {!pending && <MdArrowForward />}
+        <button type="submit" className="btn btn-secondary" style={{ width: '100%' }}>
+          <FcGoogle size={18} />
+          <span>Continue with Google</span>
         </button>
 
+        <p
+          style={{
+            fontSize: '0.78rem',
+            color: 'var(--text-muted)',
+            textAlign: 'center',
+            lineHeight: 1.6,
+          }}
+        >
+          Sign-ins and changes to records are recorded in the audit log.
+        </p>
+
         <Link href="/track" className="login-track-link">
-          Are you a customer? Track your order &amp; payment →
+          Are you a customer? Track your order &amp; payment &rarr;
         </Link>
       </form>
     </div>
