@@ -8,6 +8,46 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import { MdAdd, MdWork, MdCalendarToday, MdAccessTime, MdCheckCircle, MdError, MdClose, MdDelete, MdAutorenew, MdEditCalendar } from 'react-icons/md';
 import toast from 'react-hot-toast';
 
+/**
+ * The short project reference (JW-0042). Click to copy — it exists so it can be
+ * quoted back over WhatsApp, which means it needs to leave the screen easily.
+ */
+function ProjectRef({ value }) {
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1400);
+    } catch {
+      /* clipboard blocked — the text is still selectable on screen */
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      title={copied ? 'Copied' : 'Copy project ID'}
+      style={{
+        fontFamily: 'ui-monospace, Menlo, Consolas, monospace',
+        fontSize: '0.75rem',
+        fontWeight: 600,
+        letterSpacing: '0.03em',
+        color: copied ? 'var(--success)' : 'var(--brand-pink-hover)',
+        background: copied ? 'var(--success-glow)' : 'var(--brand-pink-glow)',
+        border: 'none',
+        borderRadius: '6px',
+        padding: '0.2rem 0.5rem',
+        cursor: 'pointer',
+      }}
+    >
+      {copied ? 'Copied' : value}
+    </button>
+  );
+}
+
 function OrdersContent() {
   const searchParams = useSearchParams();
   const [orders, setOrders] = useState([]);
@@ -273,6 +313,7 @@ function OrdersContent() {
                   {/* Left block: Customer & Package info */}
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      {order.project_ref && <ProjectRef value={order.project_ref} />}
                       <h3 className="u-caps" style={{ fontSize: '1.15rem', fontWeight: 700 }}>{order.customer?.name || 'Unknown Client'}</h3>
                       {order.customer?.company && (
                         <span className="u-caps" style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>({order.customer.company})</span>
