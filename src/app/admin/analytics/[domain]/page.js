@@ -254,6 +254,11 @@ export default async function SiteAnalyticsPage({ params: routeParams, searchPar
       .select('domain, label, customer_name, project_ref, tracking_enabled')
       .eq('domain', website)
       .maybeSingle(),
+    supabase
+      .from('client_api_keys')
+      .select('id, label, key_hint, active, last_used_at')
+      .eq('website', website)
+      .order('created_at', { ascending: false }),
   ]);
 
   if (!sites) notFound();
