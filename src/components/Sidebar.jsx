@@ -12,7 +12,8 @@ import {
   MdAccountBalanceWallet,
   MdLogout,
   MdAdminPanelSettings,
-  MdHistory
+  MdHistory,
+  MdMonitorHeart
 } from 'react-icons/md';
 import { canManageUsers, canViewAudit } from '@/lib/auth';
 
@@ -25,7 +26,8 @@ export default function Sidebar({ open = false, onClose = () => {}, admin = null
     { name: 'Orders', path: '/admin/orders', icon: <MdWork /> },
     { name: 'Quotations', path: '/admin/quotations', icon: <MdDescription /> },
     { name: 'Invoices', path: '/admin/invoices', icon: <MdReceiptLong /> },
-    { name: 'Ledger', path: '/admin/ledger', icon: <MdAccountBalanceWallet /> }
+    { name: 'Ledger', path: '/admin/ledger', icon: <MdAccountBalanceWallet /> },
+    { name: 'Monitoring', path: '/admin/monitoring', icon: <MdMonitorHeart /> }
   ];
 
   // Owner-only. Hiding them is a courtesy, not the control: both pages redirect
