@@ -30,15 +30,15 @@ export default async function UsersPage() {
     .order('email', { ascending: true });
 
   return (
-    <div className="page-body">
-      <div style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em' }}>
-          Admin users
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.35rem' }}>
-          Creating an admin here makes their sign-in account and adds them to this list. Anyone not
+    <div className="page-container">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Admin users</h1>
+          <p className="page-subtitle">
+            Creating an admin here makes their sign-in account and adds them to this list. Anyone not
           listed is turned away, and the attempt is recorded in the audit log.
-        </p>
+          </p>
+        </div>
       </div>
 
       <AddAdminForm />
