@@ -1106,8 +1106,12 @@ select.form-input {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* Locked to the header's height, not derived from padding plus the logo's own
+   size — otherwise the two bottom borders never line up across the split. */
 .sidebar-logo {
-  padding: 1.5rem;
+  height: var(--header-height);
+  flex-shrink: 0;
+  padding: 0 1.5rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
