@@ -208,29 +208,32 @@ html { scroll-behavior: smooth; }
   background: transparent;
   color: var(--paper);
   cursor: pointer;
-  overflow: hidden;
-  isolation: isolate;
   appearance: none;
   -webkit-appearance: none;
-  transition: color 0.25s, border-color 0.25s, transform 0.25s cubic-bezier(0.2, 0.7, 0.3, 1);
+  transition:
+    background 0.22s ease,
+    color 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 .lp .lp-btn svg { flex: none; }
-.lp .lp-btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  background: linear-gradient(100deg, var(--pink-soft), var(--pink));
-  transform: translateY(101%);
-  transition: transform 0.38s cubic-bezier(0.2, 0.7, 0.3, 1);
-}
-.lp .lp-btn:hover { transform: translateY(-2px); }
-.lp .lp-btn:hover::before { transform: translateY(0); }
+.lp .lp-btn:active { transform: translateY(1px); }
+
+/* A primary action should look more certain when you reach for it, so the pink
+   button brightens and throws a glow rather than washing out toward white. */
 .lp .lp-btn--pink { background: var(--pink); color: #140008; }
-.lp .lp-btn--pink::before { background: linear-gradient(100deg, #fff, var(--pink-soft)); }
+.lp .lp-btn--pink:hover {
+  background: var(--pink-soft);
+  box-shadow: 0 10px 28px -10px rgba(255, 102, 196, 0.65);
+  transform: translateY(-1px);
+}
 .lp .lp-btn--line { border-color: var(--line); }
-.lp .lp-btn--line:hover { color: #140008; border-color: transparent; }
+.lp .lp-btn--line:hover {
+  border-color: var(--pink);
+  color: var(--pink-soft);
+  background: rgba(255, 102, 196, 0.08);
+}
 .lp .lp-btn--sm { padding: 0.62rem 1rem; font-size: 0.85rem; }
 
 /* ---------- hero ---------- */
@@ -788,23 +791,28 @@ html { scroll-behavior: smooth; }
 .lp-mx tfoot .lp-btn { width: 100%; }
 
 /* ---------- add-ons ---------- */
-.lp-addons { margin-top: 2.6rem; border-top: 1px solid var(--line-soft); padding-top: 1.7rem; }
+/* Each row carried a dotted leader AND a hairline underneath — two competing
+   horizontal lines per row. One rule per row, and three narrower columns so the
+   label and its price stay close enough to pair without a leader. */
+.lp-addons { margin-top: 2.6rem; border-top: 1px solid var(--line-soft); padding-top: 1.9rem; }
 .lp-addons h3 { font-size: 1.05rem; font-weight: 600; }
-.lp-addon-list { display: grid; gap: 0 2.6rem; margin-top: 1rem; }
-@media (min-width: 740px) { .lp-addon-list { grid-template-columns: 1fr 1fr; } }
+.lp-addon-list { display: grid; gap: 0 2.4rem; margin-top: 1.3rem; }
+@media (min-width: 720px) { .lp-addon-list { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1040px) { .lp-addon-list { grid-template-columns: repeat(3, 1fr); } }
 .lp-addon {
   display: flex;
   align-items: baseline;
-  gap: 0.5rem;
-  padding: 0.66rem 0;
-  border-bottom: 1px solid var(--line-soft);
-  font-size: 0.88rem;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--line-soft);
+  font-size: 0.92rem;
 }
-.lp-fill { flex: 1; min-width: 1rem; border-bottom: 1px dotted var(--line); transform: translateY(-0.22em); }
+.lp-addon > span { flex: 1; min-width: 0; }
 .lp-addon strong {
   font-family: var(--mono);
   font-weight: 500;
-  color: var(--dim);
+  color: var(--paper);
   font-size: 0.82rem;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
