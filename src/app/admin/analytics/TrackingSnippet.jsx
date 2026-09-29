@@ -64,15 +64,24 @@ export default function TrackingSnippet({ sites }) {
         {snippet}
       </pre>
 
-      <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.7rem', lineHeight: 1.6 }}>
-        Paste into the <code>&lt;head&gt;</code> of that site. WhatsApp, phone and outbound clicks
-        are tracked automatically — no extra code. For anything else, call{' '}
-        <code>jw(&apos;form_submit&apos;, {'{'} label: &apos;contact&apos; {'}'})</code>.
-      </p>
-      <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.4rem', lineHeight: 1.6 }}>
-        To check it works: open the site, then the Network tab, filter for <code>track</code> and
-        expect a <strong>204</strong>.
-      </p>
+      {/* Inline <code> inside flowing text wrapped mid-token and looked broken,
+          so the details sit on their own lines instead. */}
+      <ul
+        style={{
+          listStyle: 'none',
+          padding: 0,
+          margin: '0.9rem 0 0',
+          display: 'grid',
+          gap: '0.35rem',
+          fontSize: '0.79rem',
+          color: 'var(--text-muted)',
+          lineHeight: 1.6,
+        }}
+      >
+        <li>Paste it into the &lt;head&gt; of that site.</li>
+        <li>WhatsApp, phone and outbound clicks are tracked automatically.</li>
+        <li>To verify: open the site, Network tab, filter for “track”, expect 204.</li>
+      </ul>
     </div>
   );
 }
