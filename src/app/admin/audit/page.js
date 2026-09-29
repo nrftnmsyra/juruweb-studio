@@ -57,13 +57,15 @@ export default async function AuditPage({ searchParams }) {
   const hasMore = (page + 1) * PAGE_SIZE < total;
 
   return (
-    <div className="page-body">
-      <div style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em' }}>Audit log</h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.35rem' }}>
-          Every record created, changed or deleted, plus sign-ins. Written by database triggers, so
+    <div className="page-container">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Audit log</h1>
+          <p className="page-subtitle">
+            Every record created, changed or deleted, plus sign-ins. Written by database triggers, so
           it also catches changes made outside this dashboard. Nothing here can be edited.
-        </p>
+          </p>
+        </div>
       </div>
 
       <div className="card" style={{ overflowX: 'auto' }}>

@@ -57,15 +57,15 @@ export default async function MonitoringPage() {
   const neverChecked = list.filter((s) => !s.checked_at).length;
 
   return (
-    <div className="page-body">
-      <div style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em' }}>
-          Website monitoring
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.35rem' }}>
-          Every live client site is checked once a day at 9am — certificate and domain expiry, SEO
+    <div className="page-container">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Website monitoring</h1>
+          <p className="page-subtitle">
+            Every live client site is checked once a day at 9am — certificate and domain expiry, SEO
           basics, and whether it answered at all.
-        </p>
+          </p>
+        </div>
       </div>
 
       {(down.length > 0 || expiringSoon.length > 0) && (

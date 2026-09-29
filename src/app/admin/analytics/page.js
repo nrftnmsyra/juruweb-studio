@@ -139,13 +139,15 @@ export default async function AnalyticsPage({ searchParams }) {
   };
 
   return (
-    <div className="page-body">
-      <div style={{ marginBottom: '1.25rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em' }}>Analytics</h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.35rem' }}>
-          Traffic from our own tracker — no Google account involved. Days are counted in Malaysian
+    <div className="page-container">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Analytics</h1>
+          <p className="page-subtitle">
+            Traffic from our own tracker — no Google account involved. Days are counted in Malaysian
           time, and visitors are identified without cookies.
-        </p>
+          </p>
+        </div>
       </div>
 
       <div

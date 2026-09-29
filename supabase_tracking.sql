@@ -91,11 +91,12 @@ AS $$
           AND created_at <  p_to
           AND (p_website IS NULL OR website = p_website)
     ),
-    views AS (SELECT * FROM scoped WHERE event_type = 'pageview')
+    -- Named pv, not views, so a column aliased "views" below cannot shadow it.
+    pv AS (SELECT * FROM scoped WHERE event_type = 'pageview')
     SELECT jsonb_build_object(
         'totals', jsonb_build_object(
             'events',   (SELECT count(*) FROM scoped),
-            'views',    (SELECT count(*) FROM views),
+            'views',    (SELECT count(*) FROM pv),
             'sessions', (SELECT count(DISTINCT session_id) FROM scoped WHERE session_id IS NOT NULL),
             'visitors', (SELECT count(DISTINCT ip_hash)    FROM scoped WHERE ip_hash IS NOT NULL),
             'clicks',   (SELECT count(*) FROM scoped WHERE event_type <> 'pageview')
@@ -103,60 +104,58 @@ AS $$
         'firstEventAt', (SELECT min(created_at) FROM public.page_events
                          WHERE (p_website IS NULL OR website = p_website)),
         'daily', COALESCE((
-            SELECT jsonb_agg(d ORDER BY d->>'day')
+            SELECT jsonb_agg(jsonb_build_object('day', day, 'views', n, 'sessions', s) ORDER BY day)
             FROM (
-                SELECT jsonb_build_object(
-                    'day',      public.my_day(created_at),
-                    'views',    count(*) FILTER (WHERE event_type = 'pageview'),
-                    'sessions', count(DISTINCT session_id)
-                ) AS d
+                SELECT public.my_day(created_at) AS day,
+                       count(*) FILTER (WHERE event_type = 'pageview') AS n,
+                       count(DISTINCT session_id) AS s
                 FROM scoped GROUP BY public.my_day(created_at)
             ) x
         ), '[]'::jsonb),
         'sites', COALESCE((
-            SELECT jsonb_agg(s ORDER BY (s->>'views')::BIGINT DESC)
+            SELECT jsonb_agg(jsonb_build_object('website', website, 'views', n, 'sessions', s) ORDER BY n DESC)
             FROM (
-                SELECT jsonb_build_object(
-                    'website',  website,
-                    'views',    count(*) FILTER (WHERE event_type = 'pageview'),
-                    'sessions', count(DISTINCT session_id)
-                ) AS s
+                SELECT website,
+                       count(*) FILTER (WHERE event_type = 'pageview') AS n,
+                       count(DISTINCT session_id) AS s
                 FROM scoped GROUP BY website
             ) x
         ), '[]'::jsonb),
         'pages', COALESCE((
-            SELECT jsonb_agg(p ORDER BY (p->>'views')::BIGINT DESC)
+            SELECT jsonb_agg(jsonb_build_object('path', path, 'views', n) ORDER BY n DESC)
             FROM (
-                SELECT jsonb_build_object('path', path, 'views', count(*)) AS p
-                FROM views GROUP BY path ORDER BY count(*) DESC LIMIT 10
+                SELECT path, count(*) AS n
+                FROM pv GROUP BY path ORDER BY count(*) DESC LIMIT 10
             ) x
         ), '[]'::jsonb),
+        -- The inner GROUP BY targets the source column, never the aggregate.
         'referrers', COALESCE((
-            SELECT jsonb_agg(r ORDER BY (r->>'views')::BIGINT DESC)
+            SELECT jsonb_agg(jsonb_build_object('source', source, 'views', n) ORDER BY n DESC)
             FROM (
-                SELECT jsonb_build_object(
-                    'source', COALESCE(NULLIF(regexp_replace(referrer, '^https?://(www\.)?([^/]+).*$', '\2'), ''), 'Direct'),
-                    'views',  count(*)
-                ) AS r
-                FROM views GROUP BY 1 ORDER BY count(*) DESC LIMIT 10
+                SELECT COALESCE(
+                           NULLIF(regexp_replace(referrer, '^https?://(www\.)?([^/]+).*$', '\2'), ''),
+                           'Direct'
+                       ) AS source,
+                       count(*) AS n
+                FROM pv GROUP BY source ORDER BY count(*) DESC LIMIT 10
             ) x
         ), '[]'::jsonb),
         'devices', COALESCE((
             SELECT jsonb_object_agg(COALESCE(device, 'unknown'), n)
-            FROM (SELECT device, count(*) n FROM views GROUP BY device) x
+            FROM (SELECT device, count(*) n FROM pv GROUP BY device) x
         ), '{}'::jsonb),
         'browsers', COALESCE((
             SELECT jsonb_object_agg(COALESCE(browser, 'Other'), n)
-            FROM (SELECT browser, count(*) n FROM views GROUP BY browser) x
+            FROM (SELECT browser, count(*) n FROM pv GROUP BY browser) x
         ), '{}'::jsonb),
         'countries', COALESCE((
             SELECT jsonb_object_agg(COALESCE(country, 'Unknown'), n)
-            FROM (SELECT country, count(*) n FROM views GROUP BY country ORDER BY count(*) DESC LIMIT 10) x
+            FROM (SELECT country, count(*) n FROM pv GROUP BY country ORDER BY count(*) DESC LIMIT 10) x
         ), '{}'::jsonb),
         'labels', COALESCE((
-            SELECT jsonb_agg(l ORDER BY (l->>'count')::BIGINT DESC)
+            SELECT jsonb_agg(jsonb_build_object('label', label, 'type', event_type, 'count', n) ORDER BY n DESC)
             FROM (
-                SELECT jsonb_build_object('label', label, 'type', event_type, 'count', count(*)) AS l
+                SELECT label, event_type, count(*) AS n
                 FROM scoped WHERE event_type <> 'pageview' AND label IS NOT NULL
                 GROUP BY label, event_type ORDER BY count(*) DESC LIMIT 10
             ) x
