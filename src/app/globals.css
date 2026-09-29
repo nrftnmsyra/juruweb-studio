@@ -878,6 +878,12 @@ input::placeholder {
   padding-inline: 1.1rem;
 }
 
+/* Pairs with .btn-sm, so a small toolbar row does not mix 44px and 36px. */
+.form-input--sm {
+  height: var(--control-height-sm);
+  font-size: 0.85rem;
+}
+
 /* Leave room for the native dropdown arrow inside the rounded end. */
 select.form-input {
   padding-right: 2.4rem;

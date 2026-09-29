@@ -169,15 +169,16 @@ export default async function AnalyticsPage({ searchParams }) {
           </a>
         ))}
 
-        <form style={{ marginLeft: 'auto' }}>
+        {/* Everything in this row is the small size, so the select matches the
+            period buttons and Filter rather than standing 8px taller. */}
+        <form style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <input type="hidden" name="period" value={period} />
           <select
             id="site-filter"
             name="website"
             defaultValue={website || ''}
-            className="form-input"
-            style={{ width: 'auto' }}
-            // Native form submit on change keeps this a server component.
+            className="form-input form-input--sm"
+            style={{ width: 'auto', maxWidth: '13rem' }}
             suppressHydrationWarning
           >
             <option value="">All websites</option>
@@ -187,7 +188,7 @@ export default async function AnalyticsPage({ searchParams }) {
               </option>
             ))}
           </select>
-          <button type="submit" className="btn btn-secondary btn-sm" style={{ marginLeft: '0.5rem' }}>
+          <button type="submit" className="btn btn-secondary btn-sm">
             Filter
           </button>
         </form>

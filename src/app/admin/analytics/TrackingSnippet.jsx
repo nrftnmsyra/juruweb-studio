@@ -31,10 +31,10 @@ export default function TrackingSnippet({ sites }) {
         <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>Tracking snippet</div>
         <select
           id="snippet-site"
-          className="form-input"
+          className="form-input form-input--sm"
           value={domain}
           onChange={(e) => setDomain(e.target.value)}
-          style={{ width: 'auto', marginLeft: 'auto' }}
+          style={{ width: 'auto', maxWidth: '13rem', marginLeft: 'auto' }}
         >
           {sites.map((s) => (
             <option key={s.domain} value={s.domain}>
