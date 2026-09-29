@@ -210,9 +210,13 @@ GRANT SELECT ON public.site_checks, public.site_status TO authenticated;
 
 
 -- ----------------------------------------------------------------------------
--- 7. Seed with the sites already shipped on the landing page
+-- 7. Seed
 -- ----------------------------------------------------------------------------
+-- Sites Juruweb built. Several are hosted under the client's own account
+-- rather than this Vercel team, which makes no difference here: every check
+-- runs from outside over HTTPS, so we need no access to where they are hosted.
 INSERT INTO public.monitored_sites (domain, label, created_by) VALUES
+    ('teratak-warisan-kampung.vercel.app', 'Teratak Warisan Kampung', 'migration'),
     ('catrumah.com.my',       'Cat Rumah',           'migration'),
     ('wallpanel.my',          'Wall Panel',          'migration'),
     ('cateringservice.my',    'Catering Service',    'migration'),
