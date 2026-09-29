@@ -313,7 +313,6 @@ export default function LandingClient() {
                 {ADDONS.map((a) => (
                   <div className="lp-addon" key={a.label}>
                     <span>{a.label}</span>
-                    <span className="lp-fill" />
                     <strong>{a.price}</strong>
                   </div>
                 ))}
