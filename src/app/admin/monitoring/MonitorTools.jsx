@@ -131,7 +131,8 @@ export default function MonitorTools({ siteCount, neverChecked }) {
         </button>
 
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginLeft: 'auto' }}>
-          <label htmlFor="report-month" className="form-label" style={{ margin: 0 }}>
+          {/* Sits beside the select rather than above it, so no bottom margin. */}
+          <label htmlFor="report-month" className="form-label" style={{ margin: '0 0.15rem 0 0' }}>
             Monthly report
           </label>
           <select

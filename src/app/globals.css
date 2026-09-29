@@ -848,12 +848,49 @@ input::placeholder {
   border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 24px;
   box-shadow: var(--shadow-lg);
-  padding: 2.5rem 2rem;
+  padding: 2.25rem 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1.25rem;
   animation: fadeIn 0.5s ease-out;
+}
+
+/* Form field building blocks.
+   These were referenced by the admin forms before they existed, so fields fell
+   back to the bare element styles: 10px corners against the pill-shaped .btn
+   beside them, and labels with no gap under them. */
+.form-label {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Same height and same radius as .btn, so a control row lines up whether the
+   item is an input, a select or a button. */
+.form-input {
+  height: var(--control-height);
+  border-radius: 9999px;
+  padding-inline: 1.1rem;
+}
+
+/* Leave room for the native dropdown arrow inside the rounded end. */
+select.form-input {
+  padding-right: 2.4rem;
+}
+
+/* The global label rule shouts in caps, which suits dense admin forms but not
+   a two-field sign-in card. Quieter here only. */
+.login-card label {
+  text-transform: none;
+  font-weight: 500;
+  letter-spacing: 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
 }
 
 .passcode-inputs {
