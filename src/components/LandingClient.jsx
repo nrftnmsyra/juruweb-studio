@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Archivo, IBM_Plex_Mono } from 'next/font/google';
@@ -214,12 +214,14 @@ export default function LandingClient() {
           <HeroMesh />
           <div className="lp-wrap lp-hero-in">
             <h1 className="lp-hero-title" key={lang}>
+              {/* The space must sit outside the span: each word is an
+                  inline-block, which swallows a trailing space of its own. */}
               {tr('hero.title')
                 .split(' ')
                 .map((word, i) => (
-                  <span key={`${word}-${i}`} style={{ animationDelay: `${0.05 + i * 0.09}s` }}>
-                    {word}{' '}
-                  </span>
+                  <Fragment key={`${word}-${i}`}>
+                    <span style={{ animationDelay: `${0.05 + i * 0.09}s` }}>{word}</span>{' '}
+                  </Fragment>
                 ))}
             </h1>
             <p className="lp-hero-sub">{tr('hero.sub')}</p>
