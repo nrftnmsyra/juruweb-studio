@@ -1,6 +1,6 @@
 'use client';
 
-import { MdSearch, MdNotifications, MdSettings, MdLogout, MdMenu } from 'react-icons/md';
+import { MdSearch, MdLogout, MdMenu } from 'react-icons/md';
 import { logoutAction } from '@/app/login/actions';
 import { ROLE_LABELS } from '@/lib/auth';
 
@@ -26,12 +26,10 @@ export default function Header({ onMenuClick = () => {}, admin = null }) {
       </div>
 
       <div className="header-profile">
-        <button className="btn btn-secondary icon-btn hide-sm">
-          <MdNotifications />
-        </button>
-        <button className="btn btn-secondary icon-btn hide-sm">
-          <MdSettings />
-        </button>
+        {/* The notification and settings buttons had no onClick — they did
+            nothing at all. A control that looks clickable and isn't is worse
+            than no control, so they are gone until there is something for
+            them to open. */}
 
         <div className="hide-sm" style={{ height: '24px', width: '1px', backgroundColor: 'var(--border-color)' }}></div>
 

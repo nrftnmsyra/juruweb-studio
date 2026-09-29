@@ -78,9 +78,15 @@
     var body = JSON.stringify(payload);
 
     // sendBeacon survives the page being closed mid-request.
+    //
+    // The blob MUST be text/plain: that is a CORS-safelisted content type, so
+    // the request goes straight out. application/json is not safelisted, which
+    // forces a preflight, and a beacon cannot preflight — so it failed
+    // silently while still reporting success, and every event was lost. The
+    // server parses the body as JSON regardless of the declared type.
     try {
       if (navigator.sendBeacon) {
-        var blob = new Blob([body], { type: 'application/json' });
+        var blob = new Blob([body], { type: 'text/plain;charset=UTF-8' });
         if (navigator.sendBeacon(url, blob)) return;
       }
     } catch (e) {
