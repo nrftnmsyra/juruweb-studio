@@ -1,47 +1,13 @@
 'use client';
 
-import { useRef, useState } from 'react';
 import { useActionState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { MdLock, MdArrowForward } from 'react-icons/md';
-import { loginAction } from './actions';
-
-const CODE_LENGTH = 6;
+import { signInAction } from './actions';
 
 export default function LoginPage() {
-  const [state, formAction, pending] = useActionState(loginAction, null);
-  const [digits, setDigits] = useState(Array(CODE_LENGTH).fill(''));
-  const inputsRef = useRef([]);
-
-  const passcode = digits.join('');
-
-  const handleChange = (index, value) => {
-    const char = value.replace(/[^0-9]/g, '').slice(-1);
-    const next = [...digits];
-    next[index] = char;
-    setDigits(next);
-
-    if (char && index < CODE_LENGTH - 1) {
-      inputsRef.current[index + 1]?.focus();
-    }
-  };
-
-  const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !digits[index] && index > 0) {
-      inputsRef.current[index - 1]?.focus();
-    }
-  };
-
-  const handlePaste = (e) => {
-    const pasted = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, CODE_LENGTH);
-    if (!pasted) return;
-    e.preventDefault();
-    const next = Array(CODE_LENGTH).fill('');
-    for (let i = 0; i < pasted.length; i++) next[i] = pasted[i];
-    setDigits(next);
-    inputsRef.current[Math.min(pasted.length, CODE_LENGTH - 1)]?.focus();
-  };
+  const [state, formAction, pending] = useActionState(signInAction, null);
 
   return (
     <div className="login-page">
@@ -56,13 +22,7 @@ export default function LoginPage() {
         }}
       />
 
-      <form
-        action={formAction}
-        onPaste={handlePaste}
-        className="login-card"
-      >
-        <input type="hidden" name="passcode" value={passcode} />
-
+      <form action={formAction} className="login-card">
         <Image
           src="/dark-bg-logo.png"
           alt="Juruweb Studio"
@@ -90,34 +50,67 @@ export default function LoginPage() {
           >
             <MdLock />
           </div>
-          <h1 style={{ fontSize: '1.4rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
+          <h1
+            style={{
+              fontSize: '1.4rem',
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              color: 'var(--text-primary)',
+            }}
+          >
             Welcome back
           </h1>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
-            Enter your passcode to access the admin dashboard.
+            Sign in to the admin dashboard.
           </p>
         </div>
 
-        <div className="passcode-inputs">
-          {digits.map((digit, index) => (
+        <div style={{ display: 'grid', gap: '0.85rem', width: '100%' }}>
+          <label style={{ display: 'block' }}>
+            <span className="form-label">Email</span>
             <input
-              key={index}
-              ref={(el) => (inputsRef.current[index] = el)}
-              type="text"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              maxLength={1}
-              value={digit}
-              onChange={(e) => handleChange(index, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(index, e)}
-              autoFocus={index === 0}
-              className="passcode-input"
+              id="login-email"
+              name="email"
+              type="email"
+              autoComplete="username"
+              required
+              autoFocus
+              placeholder="you@juruweb.com"
+              className="form-input"
+              style={{ width: '100%' }}
             />
-          ))}
+          </label>
+
+          <label style={{ display: 'block' }}>
+            <span className="form-label">Password</span>
+            <input
+              id="login-password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              placeholder="••••••••"
+              className="form-input"
+              style={{ width: '100%' }}
+            />
+          </label>
         </div>
 
         {state?.error && (
-          <p style={{ color: 'var(--error)', fontSize: '0.85rem', fontWeight: 500, marginTop: '-0.5rem' }}>
+          <p
+            role="alert"
+            style={{
+              color: 'var(--error)',
+              background: 'var(--error-glow)',
+              border: '1px solid var(--error)',
+              borderRadius: '10px',
+              padding: '0.7rem 0.9rem',
+              fontSize: '0.85rem',
+              fontWeight: 500,
+              lineHeight: 1.5,
+              width: '100%',
+            }}
+          >
             {state.error}
           </p>
         )}
@@ -125,15 +118,26 @@ export default function LoginPage() {
         <button
           type="submit"
           className="btn btn-primary"
-          disabled={pending || passcode.length !== CODE_LENGTH}
-          style={{ width: '100%', opacity: pending || passcode.length !== CODE_LENGTH ? 0.6 : 1 }}
+          disabled={pending}
+          style={{ width: '100%', opacity: pending ? 0.6 : 1 }}
         >
-          <span>{pending ? 'Verifying...' : 'Unlock Dashboard'}</span>
+          <span>{pending ? 'Signing in…' : 'Sign in'}</span>
           {!pending && <MdArrowForward />}
         </button>
 
+        <p
+          style={{
+            fontSize: '0.78rem',
+            color: 'var(--text-muted)',
+            textAlign: 'center',
+            lineHeight: 1.6,
+          }}
+        >
+          Forgot your password? Ask the owner to reset it from Admin Users.
+        </p>
+
         <Link href="/track" className="login-track-link">
-          Are you a customer? Track your order &amp; payment →
+          Are you a customer? Track your order &amp; payment &rarr;
         </Link>
       </form>
     </div>

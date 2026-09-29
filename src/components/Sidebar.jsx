@@ -10,10 +10,13 @@ import {
   MdReceiptLong,
   MdWork,
   MdAccountBalanceWallet,
-  MdLogout
+  MdLogout,
+  MdAdminPanelSettings,
+  MdHistory
 } from 'react-icons/md';
+import { canManageUsers, canViewAudit } from '@/lib/auth';
 
-export default function Sidebar({ open = false, onClose = () => {} }) {
+export default function Sidebar({ open = false, onClose = () => {}, admin = null }) {
   const pathname = usePathname();
 
   const menuItems = [
@@ -24,6 +27,15 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
     { name: 'Invoices', path: '/admin/invoices', icon: <MdReceiptLong /> },
     { name: 'Ledger', path: '/admin/ledger', icon: <MdAccountBalanceWallet /> }
   ];
+
+  // Owner-only. Hiding them is a courtesy, not the control: both pages redirect
+  // server-side and RLS refuses the data regardless of what the nav shows.
+  if (canManageUsers(admin)) {
+    menuItems.push({ name: 'Admin Users', path: '/admin/users', icon: <MdAdminPanelSettings /> });
+  }
+  if (canViewAudit(admin)) {
+    menuItems.push({ name: 'Audit Log', path: '/admin/audit', icon: <MdHistory /> });
+  }
 
   return (
     <aside className={`sidebar ${open ? 'open' : ''}`}>

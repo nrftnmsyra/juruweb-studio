@@ -1,28 +1,67 @@
 import { NextResponse } from 'next/server';
-import { AUTH_COOKIE_NAME, AUTH_COOKIE_VALUE } from '@/lib/auth';
+import { createServerClient } from '@supabase/ssr';
 
-export function proxy(request) {
+/**
+ * Gate for /admin.
+ *
+ * The old version compared a cookie to the literal string 'authenticated', so
+ * anyone could forge it from the browser console. This asks Supabase to verify
+ * a real JWT, and refreshes it on the way through so sessions do not expire
+ * mid-session.
+ *
+ * Being on the allowlist is confirmed again by RLS on every query, so a revoked
+ * admin loses data access even if their session cookie is still valid.
+ */
+export async function proxy(request) {
   const { pathname } = request.nextUrl;
-  const isAuthed = request.cookies.get(AUTH_COOKIE_NAME)?.value === AUTH_COOKIE_VALUE;
+  let response = NextResponse.next({ request });
 
-  // Authenticated users skip the login screen and land on the dashboard
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(toSet) {
+          toSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          response = NextResponse.next({ request });
+          toSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+        },
+      },
+    }
+  );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let admin = null;
+  if (user?.email) {
+    const { data } = await supabase
+      .from('admins')
+      .select('email, active')
+      .eq('email', user.email.toLowerCase())
+      .maybeSingle();
+    if (data?.active) admin = data;
+  }
+
   if (pathname === '/login') {
-    if (isAuthed) {
-      return NextResponse.redirect(new URL('/admin', request.url));
-    }
-    return NextResponse.next();
+    if (admin) return NextResponse.redirect(new URL('/admin', request.url));
+    return response;
   }
 
-  // Only the admin dashboard is passcode-protected
   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
-    if (!isAuthed) {
-      return NextResponse.redirect(new URL('/login', request.url));
+    if (!admin) {
+      const to = new URL('/login', request.url);
+      if (user) to.searchParams.set('error', 'not_allowed');
+      return NextResponse.redirect(to);
     }
-    return NextResponse.next();
+    return response;
   }
 
-  // Landing page, /track, and everything else are public
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
