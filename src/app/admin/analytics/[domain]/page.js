@@ -14,6 +14,7 @@ import {
   MdArrowBack,
 } from 'react-icons/md';
 import TrackingSnippet from './TrackingSnippet';
+import ClientKeys from './ClientKeys';
 
 export const dynamic = 'force-dynamic';
 
@@ -242,7 +243,7 @@ export default async function SiteAnalyticsPage({ params: routeParams, searchPar
   const from = new Date(to.getTime() - days * 86400000);
 
   const supabase = await getServerSupabase();
-  const [{ data: summary }, { data: sites }] = await Promise.all([
+  const [{ data: summary }, { data: sites }, { data: apiKeys }] = await Promise.all([
     supabase.rpc('analytics_summary', {
       p_from: from.toISOString(),
       p_to: to.toISOString(),
@@ -400,6 +401,7 @@ export default async function SiteAnalyticsPage({ params: routeParams, searchPar
 
           <div style={{ marginTop: '1.5rem' }}>
             <TrackingSnippet sites={[site]} />
+            <ClientKeys website={site.domain} keys={apiKeys || []} />
           </div>
         </>
       )}
