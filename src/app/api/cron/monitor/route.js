@@ -55,7 +55,18 @@ async function runChecks() {
   const { error: insertError } = await supabase.from('site_checks').insert(toInsert);
   if (insertError) throw new Error(`Could not save checks: ${insertError.message}`);
 
+  // Analytics retention, folded into the run we already make each day. Failing
+  // to purge must not fail the checks, so it is best-effort.
+  let purged = 0;
+  try {
+    const { data } = await supabase.rpc('purge_old_page_events');
+    purged = data ?? 0;
+  } catch (err) {
+    console.error('[cron/monitor] purge skipped', err.message);
+  }
+
   return {
+    purged,
     checked: results.length,
     failed: results.filter((r) => !r.ok).length,
     sites: results.map((r) => ({
