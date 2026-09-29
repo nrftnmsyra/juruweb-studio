@@ -194,15 +194,25 @@ export default async function AnalyticsPage({ searchParams }) {
       </div>
 
       {!hasData ? (
-        <div className="card" style={{ padding: '2rem 1.5rem' }}>
-          <h2 style={{ fontSize: '1.1rem', fontWeight: 700 }}>No traffic recorded yet</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-            Nothing will appear here until the tracking script is on at least one client site. Add
-            the snippet below to the <code>&lt;head&gt;</code>, and the first visit shows up within
-            seconds.
-          </p>
+        // No outer card: TrackingSnippet is already one, and nesting them gave
+        // two borders and two sets of padding that did not line up.
+        <>
+          <div style={{ marginBottom: '1.1rem' }}>
+            <h2 style={{ fontSize: '1.15rem', fontWeight: 700 }}>No traffic recorded yet</h2>
+            <p
+              style={{
+                color: 'var(--text-secondary)',
+                fontSize: '0.9rem',
+                marginTop: '0.4rem',
+                maxWidth: '64ch',
+              }}
+            >
+              Nothing appears here until the tracking script is live on at least one client site.
+              The first visit shows up within seconds of adding it.
+            </p>
+          </div>
           <TrackingSnippet sites={sites || []} />
-        </div>
+        </>
       ) : (
         <>
           <div

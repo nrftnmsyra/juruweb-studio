@@ -3,7 +3,7 @@
 import { useActionState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MdLock, MdArrowForward } from 'react-icons/md';
+import { MdArrowForward } from 'react-icons/md';
 import { signInAction } from './actions';
 
 export default function LoginPage() {
@@ -33,23 +33,6 @@ export default function LoginPage() {
         />
 
         <div style={{ textAlign: 'center' }}>
-          <div
-            style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '14px',
-              background: 'var(--brand-gradient)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#18181b',
-              fontSize: '1.3rem',
-              margin: '0 auto 1rem',
-              boxShadow: '0 8px 20px rgba(255, 102, 196, 0.35)',
-            }}
-          >
-            <MdLock />
-          </div>
           <h1
             style={{
               fontSize: '1.4rem',
