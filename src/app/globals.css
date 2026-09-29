@@ -1222,9 +1222,11 @@ select.form-input {
   }
 }
 
+/* Matches .icon-btn so everything in the header's right cluster is one size;
+   36px next to 44px was what made that row look uneven. */
 .avatar {
-  width: 36px;
-  height: 36px;
+  width: var(--control-height);
+  height: var(--control-height);
   border-radius: 50%;
   background: var(--brand-gradient);
   display: flex;
