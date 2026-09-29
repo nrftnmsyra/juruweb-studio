@@ -1,20 +1,13 @@
+'use client';
+
+import { useActionState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MdLock } from 'react-icons/md';
-import { FcGoogle } from 'react-icons/fc';
-import { signInWithGoogle } from './actions';
+import { MdLock, MdArrowForward } from 'react-icons/md';
+import { signInAction } from './actions';
 
-const ERRORS = {
-  not_allowed:
-    'That Google account is not on the admin list. Ask the owner to add it, then try again.',
-  missing_code: 'Google did not send a sign-in code back. Please try again.',
-  access_denied: 'Sign-in was cancelled.',
-};
-
-export default async function LoginPage({ searchParams }) {
-  const params = await searchParams;
-  const raw = typeof params?.error === 'string' ? params.error : null;
-  const message = raw ? (ERRORS[raw] ?? raw) : null;
+export default function LoginPage() {
+  const [state, formAction, pending] = useActionState(signInAction, null);
 
   return (
     <div className="login-page">
@@ -29,7 +22,7 @@ export default async function LoginPage({ searchParams }) {
         }}
       />
 
-      <form action={signInWithGoogle} className="login-card">
+      <form action={formAction} className="login-card">
         <Image
           src="/dark-bg-logo.png"
           alt="Juruweb Studio"
@@ -68,11 +61,42 @@ export default async function LoginPage({ searchParams }) {
             Welcome back
           </h1>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
-            Sign in with the Google account on the admin list.
+            Sign in to the admin dashboard.
           </p>
         </div>
 
-        {message && (
+        <div style={{ display: 'grid', gap: '0.85rem', width: '100%' }}>
+          <label style={{ display: 'block' }}>
+            <span className="form-label">Email</span>
+            <input
+              id="login-email"
+              name="email"
+              type="email"
+              autoComplete="username"
+              required
+              autoFocus
+              placeholder="you@juruweb.com"
+              className="form-input"
+              style={{ width: '100%' }}
+            />
+          </label>
+
+          <label style={{ display: 'block' }}>
+            <span className="form-label">Password</span>
+            <input
+              id="login-password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              placeholder="••••••••"
+              className="form-input"
+              style={{ width: '100%' }}
+            />
+          </label>
+        </div>
+
+        {state?.error && (
           <p
             role="alert"
             style={{
@@ -84,15 +108,21 @@ export default async function LoginPage({ searchParams }) {
               fontSize: '0.85rem',
               fontWeight: 500,
               lineHeight: 1.5,
+              width: '100%',
             }}
           >
-            {message}
+            {state.error}
           </p>
         )}
 
-        <button type="submit" className="btn btn-secondary" style={{ width: '100%' }}>
-          <FcGoogle size={18} />
-          <span>Continue with Google</span>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={pending}
+          style={{ width: '100%', opacity: pending ? 0.6 : 1 }}
+        >
+          <span>{pending ? 'Signing in…' : 'Sign in'}</span>
+          {!pending && <MdArrowForward />}
         </button>
 
         <p
@@ -103,7 +133,7 @@ export default async function LoginPage({ searchParams }) {
             lineHeight: 1.6,
           }}
         >
-          Sign-ins and changes to records are recorded in the audit log.
+          Forgot your password? Ask the owner to reset it from Admin Users.
         </p>
 
         <Link href="/track" className="login-track-link">

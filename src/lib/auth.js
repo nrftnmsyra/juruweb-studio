@@ -4,7 +4,8 @@
 // value of the literal string 'authenticated'. Both were in a public repo, and
 // the proxy compared the cookie to that constant — so anyone could set the
 // cookie by hand and walk into /admin. Sign-in now goes through Supabase Auth
-// with Google, and access is checked against the public.admins table.
+// with email and password, and access is checked against the public.admins
+// table — holding valid credentials is not the same as being an admin.
 
 export const ROLE_OWNER = 'owner';
 export const ROLE_ADMIN = 'admin';

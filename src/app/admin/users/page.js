@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getServerSupabase, getCurrentAdmin } from '@/lib/supabaseServer';
 import { ROLE_ADMIN, ROLE_OWNER, ROLE_LABELS, ROLE_HINTS, canManageUsers } from '@/lib/auth';
 import AddAdminForm from './AddAdminForm';
+import ResetPasswordButton from './ResetPasswordButton';
 import { setAdminActive, removeAdmin } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -35,8 +36,8 @@ export default async function UsersPage() {
           Admin users
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.35rem' }}>
-          Anyone listed here can sign in with their Google account. Everyone else is turned away,
-          and the attempt is recorded in the audit log.
+          Creating an admin here makes their sign-in account and adds them to this list. Anyone not
+          listed is turned away, and the attempt is recorded in the audit log.
         </p>
       </div>
 
@@ -105,23 +106,26 @@ export default async function UsersPage() {
                     {formatDate(a.created_at)}
                   </td>
                   <td style={{ padding: '0.85rem 1rem', borderBottom: '1px solid var(--border-color)', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                    {!isMe && (
-                      <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
-                        <form action={setAdminActive}>
-                          <input type="hidden" name="email" value={a.email} />
-                          <input type="hidden" name="active" value={String(!a.active)} />
-                          <button type="submit" className="btn btn-secondary btn-sm">
-                            {a.active ? 'Suspend' : 'Restore'}
-                          </button>
-                        </form>
-                        <form action={removeAdmin}>
-                          <input type="hidden" name="email" value={a.email} />
-                          <button type="submit" className="btn btn-danger btn-sm">
-                            Remove
-                          </button>
-                        </form>
-                      </div>
-                    )}
+                    <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                      <ResetPasswordButton email={a.email} />
+                      {!isMe && (
+                        <>
+                          <form action={setAdminActive}>
+                            <input type="hidden" name="email" value={a.email} />
+                            <input type="hidden" name="active" value={String(!a.active)} />
+                            <button type="submit" className="btn btn-secondary btn-sm">
+                              {a.active ? 'Suspend' : 'Restore'}
+                            </button>
+                          </form>
+                          <form action={removeAdmin}>
+                            <input type="hidden" name="email" value={a.email} />
+                            <button type="submit" className="btn btn-danger btn-sm">
+                              Remove
+                            </button>
+                          </form>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );
