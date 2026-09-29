@@ -1,5 +1,17 @@
 import { redirect } from 'next/navigation';
 import { getServerSupabase, getCurrentAdmin } from '@/lib/supabaseServer';
+import {
+  MdVisibility,
+  MdTimeline,
+  MdPeople,
+  MdTouchApp,
+  MdArticle,
+  MdCallReceived,
+  MdLanguage,
+  MdLabel,
+  MdDevices,
+  MdWeb,
+} from 'react-icons/md';
 import TrackingSnippet from './TrackingSnippet';
 
 export const dynamic = 'force-dynamic';
@@ -11,10 +23,36 @@ const PERIODS = { '7d': 7, '30d': 30, '90d': 90 };
 const cell = { padding: '0.7rem 1rem', borderBottom: '1px solid var(--border-color)' };
 const num = { ...cell, textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
 
-function Stat({ label, value, hint }) {
+/** Pink circle badge, sized to match the dashboard's other icon treatments. */
+function CardIcon({ children }) {
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        width: '30px',
+        height: '30px',
+        borderRadius: '50%',
+        background: 'var(--brand-pink-glow)',
+        color: 'var(--brand-pink-hover)',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '1rem',
+        flexShrink: 0,
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+function Stat({ label, value, hint, icon }) {
   return (
     <div className="card" style={{ padding: '1.1rem 1.25rem' }}>
-      <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{label}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+        <CardIcon>{icon}</CardIcon>
+        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{label}</div>
+      </div>
       <div
         style={{
           fontSize: '1.9rem',
@@ -35,30 +73,101 @@ function Stat({ label, value, hint }) {
   );
 }
 
-/** Bar chart drawn as divs — no library for eleven bars. */
-function DailyChart({ daily }) {
-  const max = Math.max(1, ...daily.map((d) => d.views));
+// Matches my_day() in SQL, which buckets in Malaysian time. Building the key
+// from toISOString() would use UTC and shift every label by a day after 8am.
+const MY_DAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kuala_Lumpur' });
+
+/**
+ * Pageviews over time as an SVG line. Every day in the period is plotted, not
+ * just the days that had traffic, so a gap reads as a quiet day rather than
+ * being silently closed up.
+ */
+// endMs comes from the caller, which already resolved the period. Reading the
+// clock in here would make the component impure.
+function DailyChart({ daily, days, endMs }) {
+  const byDay = new Map((daily || []).map((d) => [String(d.day), Number(d.views) || 0]));
+  const series = [];
+  for (let i = days - 1; i >= 0; i -= 1) {
+    const key = MY_DAY.format(new Date(endMs - i * 86400000));
+    series.push({ day: key, views: byDay.get(key) ?? 0 });
+  }
+
+  const peak = Math.max(1, ...series.map((s) => s.views));
+  const W = 720;
+  const H = 180;
+  const PAD = 10;
+  const xAt = (i) => (series.length < 2 ? W / 2 : PAD + (i * (W - PAD * 2)) / (series.length - 1));
+  const yAt = (v) => H - PAD - (v / peak) * (H - PAD * 2);
+
+  const line = series.map((s, i) => `${i ? 'L' : 'M'}${xAt(i).toFixed(1)},${yAt(s.views).toFixed(1)}`).join(' ');
+  const area = `${line} L${xAt(series.length - 1).toFixed(1)},${H - PAD} L${xAt(0).toFixed(1)},${H - PAD} Z`;
+
   return (
     <div className="card" style={{ padding: '1.25rem' }}>
-      <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '1rem' }}>
-        Pageviews per day
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'baseline',
+          marginBottom: '0.75rem',
+        }}
+      >
+        <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Pageviews per day</span>
+        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+          peak {peak.toLocaleString('en-MY')}
+        </span>
       </div>
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '140px' }}>
-        {daily.map((d) => (
-          <div
-            key={d.day}
-            title={`${d.day}: ${d.views} views, ${d.sessions} sessions`}
-            style={{
-              flex: 1,
-              minWidth: '3px',
-              height: `${Math.max(2, (d.views / max) * 100)}%`,
-              background: 'var(--brand-pink)',
-              opacity: d.views ? 1 : 0.25,
-              borderRadius: '3px 3px 0 0',
-            }}
+
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="none"
+        style={{ width: '100%', height: '180px', display: 'block', overflow: 'visible' }}
+        role="img"
+        aria-label={`Pageviews per day over the last ${days} days, peaking at ${peak}`}
+      >
+        <defs>
+          <linearGradient id="pvFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--brand-pink)" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="var(--brand-pink)" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+
+        {/* Baseline and midline, so the peak label has something to read against */}
+        <line x1="0" y1={H - PAD} x2={W} y2={H - PAD} stroke="var(--border-color)" strokeWidth="1"
+              vectorEffect="non-scaling-stroke" />
+        <line x1="0" y1={yAt(peak / 2)} x2={W} y2={yAt(peak / 2)} stroke="var(--border-color)"
+              strokeWidth="1" strokeDasharray="3 4" vectorEffect="non-scaling-stroke" />
+
+        <path d={area} fill="url(#pvFill)" />
+        <path
+          d={line}
+          fill="none"
+          stroke="var(--brand-pink)"
+          strokeWidth="2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+        />
+
+        {/* A single day cannot draw a line, so mark the point itself. */}
+        {series.length < 2 || series.filter((s) => s.views > 0).length === 1 ? (
+          series.map((s, i) =>
+            s.views > 0 ? (
+              <circle key={s.day} cx={xAt(i)} cy={yAt(s.views)} r="4" fill="var(--brand-pink)"
+                      vectorEffect="non-scaling-stroke" />
+            ) : null
+          )
+        ) : (
+          <circle
+            cx={xAt(series.length - 1)}
+            cy={yAt(series[series.length - 1].views)}
+            r="3.5"
+            fill="var(--brand-pink)"
+            vectorEffect="non-scaling-stroke"
           />
-        ))}
-      </div>
+        )}
+      </svg>
+
       <div
         style={{
           display: 'flex',
@@ -68,17 +177,30 @@ function DailyChart({ daily }) {
           marginTop: '0.5rem',
         }}
       >
-        <span>{daily[0]?.day ?? ''}</span>
-        <span>{daily[daily.length - 1]?.day ?? ''}</span>
+        <span>{series[0]?.day}</span>
+        <span>{series[series.length - 1]?.day}</span>
       </div>
     </div>
   );
 }
 
-function Breakdown({ title, rows, keyName, valueName }) {
+function Breakdown({ title, rows, keyName, valueName, icon }) {
   return (
     <div className="card" style={{ overflow: 'hidden' }}>
-      <div style={{ padding: '0.9rem 1rem', fontSize: '0.85rem', fontWeight: 600 }}>{title}</div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.6rem',
+          padding: '0.9rem 1rem',
+          fontSize: '0.85rem',
+          fontWeight: 600,
+          borderBottom: '1px solid var(--border-color)',
+        }}
+      >
+        <CardIcon>{icon}</CardIcon>
+        {title}
+      </div>
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <tbody>
           {rows.length === 0 && (
@@ -225,25 +347,25 @@ export default async function AnalyticsPage({ searchParams }) {
             }}
           >
             <Stat
-              label="Pageviews"
+              icon={<MdVisibility />} label="Pageviews"
               value={Number(totals.views || 0).toLocaleString('en-MY')}
               hint={`over ${days} days`}
             />
-            <Stat label="Sessions" value={Number(totals.sessions || 0).toLocaleString('en-MY')} />
+            <Stat icon={<MdTimeline />} label="Sessions" value={Number(totals.sessions || 0).toLocaleString('en-MY')} />
             <Stat
-              label="Visitors"
+              icon={<MdPeople />} label="Visitors"
               value={Number(totals.visitors || 0).toLocaleString('en-MY')}
               hint="unique, cookie-free"
             />
             <Stat
-              label="Clicks & actions"
+              icon={<MdTouchApp />} label="Clicks & actions"
               value={Number(totals.clicks || 0).toLocaleString('en-MY')}
               hint="WhatsApp, phone, outbound"
             />
           </div>
 
           <div style={{ marginBottom: '1.25rem' }}>
-            <DailyChart daily={daily} />
+            <DailyChart daily={daily} days={days} endMs={to.getTime()} />
           </div>
 
           <div
@@ -253,33 +375,33 @@ export default async function AnalyticsPage({ searchParams }) {
               gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
             }}
           >
-            <Breakdown title="Top pages" rows={s.pages || []} keyName="path" valueName="views" />
+            <Breakdown icon={<MdArticle />} title="Top pages" rows={s.pages || []} keyName="path" valueName="views" />
             <Breakdown
-              title="Where visitors came from"
+              icon={<MdCallReceived />} title="Where visitors came from"
               rows={s.referrers || []}
               keyName="source"
               valueName="views"
             />
             <Breakdown
-              title="Websites"
+              icon={<MdLanguage />} title="Websites"
               rows={s.sites || []}
               keyName="website"
               valueName="views"
             />
             <Breakdown
-              title="Clicks by label"
+              icon={<MdLabel />} title="Clicks by label"
               rows={s.labels || []}
               keyName="label"
               valueName="count"
             />
             <Breakdown
-              title="Devices"
+              icon={<MdDevices />} title="Devices"
               rows={Object.entries(s.devices || {}).map(([k, v]) => ({ k, v }))}
               keyName="k"
               valueName="v"
             />
             <Breakdown
-              title="Browsers"
+              icon={<MdWeb />} title="Browsers"
               rows={Object.entries(s.browsers || {}).map(([k, v]) => ({ k, v }))}
               keyName="k"
               valueName="v"
