@@ -32,6 +32,34 @@ export async function issueClientKey(prevState, formData) {
   return { apiKey };
 }
 
+/**
+ * Attaches a website to its client and its order. monitored_sites is seeded
+ * from domains alone, so without this every site reads "Not linked".
+ */
+export async function linkSite(prevState, formData) {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { error: 'You need to be signed in.' };
+
+  const domain = String(formData.get('domain') || '').toLowerCase();
+  const customerId = String(formData.get('customer_id') || '') || null;
+  const orderId = String(formData.get('order_id') || '') || null;
+  if (!domain) return { error: 'No website given.' };
+
+  const supabase = await getServerSupabase();
+  const { error } = await supabase
+    .from('monitored_sites')
+    .update({ customer_id: customerId, order_id: orderId })
+    .eq('domain', domain);
+
+  if (error) return { error: error.message };
+
+  // The list page reads the same view, so refresh both.
+  revalidatePath(`/admin/analytics/${domain}`);
+  revalidatePath('/admin/analytics');
+  revalidatePath('/admin/monitoring');
+  return { ok: 'Saved.' };
+}
+
 export async function revokeClientKey(formData) {
   const admin = await getCurrentAdmin();
   if (!admin) return;

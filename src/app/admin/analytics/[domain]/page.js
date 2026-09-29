@@ -15,6 +15,7 @@ import {
 } from 'react-icons/md';
 import TrackingSnippet from './TrackingSnippet';
 import ClientKeys from './ClientKeys';
+import SiteLink from './SiteLink';
 
 export const dynamic = 'force-dynamic';
 
@@ -243,7 +244,8 @@ export default async function SiteAnalyticsPage({ params: routeParams, searchPar
   const from = new Date(to.getTime() - days * 86400000);
 
   const supabase = await getServerSupabase();
-  const [{ data: summary }, { data: sites }, { data: apiKeys }] = await Promise.all([
+  const [{ data: summary }, { data: sites }, { data: apiKeys }, { data: customers }, { data: orders }] =
+    await Promise.all([
     supabase.rpc('analytics_summary', {
       p_from: from.toISOString(),
       p_to: to.toISOString(),
@@ -251,7 +253,7 @@ export default async function SiteAnalyticsPage({ params: routeParams, searchPar
     }),
     supabase
       .from('site_status')
-      .select('domain, label, customer_name, project_ref, tracking_enabled')
+      .select('domain, label, customer_id, order_id, customer_name, project_ref, tracking_enabled')
       .eq('domain', website)
       .maybeSingle(),
     supabase
@@ -259,6 +261,11 @@ export default async function SiteAnalyticsPage({ params: routeParams, searchPar
       .select('id, label, key_hint, active, last_used_at')
       .eq('website', website)
       .order('created_at', { ascending: false }),
+    supabase.from('customers').select('id, name').order('name'),
+    supabase
+      .from('orders')
+      .select('id, project_ref, package_type, status')
+      .order('project_ref', { ascending: true }),
   ]);
 
   if (!sites) notFound();
@@ -406,6 +413,7 @@ export default async function SiteAnalyticsPage({ params: routeParams, searchPar
 
           <div style={{ marginTop: '1.5rem' }}>
             <TrackingSnippet sites={[site]} />
+            <SiteLink site={site} customers={customers || []} orders={orders || []} />
             <ClientKeys website={site.domain} keys={apiKeys || []} />
           </div>
         </>
