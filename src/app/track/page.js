@@ -21,6 +21,10 @@ function calculateProgress(startDate, etaDateStr) {
   return Math.min(100, Math.max(0, Math.round(((now - start) / (end - start)) * 100)));
 }
 
+// "1 day", "2 days". This page is the one the client reads, so "day(s)" was
+// the worst place to leave a placeholder nobody finished.
+const days = (n) => `${n} ${n === 1 ? 'day' : 'days'}`;
+
 function daysRemaining(etaDateStr) {
   if (!etaDateStr) return 'No target date';
   const end = new Date(etaDateStr);
@@ -28,9 +32,9 @@ function daysRemaining(etaDateStr) {
   end.setHours(0, 0, 0, 0);
   now.setHours(0, 0, 0, 0);
   const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  if (diff < 0) return `Overdue by ${Math.abs(diff)} day(s)`;
+  if (diff < 0) return `Overdue by ${days(Math.abs(diff))}`;
   if (diff === 0) return 'Due today';
-  return `${diff} day(s) left`;
+  return `${days(diff)} left`;
 }
 
 const orderBadge = (status) => {
