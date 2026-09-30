@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getServerSupabase, getCurrentAdmin } from '@/lib/supabaseServer';
 import MonitorTools from './MonitorTools';
 import AddSiteForm from './AddSiteForm';
+import ConfirmSubmit from '@/components/ConfirmSubmit';
 import { toggleSite, removeSite } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -202,12 +203,14 @@ export default async function MonitoringPage() {
                         {s.active ? 'Pause' : 'Resume'}
                       </button>
                     </form>
-                    <form action={removeSite}>
-                      <input type="hidden" name="id" value={s.id} />
-                      <button type="submit" className="btn btn-danger btn-sm">
-                        Remove
-                      </button>
-                    </form>
+                    <ConfirmSubmit
+                      action={removeSite}
+                      fields={{ id: s.id }}
+                      title="Remove this website?"
+                      message={`${s.domain} will stop being checked, and its entire check history goes with it. Monthly reports covering past months will lose this site. Pause it instead if you only want to stop the daily checks.`}
+                    >
+                      Remove
+                    </ConfirmSubmit>
                   </div>
                 </td>
               </tr>

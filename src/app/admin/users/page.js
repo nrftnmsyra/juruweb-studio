@@ -3,6 +3,7 @@ import { getServerSupabase, getCurrentAdmin } from '@/lib/supabaseServer';
 import { ROLE_ADMIN, ROLE_OWNER, ROLE_LABELS, ROLE_HINTS, canManageUsers } from '@/lib/auth';
 import AddAdminForm from './AddAdminForm';
 import ResetPasswordButton from './ResetPasswordButton';
+import ConfirmSubmit from '@/components/ConfirmSubmit';
 import { setAdminActive, removeAdmin } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -117,12 +118,14 @@ export default async function UsersPage() {
                               {a.active ? 'Suspend' : 'Restore'}
                             </button>
                           </form>
-                          <form action={removeAdmin}>
-                            <input type="hidden" name="email" value={a.email} />
-                            <button type="submit" className="btn btn-danger btn-sm">
-                              Remove
-                            </button>
-                          </form>
+                          <ConfirmSubmit
+                            action={removeAdmin}
+                            fields={{ email: a.email }}
+                            title="Remove this admin?"
+                            message={`${a.email} loses access immediately, and their sign-in account is deleted. Suspend them instead if this might be temporary.`}
+                          >
+                            Remove
+                          </ConfirmSubmit>
                         </>
                       )}
                     </div>
