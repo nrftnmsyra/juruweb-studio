@@ -145,7 +145,10 @@ export default async function MonitoringPage() {
                   >
                     {s.label || s.domain}
                   </a>
-                  <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>{s.domain}</div>
+                  {/* Suppressed when the label is just the domain again. */}
+                  {s.label && s.label !== s.domain && (
+                    <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>{s.domain}</div>
+                  )}
                 </td>
                 <td style={{ ...cell, color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
                   {s.customer_name || '-'}
