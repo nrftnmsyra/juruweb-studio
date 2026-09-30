@@ -27,7 +27,7 @@ export default function Sidebar({ open = false, onClose = () => {}, admin = null
     { name: 'Quotations', path: '/admin/quotations', icon: <MdDescription /> },
     { name: 'Invoices', path: '/admin/invoices', icon: <MdReceiptLong /> },
     { name: 'Ledger', path: '/admin/ledger', icon: <MdAccountBalanceWallet /> },
-    { name: 'Manage', path: '/admin/websites', icon: <MdLanguage /> }
+    { name: 'Websites', path: '/admin/websites', icon: <MdLanguage /> }
   ];
 
   // Owner-only. Hiding them is a courtesy, not the control: both pages redirect
