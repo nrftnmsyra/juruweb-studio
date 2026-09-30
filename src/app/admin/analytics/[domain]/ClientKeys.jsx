@@ -1,12 +1,56 @@
 'use client';
 
 import { useActionState, useState } from 'react';
-import { MdKey, MdContentCopy, MdCheck } from 'react-icons/md';
+import { MdKey, MdContentCopy, MdCheck, MdDescription } from 'react-icons/md';
 import { issueClientKey, revokeClientKey } from './keyActions';
 
+/**
+ * The note that travels with the key. A key on its own invites guesswork, and
+ * the guess people make is to call it from the browser, which both fails and
+ * puts the key in a public bundle.
+ */
+function setupNote(apiKey, website, origin) {
+  return `Juruweb Studio analytics API
+
+Endpoint: GET ${origin}/api/client/analytics
+Header:   X-API-Key: ${apiKey}
+Query:    period=7d | 30d | 90d  (default 30d)
+
+IMPORTANT: call this from your SERVER, never the browser.
+There are no CORS headers, so a browser request fails, and a key in
+client-side code is readable by anyone who opens devtools.
+
+Next.js example (Route Handler or Server Component):
+
+  const res = await fetch(
+    '${origin}/api/client/analytics?period=30d',
+    { headers: { 'X-API-Key': process.env.JURUWEB_API_KEY }, cache: 'no-store' }
+  );
+  const { traffic, health } = await res.json();
+
+Returns:
+  traffic - pageviews, sessions, visitors, actions, daily, topPages,
+            sources, devices, browsers
+  health  - up, responseMs, sslDaysLeft, seoScore, checkedAt
+
+This key is valid for ${website} only. Store it in an environment
+variable, not in the repository.`;
+}
+
 /** Shown once, right after issuing, only the hash is stored, so it cannot be re-read. */
-function KeyHandoff({ apiKey }) {
+function KeyHandoff({ apiKey, website }) {
   const [copied, setCopied] = useState(false);
+  const [copiedNote, setCopiedNote] = useState(false);
+
+  const origin =
+    typeof window === 'undefined' ? 'https://juruweb-studio.vercel.app' : window.location.origin;
+
+  const copyNote = () => {
+    navigator.clipboard?.writeText(setupNote(apiKey, website, origin));
+    setCopiedNote(true);
+    setTimeout(() => setCopiedNote(false), 1800);
+  };
+
   return (
     <div
       style={{
@@ -44,7 +88,32 @@ function KeyHandoff({ apiKey }) {
           }}
         >
           {copied ? <MdCheck /> : <MdContentCopy />}
-          <span>{copied ? 'Copied' : 'Copy'}</span>
+          <span>{copied ? 'Copied' : 'Copy key'}</span>
+        </button>
+      </div>
+
+      {/* The key alone invites guesswork, and the guess people make is to call
+          the API from the browser. This sends the instructions with it. */}
+      <div
+        style={{
+          marginTop: '0.85rem',
+          paddingTop: '0.85rem',
+          borderTop: '1px solid var(--success)',
+        }}
+      >
+        <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+          Sending this to whoever builds the client dashboard? Copy the setup note instead. It
+          carries the key, the endpoint, a working Next.js snippet, and the warning that this must
+          be called from the server, never the browser.
+        </p>
+        <button
+          type="button"
+          className="btn btn-primary btn-sm"
+          style={{ marginTop: '0.6rem' }}
+          onClick={copyNote}
+        >
+          {copiedNote ? <MdCheck /> : <MdDescription />}
+          <span>{copiedNote ? 'Note copied' : 'Copy setup note'}</span>
         </button>
       </div>
     </div>
@@ -87,7 +156,7 @@ export default function ClientKeys({ website, keys }) {
           {state.error}
         </p>
       )}
-      {state?.apiKey && <KeyHandoff apiKey={state.apiKey} />}
+      {state?.apiKey && <KeyHandoff apiKey={state.apiKey} website={website} />}
 
       {keys.length > 0 && (
         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>

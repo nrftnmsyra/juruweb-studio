@@ -82,16 +82,20 @@ export default async function AnalyticsIndex() {
                       <MdLanguage style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
                       <span>
                         {s.label || s.domain}
-                        <span
-                          style={{
-                            display: 'block',
-                            fontSize: '0.74rem',
-                            color: 'var(--text-muted)',
-                            fontWeight: 400,
-                          }}
-                        >
-                          {s.domain}
-                        </span>
+                        {/* Only when the label says something the domain does
+                            not, otherwise the row prints the domain twice. */}
+                        {s.label && s.label !== s.domain && (
+                          <span
+                            style={{
+                              display: 'block',
+                              fontSize: '0.74rem',
+                              color: 'var(--text-muted)',
+                              fontWeight: 400,
+                            }}
+                          >
+                            {s.domain}
+                          </span>
+                        )}
                       </span>
                     </Link>
                   </td>
