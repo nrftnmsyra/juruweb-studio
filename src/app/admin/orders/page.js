@@ -225,6 +225,9 @@ function OrdersContent() {
     return Math.min(100, Math.max(0, Math.round((elapsed / totalDuration) * 100)));
   };
 
+  // "1 day", "2 days". The old "day(s)" read as a placeholder nobody finished.
+  const days = (n) => `${n} ${n === 1 ? 'day' : 'days'}`;
+
   // Helper: Return how many days remaining
   const getDaysRemainingStr = (etaDateStr) => {
     if (!etaDateStr) return 'No target date';
@@ -233,13 +236,13 @@ function OrdersContent() {
     // Reset hours
     end.setHours(0,0,0,0);
     now.setHours(0,0,0,0);
-    
+
     const diffTime = end.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 0) return `Overdue by ${Math.abs(diffDays)} day(s)`;
-    if (diffDays === 0) return 'Due today!';
-    return `${diffDays} day(s) left`;
+    if (diffDays < 0) return `Overdue by ${days(Math.abs(diffDays))}`;
+    if (diffDays === 0) return 'Due today';
+    return `${days(diffDays)} left`;
   };
 
   const handleDelete = async () => {
@@ -342,12 +345,15 @@ function OrdersContent() {
                     </div>
                   ) : (
                     <div style={{ minWidth: '220px', flex: '0 1 auto' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', fontSize: '0.8rem', marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      {/* justifyBetween was not a CSS property, so this row
+                          relied on margin-left: auto and the two halves met
+                          with no gap at all. */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.15rem 0.75rem', fontSize: '0.8rem', marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                           <MdCalendarToday />
                           <span>ETA: {order.eta_date ? new Date(order.eta_date).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not set'}</span>
                         </span>
-                        <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.25rem', color: isOverdue ? 'var(--error)' : isCompleted ? 'var(--success)' : 'var(--warning)', fontWeight: 600 }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: isOverdue ? 'var(--error)' : isCompleted ? 'var(--success)' : 'var(--warning)', fontWeight: 600 }}>
                           {isCompleted ? <MdCheckCircle /> : isOverdue ? <MdError /> : <MdAccessTime />}
                           <span>{isCompleted ? 'Finished' : daysLeft}</span>
                         </span>
@@ -356,10 +362,15 @@ function OrdersContent() {
                       {!isCompleted && (
                         <div>
                           <div className="eta-progress-container">
-                            <div className="eta-progress-bar" style={{ width: `${progress}%` }}></div>
+                            {/* A full bar in the brand gradient reads as
+                                finished. Past the date it means the opposite. */}
+                            <div
+                              className={`eta-progress-bar${isOverdue ? ' eta-progress-bar--late' : ''}`}
+                              style={{ width: `${progress}%` }}
+                            ></div>
                           </div>
-                          <div style={{ textAlign: 'right', fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                            Timeline usage: {progress}%
+                          <div style={{ textAlign: 'right', fontSize: '0.7rem', color: isOverdue ? 'var(--error)' : 'var(--text-muted)', marginTop: '0.25rem' }}>
+                            {isOverdue ? 'Past the target date' : `Timeline usage: ${progress}%`}
                           </div>
                         </div>
                       )}

@@ -1113,6 +1113,12 @@ select.form-input {
   border-radius: 4px;
 }
 
+/* Past the target date the bar is always full, and full in the brand gradient
+   reads as finished rather than late. */
+.eta-progress-bar--late {
+  background: var(--error);
+}
+
 /* Sidebar Layout */
 .sidebar {
   width: var(--sidebar-width);
