@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from 'react';
 import { MdKey, MdContentCopy, MdCheck, MdDescription } from 'react-icons/md';
+import ConfirmSubmit from '@/components/ConfirmSubmit';
 import { issueClientKey, revokeClientKey } from './keyActions';
 
 /**
@@ -191,13 +192,15 @@ export default function ClientKeys({ website, keys }) {
                 </td>
                 <td style={{ padding: '0.6rem 0', borderTop: '1px solid var(--border-color)', textAlign: 'right' }}>
                   {k.active && (
-                    <form action={revokeClientKey}>
-                      <input type="hidden" name="id" value={k.id} />
-                      <input type="hidden" name="website" value={website} />
-                      <button type="submit" className="btn btn-danger btn-sm">
-                        Revoke
-                      </button>
-                    </form>
+                    <ConfirmSubmit
+                      action={revokeClientKey}
+                      fields={{ id: k.id, website }}
+                      title="Revoke this key?"
+                      confirmLabel="Revoke"
+                      message={`Any dashboard using ${k.label || 'this key'} stops receiving data immediately, and the key cannot be un-revoked. You would need to issue a new one and update the client's site.`}
+                    >
+                      Revoke
+                    </ConfirmSubmit>
                   )}
                 </td>
               </tr>
