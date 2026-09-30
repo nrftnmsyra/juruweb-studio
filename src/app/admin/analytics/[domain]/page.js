@@ -16,6 +16,7 @@ import {
 import TrackingSnippet from './TrackingSnippet';
 import ClientKeys from './ClientKeys';
 import SiteLink from './SiteLink';
+import ClientMembers from './ClientMembers';
 
 export const dynamic = 'force-dynamic';
 
@@ -420,6 +421,7 @@ export default async function SiteAnalyticsPage({ params: routeParams, searchPar
       <div style={{ marginTop: '1.5rem' }}>
         <TrackingSnippet sites={[site]} />
         <SiteLink site={site} customers={customers || []} orders={orders || []} />
+        <ClientMembers domain={site.domain} projectRef={site.project_ref} />
         <ClientKeys website={site.domain} keys={apiKeys || []} />
       </div>
     </div>
