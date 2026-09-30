@@ -28,7 +28,7 @@ export async function issueClientKey(prevState, formData) {
 
   if (error) return { error: error.message };
 
-  revalidatePath(`/admin/analytics/${website}`);
+  revalidatePath(`/admin/websites/${website}`);
   return { apiKey };
 }
 
@@ -54,9 +54,8 @@ export async function linkSite(prevState, formData) {
   if (error) return { error: error.message };
 
   // The list page reads the same view, so refresh both.
-  revalidatePath(`/admin/analytics/${domain}`);
-  revalidatePath('/admin/analytics');
-  revalidatePath('/admin/monitoring');
+  revalidatePath(`/admin/websites/${domain}`);
+  revalidatePath('/admin/websites');
   return { ok: 'Saved.' };
 }
 
@@ -70,5 +69,5 @@ export async function revokeClientKey(formData) {
   // Kept rather than deleted, so the audit trail still shows it existed.
   const supabase = await getServerSupabase();
   await supabase.from('client_api_keys').update({ active: false }).eq('id', id);
-  revalidatePath(`/admin/analytics/${website}`);
+  revalidatePath(`/admin/websites/${website}`);
 }

@@ -27,7 +27,7 @@ export async function provisionMembers(formData) {
 
   const supabase = await getServerSupabase();
   await supabase.rpc('provision_client_members', { p_project_ref: projectRef });
-  revalidatePath(`/admin/analytics/${domain}`);
+  revalidatePath(`/admin/websites/${domain}`);
 }
 
 export async function listMembers(projectRef) {
@@ -87,7 +87,7 @@ export async function addMember(prevState, formData) {
   });
   if (error) return { error: error.message };
 
-  revalidatePath(`/admin/analytics/${domain}`);
+  revalidatePath(`/admin/websites/${domain}`);
   return {
     ok: reusedExisting
       ? `${email} already had an account, so their existing password still works.`
@@ -109,7 +109,7 @@ export async function removeMember(formData) {
   // The sign-in account is left alone on purpose: the same person may be a
   // member of another client's dashboard, and deleting it would lock them out
   // of that one too. Removing the members row already revokes access here.
-  revalidatePath(`/admin/analytics/${domain}`);
+  revalidatePath(`/admin/websites/${domain}`);
 }
 
 export async function resetMemberPassword(prevState, formData) {
@@ -132,6 +132,6 @@ export async function resetMemberPassword(prevState, formData) {
   const { error } = await service.auth.admin.updateUserById(user.id, { password });
   if (error) return { error: error.message };
 
-  revalidatePath(`/admin/analytics/${domain}`);
+  revalidatePath(`/admin/websites/${domain}`);
   return { ok: `New password for ${email}:`, password };
 }
