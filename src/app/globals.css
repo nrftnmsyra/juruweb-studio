@@ -645,6 +645,17 @@ input::placeholder {
   box-shadow: var(--shadow-lg);
   overflow: hidden;
   animation: fadeIn 0.3s ease-out;
+  /* Stated rather than inherited. A dialog opened from a right-aligned,
+     nowrap table cell used to arrive with its title against the right edge
+     and its message on one line that ran past the rounded corner. */
+  text-align: left;
+  white-space: normal;
+}
+
+/* A confirmation asks one short question, so it reads better narrow than the
+   600px forms this shares its shell with. */
+.modal-content--sm {
+  max-width: 420px;
 }
 
 .modal-header {
