@@ -29,6 +29,27 @@ $$;
 
 
 -- ----------------------------------------------------------------------------
+-- 1b. Who may call the functions below
+-- ----------------------------------------------------------------------------
+-- is_admin() reads the caller's JWT, so it is false in the Supabase SQL editor,
+-- which connects as postgres with no JWT at all. That made running these by
+-- hand impossible. session_user is the role that actually opened the
+-- connection: 'authenticator' for anything arriving through PostgREST, and
+-- 'postgres' only for a direct superuser session, which can already do all of
+-- this and more. So this grants nothing new, it just stops the guard blocking
+-- the one caller that outranks it.
+CREATE OR REPLACE FUNCTION public.is_admin_or_superuser()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+    SELECT public.is_admin() OR session_user = 'postgres';
+$$;
+
+
+-- ----------------------------------------------------------------------------
 -- 2. Provision membership for a client schema
 -- ----------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.provision_client_members(p_project_ref TEXT)
@@ -41,7 +62,7 @@ DECLARE
     s TEXT := public.client_schema_name(p_project_ref);
     t TEXT;
 BEGIN
-    IF NOT public.is_admin() THEN
+    IF NOT public.is_admin_or_superuser() THEN
         RAISE EXCEPTION 'Only a Juruweb admin may provision client members.';
     END IF;
     IF s IS NULL OR s = '' THEN
@@ -122,6 +143,7 @@ $f$, s, s, s);
 END;
 $prov$;
 
+GRANT EXECUTE ON FUNCTION public.is_admin_or_superuser() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.provision_client_members(TEXT) TO authenticated;
 
 
@@ -141,7 +163,7 @@ AS $$
 DECLARE
     s TEXT := public.client_schema_name(p_project_ref);
 BEGIN
-    IF NOT public.is_admin() THEN
+    IF NOT public.is_admin_or_superuser() THEN
         RAISE EXCEPTION 'Only a Juruweb admin may read client members.';
     END IF;
     IF to_regclass(format('%I.members', s)) IS NULL THEN
@@ -168,7 +190,7 @@ AS $$
 DECLARE
     s TEXT := public.client_schema_name(p_project_ref);
 BEGIN
-    IF NOT public.is_admin() THEN
+    IF NOT public.is_admin_or_superuser() THEN
         RAISE EXCEPTION 'Only a Juruweb admin may add client members.';
     END IF;
     IF to_regclass(format('%I.members', s)) IS NULL THEN
@@ -195,7 +217,7 @@ AS $$
 DECLARE
     s TEXT := public.client_schema_name(p_project_ref);
 BEGIN
-    IF NOT public.is_admin() THEN
+    IF NOT public.is_admin_or_superuser() THEN
         RAISE EXCEPTION 'Only a Juruweb admin may remove client members.';
     END IF;
     IF to_regclass(format('%I.members', s)) IS NULL THEN
