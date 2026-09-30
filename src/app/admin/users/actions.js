@@ -14,7 +14,7 @@ function generatePassword() {
 
 /**
  * Every action re-checks the caller. RLS blocks the admins table for non-owners
- * anyway, but the service-role client below bypasses RLS entirely — so this
+ * anyway, but the service-role client below bypasses RLS entirely, so this
  * check is the only thing standing between an admin and creating accounts.
  */
 async function requireOwner() {
@@ -52,7 +52,7 @@ export async function addAdmin(prevState, formData) {
     };
   }
 
-  // email_confirm skips the verification email — the owner hands the password
+  // email_confirm skips the verification email, the owner hands the password
   // over directly, and Supabase's default SMTP is not reliable for this.
   const { error: createError } = await service.auth.admin.createUser({
     email,

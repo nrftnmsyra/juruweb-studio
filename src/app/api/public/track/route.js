@@ -32,7 +32,7 @@ export async function OPTIONS() {
 }
 
 /**
- * Event ingest. No auth — it is called from other people's websites.
+ * Event ingest. No auth, it is called from other people's websites.
  *
  * Always answers 204, even when something fails here, so a problem on our side
  * can never show up as an error on a client's site. Failures are logged

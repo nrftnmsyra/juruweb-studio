@@ -69,8 +69,8 @@ const mockInvoices = [
 ];
 
 const mockLedger = [
-  { id: 'l1', type: 'Credit', amount: 499.50, reference_no: 'TXN-88213', description: 'Deposit received — Standard Package (John Doe)', entry_date: '2026-07-02', created_at: new Date().toISOString() },
-  { id: 'l2', type: 'Debit', amount: 55.00, reference_no: 'DO-2026-14', description: 'Domain renewal — juruweb.studio', entry_date: '2026-07-03', created_at: new Date().toISOString() },
+  { id: 'l1', type: 'Credit', amount: 499.50, reference_no: 'TXN-88213', description: 'Deposit received, Standard Package (John Doe)', entry_date: '2026-07-02', created_at: new Date().toISOString() },
+  { id: 'l2', type: 'Debit', amount: 55.00, reference_no: 'DO-2026-14', description: 'Domain renewal, juruweb.studio', entry_date: '2026-07-03', created_at: new Date().toISOString() },
 ];
 
 // Initialize localStorage if empty

@@ -4,7 +4,7 @@ import { canViewAudit } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = { title: 'Audit Log — Juruweb Studio' };
+export const metadata = { title: 'Audit Log · Juruweb Studio' };
 
 const PAGE_SIZE = 100;
 
@@ -27,16 +27,16 @@ function changedFields(oldData, newData) {
 
 function describe(entry) {
   if (entry.action === 'DENIED') return `Sign-in refused for ${entry.detail || 'unknown account'}`;
-  if (entry.action === 'LOGIN' || entry.action === 'LOGOUT') return '—';
+  if (entry.action === 'LOGIN' || entry.action === 'LOGOUT') return '-';
 
   const row = entry.new_data || entry.old_data || {};
   const name = row.name || row.title || row.package_type || row.description || null;
 
   if (entry.action === 'UPDATE') {
     const fields = changedFields(entry.old_data, entry.new_data);
-    if (fields.length) return `${name ? `${name} — ` : ''}${fields.join(', ')}`;
+    if (fields.length) return `${name ? `${name}: ` : ""}${fields.join(", ")}`;
   }
-  return name || (entry.row_id ? `${entry.row_id.slice(0, 8)}…` : '—');
+  return name || (entry.row_id ? `${entry.row_id.slice(0, 8)}…` : '-');
 }
 
 export default async function AuditPage({ searchParams }) {
@@ -126,7 +126,7 @@ export default async function AuditPage({ searchParams }) {
                     </span>
                   </td>
                   <td style={{ padding: '0.8rem 1rem', borderBottom: '1px solid var(--border-color)', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    {entry.table_name || '—'}
+                    {entry.table_name || '-'}
                   </td>
                   <td style={{ padding: '0.8rem 1rem', borderBottom: '1px solid var(--border-color)', fontSize: '0.83rem', color: 'var(--text-secondary)' }}>
                     {describe(entry)}

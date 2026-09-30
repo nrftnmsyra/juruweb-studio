@@ -81,7 +81,7 @@
     //
     // The blob MUST be text/plain: that is a CORS-safelisted content type, so
     // the request goes straight out. application/json is not safelisted, which
-    // forces a preflight, and a beacon cannot preflight — so it failed
+    // forces a preflight, and a beacon cannot preflight, so it failed
     // silently while still reporting success, and every event was lost. The
     // server parses the body as JSON regardless of the declared type.
     try {
@@ -131,7 +131,7 @@
   window.addEventListener('popstate', onRouteChange);
 
   /* ---------- manual events ---------- */
-  // jw('whatsapp_click', {label: 'header'}) — also mirrored into dataLayer so a
+  // jw('whatsapp_click', {label: 'header'}), also mirrored into dataLayer so a
   // GTM trigger can listen for the same name.
   window.jw = function (eventType, extra) {
     send(eventType || 'click', extra);

@@ -31,7 +31,7 @@ export async function getServerSupabase() {
 
 /**
  * Service-role client. Bypasses RLS entirely, so it must never be imported into
- * anything that reaches the browser — only route handlers and server actions.
+ * anything that reaches the browser, only route handlers and server actions.
  * Used by the public /track lookup, which has no session to run as.
  */
 export function getServiceSupabase() {

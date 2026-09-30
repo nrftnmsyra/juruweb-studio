@@ -5,13 +5,13 @@ import { CTA_LINK, PACKAGES, MATRIX, pick } from '@/lib/landingData';
 import { t } from '@/lib/landingCopy';
 
 /**
- * Packages as one comparison table rather than three cards — a visitor comparing
+ * Packages as one comparison table rather than three cards, a visitor comparing
  * features reads down a single axis instead of scrolling between columns.
  * The column matching the Live Build recommendation is highlighted.
  */
 export default function PackageMatrix({ lang, tier }) {
   const cell = (value) => {
-    if (value === null) return { className: 'lp-no', text: '—' };
+    if (value === null) return { className: 'lp-no', text: '-' };
     if (value === true) return { className: 'lp-yes', text: t(lang, 'price.included') };
     return { className: 'lp-yes', text: pick(value, lang) };
   };

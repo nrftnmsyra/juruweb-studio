@@ -59,7 +59,7 @@ export default function SiteLink({ site, customers, orders }) {
             <option value="">Not linked</option>
             {orders.map((o) => (
               <option key={o.id} value={o.id}>
-                {o.project_ref} — {o.package_type} ({o.status})
+                {o.project_ref} · {o.package_type} ({o.status})
               </option>
             ))}
           </select>

@@ -50,7 +50,7 @@ const invoiceBadge = (status) => {
 };
 
 const fmt = (n) => `RM ${Number(n || 0).toFixed(2)}`;
-const fmtDate = (d) => (d ? new Date(d).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : '—');
+const fmtDate = (d) => (d ? new Date(d).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : '-');
 
 export default function TrackPage() {
   const [phone, setPhone] = useState('');
@@ -226,7 +226,7 @@ export default function TrackPage() {
               </div>
             </div>
 
-            {/* Projects — each with its own invoices & payment */}
+            {/* Projects, each with its own invoices & payment */}
             <h2 className="track-section-title"><MdWork /> My Projects</h2>
             {orders.length === 0 && unlinkedInvoices.length === 0 ? (
               <div className="card" style={{ marginBottom: '1.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>No projects or invoices on record yet.</div>
@@ -327,7 +327,7 @@ export default function TrackPage() {
         )}
 
         <footer style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.78rem', marginTop: '2.5rem' }}>
-          © Juruweb Studio — Digitalization &amp; System Engineering
+          © Juruweb Studio, Digitalization &amp; System Engineering
         </footer>
       </div>
     </div>

@@ -54,7 +54,7 @@ export default function AddSiteForm({ customers }) {
       </div>
 
       <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.7rem' }}>
-        Paste a full URL if it is easier — the scheme, www and any path are stripped automatically.
+        Paste a full URL if it is easier. The scheme, www and any path are stripped automatically.
         Linking a client lets the monthly report name them.
       </p>
 

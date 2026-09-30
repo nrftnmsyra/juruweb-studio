@@ -704,7 +704,7 @@ input::placeholder {
   border-bottom: 1px solid var(--border-color);
 }
 
-/* PDF / A4 document — the capture source (rendered off-screen for html2canvas).
+/* PDF / A4 document, the capture source (rendered off-screen for html2canvas).
    No min-height: the capture is only as tall as the content, so a short
    document stays on a single page. */
 .pdf-preview {
@@ -1107,7 +1107,7 @@ select.form-input {
 }
 
 /* Locked to the header's height, not derived from padding plus the logo's own
-   size — otherwise the two bottom borders never line up across the split. */
+   size, otherwise the two bottom borders never line up across the split. */
 .sidebar-logo {
   height: var(--header-height);
   flex-shrink: 0;
@@ -1396,7 +1396,7 @@ select.form-input {
    why this runs up to 1200px.
    ========================================================= */
 @media (max-width: 1200px) {
-  /* The scroll wrapper is no longer needed — cards stack vertically */
+  /* The scroll wrapper is no longer needed, cards stack vertically */
   .table-container {
     border: none;
     background: transparent;
@@ -1545,14 +1545,14 @@ select.form-input {
 /* NOTE: the on-screen PDF preview is a set of rendered A4 page images
    (.pdf-page), so the .pdf-preview element itself is only ever the off-screen
    html2canvas capture source. It must therefore always keep its full desktop
-   A4 layout (no responsive overrides) so the capture — and the keep-together
-   block measurements — stay consistent on every device. */
+   A4 layout (no responsive overrides) so the capture, and the keep-together
+   block measurements, stay consistent on every device. */
 
 /* =========================================================
    Ledger
    ========================================================= */
 
-/* Credit / Debit / Balance KPI row — keep all three on one row, even on mobile
+/* Credit / Debit / Balance KPI row, keep all three on one row, even on mobile
    (overrides the 2-column stacking that plain .overview-stats uses < 800px). */
 .overview-stats--3 {
   grid-template-columns: repeat(3, 1fr);
@@ -1590,7 +1590,7 @@ select.form-input {
 }
 
 /* Compact, tappable ledger rows shown only on mobile; the full table is used
-   on larger screens. Each row shows just money in/out — tap opens the details. */
+   on larger screens. Each row shows just money in/out, tap opens the details. */
 .ledger-compact {
   display: none;
 }

@@ -19,7 +19,7 @@ import SiteLink from './SiteLink';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = { title: 'Analytics — Juruweb Studio' };
+export const metadata = { title: 'Analytics · Juruweb Studio' };
 
 const PERIODS = { '7d': 7, '30d': 30, '90d': 90 };
 
@@ -216,7 +216,7 @@ function Breakdown({ title, rows, keyName, valueName, icon }) {
           {rows.map((r, i) => (
             <tr key={`${r[keyName]}-${i}`}>
               <td style={{ ...cell, fontSize: '0.85rem', wordBreak: 'break-all' }}>
-                {r[keyName] || '—'}
+                {r[keyName] || '-'}
               </td>
               <td style={{ ...num, fontSize: '0.85rem', fontWeight: 600, width: '5rem' }}>
                 {Number(r[valueName]).toLocaleString('en-MY')}

@@ -4,7 +4,7 @@ import { useActionState, useState } from 'react';
 import { MdKey, MdContentCopy, MdCheck } from 'react-icons/md';
 import { issueClientKey, revokeClientKey } from './keyActions';
 
-/** Shown once, right after issuing — only the hash is stored, so it cannot be re-read. */
+/** Shown once, right after issuing, only the hash is stored, so it cannot be re-read. */
 function KeyHandoff({ apiKey }) {
   const [copied, setCopied] = useState(false);
   return (
@@ -18,7 +18,7 @@ function KeyHandoff({ apiKey }) {
       }}
     >
       <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--success)' }}>
-        Copy this now — it is not shown again
+        Copy this now, it is not shown again
       </p>
       <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
         <code
@@ -63,7 +63,7 @@ export default function ClientKeys({ website, keys }) {
 
       <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem', lineHeight: 1.6 }}>
         Issue a key so this client&apos;s own dashboard can read its traffic. The key is bound to{' '}
-        <strong>{website}</strong> and returns nothing about any other site — and nothing about
+        <strong>{website}</strong> and returns nothing about any other site, and nothing about
         orders, invoices or the ledger.
       </p>
 

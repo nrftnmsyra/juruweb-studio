@@ -9,7 +9,7 @@ import { MdAdd, MdWork, MdCalendarToday, MdAccessTime, MdCheckCircle, MdError, M
 import toast from 'react-hot-toast';
 
 /**
- * The short project reference (JW-0042). Click to copy — it exists so it can be
+ * The short project reference (JW-0042). Click to copy, it exists so it can be
  * quoted back over WhatsApp, which means it needs to leave the screen easily.
  */
 function ProjectRef({ value }) {
@@ -21,7 +21,7 @@ function ProjectRef({ value }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1400);
     } catch {
-      /* clipboard blocked — the text is still selectable on screen */
+      /* clipboard blocked, the text is still selectable on screen */
     }
   };
 
@@ -148,7 +148,7 @@ function OrdersContent() {
       defaultEtaOffsetDays = 10; // 7-14 working days
     } else if (pkg === 'Maintenance') {
       price = 120.00;
-      defaultEtaOffsetDays = 30; // recurring monthly retainer — next billing date
+      defaultEtaOffsetDays = 30; // recurring monthly retainer, next billing date
     } else {
       price = 0;
     }
@@ -508,7 +508,7 @@ function OrdersContent() {
                   />
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                     {formData.package_type === 'Maintenance'
-                      ? 'Recurring monthly retainer — set the next billing date (defaults to 30 days out).'
+                      ? 'Recurring monthly retainer, set the next billing date (defaults to 30 days out).'
                       : 'Reference timeframe: Basic = 3-5 days, Standard = 5-7 days, Premium = 7-14 days.'}
                   </span>
                 </div>

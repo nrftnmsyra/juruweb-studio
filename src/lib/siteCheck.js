@@ -1,6 +1,6 @@
 import tls from 'node:tls';
 
-// Node runtime only — node:tls is not available on the edge.
+// Node runtime only, node:tls is not available on the edge.
 
 const FETCH_TIMEOUT_MS = 15000;
 const TLS_TIMEOUT_MS = 10000;
@@ -56,7 +56,7 @@ export function checkSsl(domain) {
 }
 
 /**
- * Registration expiry via RDAP — the open successor to WHOIS, free and with no
+ * Registration expiry via RDAP, the open successor to WHOIS, free and with no
  * key. Not every registry runs an RDAP server (MYNIC, which handles .my, does
  * not at the time of writing), so a miss here is normal rather than a failure.
  */
@@ -148,7 +148,7 @@ export function scoreSeo(seo, extras) {
 
   if (seo.noindex) {
     score -= 30;
-    notes.push('Page is set to noindex — Google will not list it');
+    notes.push('Page is set to noindex, Google will not list it');
   }
   if (seo.h1Count === 0) {
     score -= 10;
@@ -168,7 +168,7 @@ export function scoreSeo(seo, extras) {
   }
   if (!seo.ogTitle || !seo.ogImage) {
     score -= 5;
-    notes.push('Missing Open Graph tags — links share without a preview');
+    notes.push('Missing Open Graph tags, links share without a preview');
   }
   if (seo.imgsMissingAlt > 0) {
     score -= Math.min(6, seo.imgsMissingAlt);

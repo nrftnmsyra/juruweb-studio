@@ -6,14 +6,14 @@ import { toggleSite, removeSite } from './actions';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = { title: 'Website Monitoring — Juruweb Studio' };
+export const metadata = { title: 'Website Monitoring · Juruweb Studio' };
 
 const cell = { padding: '0.8rem 1rem', borderBottom: '1px solid var(--border-color)' };
 
 /** Days left, coloured by how close it is to biting. */
 function Expiry({ days, date }) {
   if (days === null || days === undefined) {
-    return <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>—</span>;
+    return <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>-</span>;
   }
   const tone =
     days < 0 ? 'var(--error)' : days <= 14 ? 'var(--error)' : days <= 30 ? 'var(--warning)' : 'var(--text-secondary)';
@@ -29,7 +29,7 @@ function Expiry({ days, date }) {
 
 function SeoScore({ score }) {
   if (score === null || score === undefined) {
-    return <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>—</span>;
+    return <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>-</span>;
   }
   const tone = score >= 85 ? 'var(--success)' : score >= 65 ? 'var(--warning)' : 'var(--error)';
   return (
@@ -62,7 +62,7 @@ export default async function MonitoringPage() {
         <div>
           <h1 className="page-title">Website monitoring</h1>
           <p className="page-subtitle">
-            Every live client site is checked once a day at 9am — certificate and domain expiry, SEO
+            Every live client site is checked once a day at 9am, certificate and domain expiry, SEO
           basics, and whether it answered at all.
           </p>
         </div>
@@ -148,7 +148,7 @@ export default async function MonitoringPage() {
                   <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>{s.domain}</div>
                 </td>
                 <td style={{ ...cell, color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                  {s.customer_name || '—'}
+                  {s.customer_name || '-'}
                 </td>
                 <td style={cell}>
                   {!s.checked_at ? (
@@ -188,7 +188,7 @@ export default async function MonitoringPage() {
                         hour: '2-digit',
                         minute: '2-digit',
                       })
-                    : '—'}
+                    : '-'}
                 </td>
                 <td style={{ ...cell, textAlign: 'right', whiteSpace: 'nowrap' }}>
                   <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
@@ -222,7 +222,7 @@ export default async function MonitoringPage() {
       </div>
 
       <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '1rem', lineHeight: 1.6 }}>
-        Domain expiry comes from RDAP, which not every registry runs — MYNIC, which handles .my, does
+        Domain expiry comes from RDAP, which not every registry runs, MYNIC, which handles .my, does
         not, so those show a dash. SSL expiry is read straight off the certificate and works
         everywhere.
       </p>

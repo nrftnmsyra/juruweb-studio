@@ -23,7 +23,7 @@ const wasDismissed = () => {
   try {
     return sessionStorage.getItem('jw-offer') === 'off';
   } catch {
-    return false; // private mode or blocked storage — just show the bar
+    return false; // private mode or blocked storage, just show the bar
   }
 };
 const showOnServer = () => false;
@@ -59,7 +59,7 @@ export default function OfferBar({ lang }) {
   // Render a placeholder until the first client tick, so server and client match.
   const clock =
     left === null
-      ? '—'
+      ? '-'
       : `${Math.floor(left / 86400000)}${units[0]} ` +
         `${pad(Math.floor(left / 3600000) % 24)}${units[1]} ` +
         `${pad(Math.floor(left / 60000) % 60)}${units[2]} ` +
