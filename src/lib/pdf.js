@@ -62,7 +62,7 @@ export async function renderElementToPages(element, meta = {}) {
     useCORS: true,
     windowWidth: 1200, // force the desktop A4 layout regardless of device
     onclone: (doc) => {
-      // Keep the layout (so our measurement stays valid) but render nothing —
+      // Keep the layout (so our measurement stays valid) but render nothing -
       // the logo is drawn onto the canvas afterwards.
       doc.querySelectorAll('.pdf-stamp-mark').forEach((n) => { n.style.visibility = 'hidden'; });
     },
@@ -188,12 +188,12 @@ export async function renderElementToPages(element, meta = {}) {
     p.textAlign = 'right';
     p.fillText(`Page ${i + 1} of ${total}`, W - sidePx, footY);
 
-    // Running header on continuation pages: title — continued (left), ref (right)
+    // Running header on continuation pages: title, continued (left), ref (right)
     if (i > 0) {
       const hY = Math.round(9 * pxPerMm);
       const hRule = Math.round(11 * pxPerMm);
       p.textAlign = 'left';
-      p.fillText([docTitle, 'continued'].filter(Boolean).join(' — '), sidePx, hY);
+      p.fillText([docTitle, 'continued'].filter(Boolean).join(', '), sidePx, hY);
       p.textAlign = 'right';
       p.fillText(docLabel, W - sidePx, hY);
       p.beginPath(); p.moveTo(sidePx, hRule); p.lineTo(W - sidePx, hRule); p.stroke();

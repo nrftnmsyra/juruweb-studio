@@ -160,7 +160,7 @@ function LedgerContent() {
 
   const fmt = (n) => `RM ${Number(n).toFixed(2)}`;
   const fmtDate = (d) =>
-    d ? new Date(d).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+    d ? new Date(d).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
 
   return (
     <div className="page-container">
@@ -217,7 +217,7 @@ function LedgerContent() {
         </div>
       ) : (
         <>
-        {/* Full table — desktop / tablet */}
+        {/* Full table, desktop / tablet */}
         <div className="table-container ledger-table-wrap">
           <table className="data-table data-table--stack">
             <thead>
@@ -242,9 +242,9 @@ function LedgerContent() {
                         {entry.type}
                       </span>
                     </td>
-                    <td data-label="Reference No.">{entry.reference_no || <span style={{ color: 'var(--text-muted)' }}>—</span>}</td>
+                    <td data-label="Reference No.">{entry.reference_no || <span style={{ color: 'var(--text-muted)' }}>-</span>}</td>
                     <td data-label="Details">
-                      <span>{entry.description || <span style={{ color: 'var(--text-muted)' }}>—</span>}</span>
+                      <span>{entry.description || <span style={{ color: 'var(--text-muted)' }}>-</span>}</span>
                       {entry.attachment_url && (
                         <a
                           href={entry.attachment_url}
@@ -274,7 +274,7 @@ function LedgerContent() {
           </table>
         </div>
 
-        {/* Compact tappable rows — mobile */}
+        {/* Compact tappable rows, mobile */}
         <div className="ledger-compact">
           {filteredEntries.map((entry) => {
             const isCredit = entry.type === 'Credit';
@@ -336,11 +336,11 @@ function LedgerContent() {
               </div>
               <div className="ledger-detail-row">
                 <span className="ledger-detail-label">Reference No.</span>
-                <span className="ledger-detail-value">{detailTarget.reference_no || '—'}</span>
+                <span className="ledger-detail-value">{detailTarget.reference_no || '-'}</span>
               </div>
               <div className="ledger-detail-row">
                 <span className="ledger-detail-label">Details</span>
-                <span className="ledger-detail-value">{detailTarget.description || '—'}</span>
+                <span className="ledger-detail-value">{detailTarget.description || '-'}</span>
               </div>
               {detailTarget.attachment_url && (
                 <div className="ledger-detail-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '0.5rem' }}>

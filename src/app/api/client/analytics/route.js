@@ -11,7 +11,7 @@ const PERIODS = { '7d': 7, '30d': 30, '90d': 90 };
  * Read API for a client's own dashboard.
  *
  * Authenticated with X-API-Key. The key resolves to exactly one website, and
- * every figure below is scoped to it — a leaked key exposes that client's
+ * every figure below is scoped to it, a leaked key exposes that client's
  * traffic and nothing else.
  *
  * Deliberately excluded: orders, invoices, the ledger, and anything about

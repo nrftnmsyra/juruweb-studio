@@ -19,7 +19,7 @@ export async function OPTIONS() {
  *
  * This is what lets an admin switch GTM on for a client's site from our
  * dashboard without anyone redeploying that site. Only the two public tag IDs
- * are returned — nothing else about the site leaves here.
+ * are returned, nothing else about the site leaves here.
  */
 export async function GET(request) {
   const website = (new URL(request.url).searchParams.get('website') || '')

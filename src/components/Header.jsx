@@ -26,7 +26,7 @@ export default function Header({ onMenuClick = () => {}, admin = null }) {
       </div>
 
       <div className="header-profile">
-        {/* The notification and settings buttons had no onClick — they did
+        {/* The notification and settings buttons had no onClick, they did
             nothing at all. A control that looks clickable and isn't is worse
             than no control, so they are gone until there is something for
             them to open. */}

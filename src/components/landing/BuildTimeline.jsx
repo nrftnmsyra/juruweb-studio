@@ -9,7 +9,7 @@ const TICKS = [0, 2, 4, 6, 8, 10, 12, 14].filter((d) => d <= SCALE_DAYS);
 
 /**
  * The three stages drawn against a real day scale, sized to the recommended
- * package — "7–14 working days" as a picture rather than a phrase.
+ * package, "7–14 working days" as a picture rather than a phrase.
  */
 export default function BuildTimeline({ lang, tier }) {
   const pkg = PACKAGES[tier];

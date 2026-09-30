@@ -47,7 +47,7 @@ const COPY = {
     'work.title': 'Recent work',
     'work.fact': 'in your trade · 16 live in total',
     'work.sub':
-      'Real clients at their own domains. The ones in your trade move to the front — hover any card to watch it render.',
+      'Real clients at their own domains. The ones in your trade move to the front, hover any card to watch it render.',
 
     'band.title': 'Every one of these businesses owns its website outright',
     'band.sub':
@@ -78,12 +78,12 @@ const COPY = {
     'g.2': 'us, real code',
     'g.3': 'domain, hosting, handover',
     'g.note':
-      'Your revision rounds sit inside Design & Build — we show you the site before it goes live, not after. The clock starts on the day the deposit clears.',
+      'Your revision rounds sit inside Design & Build, we show you the site before it goes live, not after. The clock starts on the day the deposit clears.',
 
     'ways.title': 'Three ways to get a website',
     'ways.fact': 'Only one of them is us',
     'ways.sub':
-      'Worth being straight about this. All three work for somebody — the question is which one fits how you actually run your business.',
+      'Worth being straight about this. All three work for somebody, the question is which one fits how you actually run your business.',
     'w.cost': 'Cost',
     'w.time': 'Your time',
     'w.own': 'Ownership',
@@ -170,7 +170,7 @@ const COPY = {
     'work.title': 'Kerja terkini',
     'work.fact': 'dalam bidang anda · 16 beroperasi',
     'work.sub':
-      'Klien sebenar di domain mereka sendiri. Yang sepadan dengan bidang anda naik ke hadapan — hover mana-mana kad untuk lihat ia terbentuk.',
+      'Klien sebenar di domain mereka sendiri. Yang sepadan dengan bidang anda naik ke hadapan, hover mana-mana kad untuk lihat ia terbentuk.',
 
     'band.title': 'Setiap bisnes ini memiliki laman web mereka sepenuhnya',
     'band.sub':
@@ -201,12 +201,12 @@ const COPY = {
     'g.2': 'kami, kod sebenar',
     'g.3': 'domain, hosting, serahan',
     'g.note':
-      'Pusingan pindaan anda berada dalam Reka & Bina — kami tunjuk laman sebelum ia naik, bukan selepas. Kiraan bermula pada hari deposit masuk.',
+      'Pusingan pindaan anda berada dalam Reka & Bina, kami tunjuk laman sebelum ia naik, bukan selepas. Kiraan bermula pada hari deposit masuk.',
 
     'ways.title': 'Tiga cara untuk dapatkan laman web',
     'ways.fact': 'Satu sahaja kami',
     'ways.sub':
-      'Eloklah kita berterus terang. Ketiga-tiganya berkesan untuk seseorang — soalannya yang mana sesuai dengan cara anda jalankan bisnes.',
+      'Eloklah kita berterus terang. Ketiga-tiganya berkesan untuk seseorang, soalannya yang mana sesuai dengan cara anda jalankan bisnes.',
     'w.cost': 'Kos',
     'w.time': 'Masa anda',
     'w.own': 'Pemilikan',
@@ -292,7 +292,7 @@ const COPY = {
 
     'work.title': '近期作品',
     'work.fact': '个同行业 · 共 16 个运行中',
-    'work.sub': '真实客户的独立域名。与您行业相符的会排到前面 — 悬停任意卡片查看渲染过程。',
+    'work.sub': '真实客户的独立域名。与您行业相符的会排到前面, 悬停任意卡片查看渲染过程。',
 
     'band.title': '这些生意，每一家都完整拥有自己的网站',
     'band.sub': '域名与主机以客户名义注册，上线当天移交。没有任何东西是租给您的。',
@@ -321,11 +321,11 @@ const COPY = {
     'g.2': '我们，真实代码',
     'g.3': '域名、主机、交接',
     'g.note':
-      '修改轮次包含在设计与开发阶段 — 我们在上线前让您过目，而不是上线后。计时从订金到账当天开始。',
+      '修改轮次包含在设计与开发阶段, 我们在上线前让您过目，而不是上线后。计时从订金到账当天开始。',
 
     'ways.title': '三种做网站的方式',
     'ways.fact': '其中只有一种是我们',
-    'ways.sub': '这点值得说清楚。三种方式都适合某些人 — 问题在于哪一种符合您经营生意的方式。',
+    'ways.sub': '这点值得说清楚。三种方式都适合某些人, 问题在于哪一种符合您经营生意的方式。',
     'w.cost': '成本',
     'w.time': '您的时间',
     'w.own': '所有权',

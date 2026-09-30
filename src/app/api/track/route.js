@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
  * server, and this route returns only the columns a customer should see.
  */
 
-// Deliberately narrow — no internal notes, cost or margin fields leave here.
+// Deliberately narrow, no internal notes, cost or margin fields leave here.
 const CUSTOMER_FIELDS = 'id, name, email, phone, company';
 const ORDER_FIELDS = 'id, package_type, status, eta_date, start_date, created_at, total_amount';
 const INVOICE_FIELDS =

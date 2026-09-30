@@ -21,7 +21,7 @@ export default function TrackingSnippet({ sites }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
-      /* clipboard blocked — the text is selectable below */
+      /* clipboard blocked, the text is selectable below */
     }
   };
 

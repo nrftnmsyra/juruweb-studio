@@ -16,7 +16,7 @@ import SitePreview from './SitePreview';
 
 const TIER_NAMES = PACKAGES.map((p) => p.name);
 
-/** The message the visitor sends us — their whole build in four lines. */
+/** The message the visitor sends us, their whole build in four lines. */
 export function buildSpec({ trade, feats, pkg, lang }) {
   const picked = FEATURES.filter((f) => feats[f.id]).map((f) => pick(f.label, lang));
   return [
@@ -24,7 +24,7 @@ export function buildSpec({ trade, feats, pkg, lang }) {
     `${t(lang, 'spec.business')}: ${pick(trade.label, lang)}`,
     `${t(lang, 'spec.package')}: ${pkg.name} (${pkg.price})`,
     `${t(lang, 'spec.timeline')}: ${pick(pkg.timeline, lang)}`,
-    `${t(lang, 'spec.needs')}: ${picked.length ? picked.join(', ') : '—'}`,
+    `${t(lang, 'spec.needs')}: ${picked.length ? picked.join(', ') : '-'}`,
   ].join('\n');
 }
 

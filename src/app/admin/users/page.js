@@ -7,10 +7,10 @@ import { setAdminActive, removeAdmin } from './actions';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = { title: 'Admin Users — Juruweb Studio' };
+export const metadata = { title: 'Admin Users · Juruweb Studio' };
 
 function formatDate(value) {
-  if (!value) return '—';
+  if (!value) return '-';
   return new Date(value).toLocaleDateString('en-MY', {
     day: 'numeric',
     month: 'short',
@@ -77,7 +77,7 @@ export default async function UsersPage() {
                     )}
                   </td>
                   <td style={{ padding: '0.85rem 1rem', borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
-                    {a.full_name || '—'}
+                    {a.full_name || '-'}
                   </td>
                   <td style={{ padding: '0.85rem 1rem', borderBottom: '1px solid var(--border-color)' }}>
                     <span
@@ -135,7 +135,7 @@ export default async function UsersPage() {
       </div>
 
       <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '1rem', lineHeight: 1.6 }}>
-        You cannot suspend or remove your own account — that would leave nobody able to manage this
+        You cannot suspend or remove your own account, that would leave nobody able to manage this
         list. {ROLE_LABELS[ROLE_ADMIN]}s can work on customers, orders, quotations, invoices and the
         ledger, but cannot see this page or the audit log.
       </p>

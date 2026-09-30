@@ -74,9 +74,9 @@ export default function MonitorTools({ siteCount, neverChecked }) {
         head: [['Website', 'Client', 'Uptime', 'Avg speed', 'SEO score', 'SSL left', 'Domain left']],
         body: report.rows.map((r) => [
           r.label || r.domain,
-          r.customer_name || '—',
+          r.customer_name || '-',
           r.uptime_pct != null ? `${r.uptime_pct}%` : 'No data',
-          r.avg_response_ms != null ? `${r.avg_response_ms} ms` : '—',
+          r.avg_response_ms != null ? `${r.avg_response_ms} ms` : '-',
           r.avg_seo_score != null
             ? `${r.avg_seo_score}${
                 r.first_seo_score != null && r.last_seo_score != null
@@ -85,9 +85,9 @@ export default function MonitorTools({ siteCount, neverChecked }) {
                     })`
                   : ''
               }`
-            : '—',
-          r.ssl_days_left != null ? `${r.ssl_days_left} days` : '—',
-          r.domain_days_left != null ? `${r.domain_days_left} days` : '—',
+            : '-',
+          r.ssl_days_left != null ? `${r.ssl_days_left} days` : '-',
+          r.domain_days_left != null ? `${r.domain_days_left} days` : '-',
         ]),
         styles: { fontSize: 9, cellPadding: 6 },
         headStyles: { fillColor: [255, 102, 196], textColor: 20 },
@@ -103,7 +103,7 @@ export default function MonitorTools({ siteCount, neverChecked }) {
         tail + 24
       );
       doc.text(
-        'A dash means no data was collected — for domain expiry this is normal on .my, whose registry has no RDAP service.',
+        'A dash means no data was collected, for domain expiry this is normal on .my, whose registry has no RDAP service.',
         40,
         tail + 38
       );

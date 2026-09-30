@@ -555,7 +555,7 @@ function QuotationsContent() {
                               required
                             />
                             <textarea
-                              placeholder="Add a remark (optional) — press Enter for a new line"
+                              placeholder="Add a remark (optional), press Enter for a new line"
                               value={item.remark || ''}
                               onChange={(e) => handleLineItemChange(idx, 'remark', e.target.value)}
                               rows={2}

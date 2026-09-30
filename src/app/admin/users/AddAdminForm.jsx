@@ -5,7 +5,7 @@ import { MdPersonAdd, MdContentCopy } from 'react-icons/md';
 import { ROLE_ADMIN, ROLE_OWNER, ROLE_LABELS, ROLE_HINTS } from '@/lib/auth';
 import { addAdmin } from './actions';
 
-/** Shown once after a password is set — it is not stored anywhere readable. */
+/** Shown once after a password is set, it is not stored anywhere readable. */
 function PasswordHandoff({ label, password }) {
   return (
     <div
@@ -44,7 +44,7 @@ function PasswordHandoff({ label, password }) {
         </button>
       </div>
       <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.6rem' }}>
-        Send this to them now — it is not shown again. You can always reset it.
+        Send this to them now, it is not shown again. You can always reset it.
       </p>
     </div>
   );

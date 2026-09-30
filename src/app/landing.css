@@ -1,5 +1,5 @@
 /* ============================================================
-   Public Landing Page — "Live Build" (.lp-*)
+   Public Landing Page, "Live Build" (.lp-*)
    Every selector is scoped under .lp: the dashboard in globals.css
    already owns .btn and .card, so nothing here may leak out.
    ============================================================ */
@@ -46,7 +46,7 @@ html { scroll-behavior: smooth; }
 }
 
 /* The reset is wrapped in :where() so it carries zero specificity. Written as
-   `.lp p` it scores (0,1,1) — one class plus a type — and silently beat every
+   `.lp p` it scores (0,1,1), one class plus a type, and silently beat every
    single-class component rule below, e.g. .lp-head-sub's own margin-top. */
 .lp *, .lp *::before, .lp *::after { box-sizing: border-box; }
 :where(.lp) :where(h1, h2, h3) {
@@ -791,7 +791,7 @@ html { scroll-behavior: smooth; }
 .lp-mx tfoot .lp-btn { width: 100%; }
 
 /* ---------- add-ons ---------- */
-/* Each row carried a dotted leader AND a hairline underneath — two competing
+/* Each row carried a dotted leader AND a hairline underneath, two competing
    horizontal lines per row. One rule per row, and three narrower columns so the
    label and its price stay close enough to pair without a leader. */
 .lp-addons { margin-top: 2.6rem; border-top: 1px solid var(--line-soft); padding-top: 1.9rem; }

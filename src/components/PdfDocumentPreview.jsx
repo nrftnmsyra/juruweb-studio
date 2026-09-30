@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { renderElementToPages, downloadPagesAsPdf } from '@/lib/pdf';
 
 // Renders a document (passed as children) off-screen, captures it into A4 page
-// images, and shows those exact images as the preview — so the preview always
+// images, and shows those exact images as the preview, so the preview always
 // matches the downloaded PDF, page for page. `docKey` re-triggers rendering
 // whenever the underlying document changes.
 export default function PdfDocumentPreview({ docKey, filename, docLabel, docTitle, onBack, backLabel = '← Back', children }) {
@@ -82,7 +82,7 @@ export default function PdfDocumentPreview({ docKey, filename, docLabel, docTitl
         </button>
       </div>
 
-      {/* Off-screen capture source — the real document, laid out for html2canvas */}
+      {/* Off-screen capture source, the real document, laid out for html2canvas */}
       <div className="pdf-capture-source" aria-hidden>
         <div ref={sourceRef} className="pdf-preview">
           {children}
