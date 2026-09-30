@@ -343,7 +343,6 @@ export default async function SiteAnalyticsPage({ params: routeParams, searchPar
               The first visit shows up within seconds of adding it.
             </p>
           </div>
-          <TrackingSnippet sites={[site]} />
         </>
       ) : (
         <>
@@ -411,13 +410,18 @@ export default async function SiteAnalyticsPage({ params: routeParams, searchPar
             />
           </div>
 
-          <div style={{ marginTop: '1.5rem' }}>
-            <TrackingSnippet sites={[site]} />
-            <SiteLink site={site} customers={customers || []} orders={orders || []} />
-            <ClientKeys website={site.domain} keys={apiKeys || []} />
-          </div>
         </>
       )}
+
+      {/* Outside the conditional on purpose: you link a site to its client and
+          hand out its snippet before it has any traffic, not after. These used
+          to sit in the hasData branch, so they were invisible on exactly the
+          sites that still needed setting up. */}
+      <div style={{ marginTop: '1.5rem' }}>
+        <TrackingSnippet sites={[site]} />
+        <SiteLink site={site} customers={customers || []} orders={orders || []} />
+        <ClientKeys website={site.domain} keys={apiKeys || []} />
+      </div>
     </div>
   );
 }
