@@ -36,7 +36,7 @@ RETURNS TEXT
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
-AS $$
+AS $prov$
 DECLARE
     s TEXT := public.client_schema_name(p_project_ref);
     t TEXT;
@@ -69,7 +69,8 @@ BEGIN
             NEW.email := lower(trim(NEW.email));
             RETURN NEW;
         END;
-        $t$$f$, s);
+        $t$
+$f$, s);
 
     EXECUTE format('DROP TRIGGER IF EXISTS normalise_email ON %I.members', s);
     EXECUTE format($f$
@@ -86,7 +87,8 @@ BEGIN
                 SELECT 1 FROM %I.members m
                 WHERE m.email = lower(coalesce(auth.jwt() ->> 'email', '')) AND m.active
             );
-        $t$$f$, s, s, s);
+        $t$
+$f$, s, s, s);
 
     EXECUTE format('ALTER TABLE %I.members ENABLE ROW LEVEL SECURITY', s);
     EXECUTE format('REVOKE ALL ON %I.members FROM anon', s);
@@ -118,7 +120,7 @@ BEGIN
 
     RETURN s;
 END;
-$$;
+$prov$;
 
 GRANT EXECUTE ON FUNCTION public.provision_client_members(TEXT) TO authenticated;
 
