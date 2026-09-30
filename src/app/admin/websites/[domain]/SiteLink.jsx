@@ -26,17 +26,16 @@ export default function SiteLink({ site, customers, orders }) {
           : 'This website is not linked to a client yet, so the analytics list shows a dash. Pick them here.'}
       </p>
 
-      <form action={formAction} style={{ display: 'flex', gap: '0.5rem', marginTop: '0.9rem', flexWrap: 'wrap' }}>
+      <form action={formAction} className="panel-form">
         <input type="hidden" name="domain" value={site.domain} />
 
-        <label style={{ flex: '1 1 14rem', minWidth: 0 }}>
+        <label className="panel-field">
           <span className="form-label">Client</span>
           <select
             id="link-customer"
             name="customer_id"
             defaultValue={site.customer_id || ''}
             className="form-input form-input--sm"
-            style={{ width: '100%' }}
           >
             <option value="">Not linked</option>
             {customers.map((c) => (
@@ -47,14 +46,13 @@ export default function SiteLink({ site, customers, orders }) {
           </select>
         </label>
 
-        <label style={{ flex: '1 1 14rem', minWidth: 0 }}>
+        <label className="panel-field">
           <span className="form-label">Project</span>
           <select
             id="link-order"
             name="order_id"
             defaultValue={site.order_id || ''}
             className="form-input form-input--sm"
-            style={{ width: '100%' }}
           >
             <option value="">Not linked</option>
             {orders.map((o) => (
@@ -65,7 +63,7 @@ export default function SiteLink({ site, customers, orders }) {
           </select>
         </label>
 
-        <button type="submit" className="btn btn-primary btn-sm" style={{ alignSelf: 'flex-end' }} disabled={pending}>
+        <button type="submit" className="btn btn-primary btn-sm" disabled={pending}>
           {pending ? 'Saving…' : 'Save'}
         </button>
       </form>

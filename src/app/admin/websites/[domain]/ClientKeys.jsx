@@ -137,15 +137,14 @@ export default function ClientKeys({ website, keys }) {
         orders, invoices or the ledger.
       </p>
 
-      <form action={formAction} style={{ display: 'flex', gap: '0.5rem', marginTop: '0.9rem', flexWrap: 'wrap' }}>
+      <form action={formAction} className="panel-form">
         <input type="hidden" name="website" value={website} />
         <input
           id="key-label"
           name="label"
           type="text"
           placeholder="What is it for, e.g. Teratak dashboard"
-          className="form-input form-input--sm"
-          style={{ flex: '1 1 16rem', minWidth: 0 }}
+          className="form-input form-input--sm panel-field panel-field--wide"
         />
         <button type="submit" className="btn btn-primary btn-sm" disabled={pending}>
           {pending ? 'Issuing…' : 'Issue key'}
@@ -160,11 +159,11 @@ export default function ClientKeys({ website, keys }) {
       {state?.apiKey && <KeyHandoff apiKey={state.apiKey} website={website} />}
 
       {keys.length > 0 && (
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+        <table className="panel-table">
           <tbody>
             {keys.map((k) => (
               <tr key={k.id} style={{ opacity: k.active ? 1 : 0.5 }}>
-                <td style={{ padding: '0.6rem 0', borderTop: '1px solid var(--border-color)', fontSize: '0.84rem' }}>
+                <td style={{ fontSize: '0.84rem' }}>
                   {k.label || 'Unnamed key'}
                   <span
                     style={{
@@ -177,20 +176,12 @@ export default function ClientKeys({ website, keys }) {
                     ····{k.key_hint}
                   </span>
                 </td>
-                <td
-                  style={{
-                    padding: '0.6rem 0',
-                    borderTop: '1px solid var(--border-color)',
-                    fontSize: '0.76rem',
-                    color: 'var(--text-muted)',
-                    textAlign: 'right',
-                  }}
-                >
+                <td className="u-right" style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>
                   {k.last_used_at
                     ? `used ${new Date(k.last_used_at).toLocaleDateString('en-MY')}`
                     : 'never used'}
                 </td>
-                <td style={{ padding: '0.6rem 0', borderTop: '1px solid var(--border-color)', textAlign: 'right' }}>
+                <td className="u-right">
                   {k.active && (
                     <ConfirmSubmit
                       action={revokeClientKey}

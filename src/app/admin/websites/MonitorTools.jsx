@@ -118,7 +118,7 @@ export default function MonitorTools({ siteCount, neverChecked }) {
 
   return (
     <div className="card" style={{ padding: '1rem 1.15rem' }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+      <div className="toolbar">
         <button
           type="button"
           className="btn btn-secondary"
@@ -129,7 +129,10 @@ export default function MonitorTools({ siteCount, neverChecked }) {
           <span>{busy === 'check' ? 'Checking…' : 'Check now'}</span>
         </button>
 
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginLeft: 'auto' }}>
+        {/* .toolbar-end pushes this to the far side on a desktop and gives it
+            the full width on a phone, where a right-aligned group stranded on
+            its own wrapped line was the thing that looked broken. */}
+        <div className="toolbar-end">
           {/* Sits beside the select rather than above it, so no bottom margin. */}
           <label htmlFor="report-month" className="form-label" style={{ margin: '0 0.15rem 0 0' }}>
             Monthly report
@@ -139,7 +142,6 @@ export default function MonitorTools({ siteCount, neverChecked }) {
             className="form-input"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            style={{ width: 'auto' }}
           >
             {months.map((m) => (
               <option key={m.value} value={m.value}>
