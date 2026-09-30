@@ -35,7 +35,7 @@ export async function addSite(prevState, formData) {
     return { error: error.message };
   }
 
-  revalidatePath('/admin/monitoring');
+  revalidatePath('/admin/websites');
   return { ok: `Now watching ${domain}. First check runs tonight.` };
 }
 
@@ -46,7 +46,7 @@ export async function toggleSite(formData) {
 
   const supabase = await getServerSupabase();
   await supabase.from('monitored_sites').update({ active }).eq('id', id);
-  revalidatePath('/admin/monitoring');
+  revalidatePath('/admin/websites');
 }
 
 export async function removeSite(formData) {
@@ -56,7 +56,7 @@ export async function removeSite(formData) {
   // site_checks cascades, so the history goes with it.
   const supabase = await getServerSupabase();
   await supabase.from('monitored_sites').delete().eq('id', id);
-  revalidatePath('/admin/monitoring');
+  revalidatePath('/admin/websites');
 }
 
 /** Rollup for every site in one month, used to build the PDF. */

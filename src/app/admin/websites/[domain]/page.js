@@ -278,14 +278,14 @@ export default async function SiteAnalyticsPage({ params: routeParams, searchPar
   const hasData = (totals.events ?? 0) > 0;
 
   const mkHref = (next) =>
-    `/admin/analytics/${encodeURIComponent(website)}?period=${next.period ?? period}`;
+    `/admin/websites/${encodeURIComponent(website)}?period=${next.period ?? period}`;
 
   return (
     <div className="page-container">
       <div className="page-header">
         <div>
           <Link
-            href="/admin/analytics"
+            href="/admin/websites"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
