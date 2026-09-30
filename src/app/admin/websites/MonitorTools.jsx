@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { MdRefresh, MdPictureAsPdf } from 'react-icons/md';
-import { getMonthlyReport } from './actions';
+import { getMonthlyReport, checkNow } from './actions';
 
 /** Previous 12 months, newest first, as {value: 'YYYY-MM-01', label: 'Sep 2026'}. */
 function recentMonths() {
@@ -31,9 +31,8 @@ export default function MonitorTools({ siteCount, neverChecked }) {
     setBusy('check');
     setNote(null);
     try {
-      const res = await fetch('/api/cron/monitor', { method: 'POST' });
-      const body = await res.json();
-      if (!res.ok || !body.ok) throw new Error(body.error || 'Check failed');
+      const body = await checkNow();
+      if (body.error) throw new Error(body.error);
       setNote({
         tone: 'ok',
         text: `Checked ${body.checked} site${body.checked === 1 ? '' : 's'}${

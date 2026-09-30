@@ -9,7 +9,11 @@ import { toggleSite, removeSite } from './actions';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = { title: 'Manage websites · Juruweb Studio' };
+// The Check now action runs in this route's function, and checking a page of
+// sites takes far longer than the default budget allows.
+export const maxDuration = 300;
+
+export const metadata = { title: 'Websites · Juruweb Studio' };
 
 const cell = { padding: '0.8rem 1rem', borderBottom: '1px solid var(--border-color)' };
 const num = { ...cell, textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
@@ -87,7 +91,7 @@ export default async function ManageWebsites() {
     <div className="page-container">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Manage websites</h1>
+          <h1 className="page-title">Websites</h1>
           <p className="page-subtitle">
             Every live client site, checked once a day at 9am for uptime, certificate and domain
             expiry and SEO basics, beside the traffic our own tracker recorded. Open one for its

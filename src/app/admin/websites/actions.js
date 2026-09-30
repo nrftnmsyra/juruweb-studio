@@ -2,10 +2,33 @@
 
 import { revalidatePath } from 'next/cache';
 import { getServerSupabase, getCurrentAdmin } from '@/lib/supabaseServer';
+import { runSiteChecks } from '@/lib/runSiteChecks';
 
 async function requireAdmin() {
   const admin = await getCurrentAdmin();
   return admin || null;
+}
+
+/**
+ * The "Check now" button.
+ *
+ * A Server Action rather than a fetch to the cron route: an action posts back to
+ * the page's own URL, which the proxy covers, so the signed-in session comes
+ * with it. The cron route sits outside the proxy matcher and only ever saw an
+ * unauthenticated request, which is why the button answered "Unauthorised".
+ */
+export async function checkNow() {
+  const admin = await requireAdmin();
+  if (!admin) return { error: 'Your session has expired. Sign in again.' };
+
+  try {
+    const result = await runSiteChecks();
+    revalidatePath('/admin/websites');
+    return { ok: true, checked: result.checked, failed: result.failed };
+  } catch (err) {
+    console.error('[checkNow]', err);
+    return { error: err.message };
+  }
 }
 
 export async function addSite(prevState, formData) {
