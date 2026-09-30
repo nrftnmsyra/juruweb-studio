@@ -1517,6 +1517,15 @@ select.form-input {
   .data-table td.actions-cell .btn.icon-btn-sm {
     flex: 0 0 auto;
   }
+  /* A server-action button is wrapped in its own <form>, so the form is the
+     flex item and the rule above never reaches the button inside it. */
+  .data-table td.actions-cell > div > form {
+    display: flex;
+    flex: 1 1 0;
+  }
+  .data-table td.actions-cell > div > form > .btn {
+    width: 100%;
+  }
 
   /* Detail-heavy tables (customers, dashboard recent orders): left-aligned
      stacked fields read better than the right-aligned label:value style. */
