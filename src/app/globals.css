@@ -31,7 +31,7 @@
   --info: #3b82f6;
   --info-glow: rgba(59, 130, 246, 0.1);
 
-  --font-sans: var(--font-google-sans), 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: var(--font-source-sans), 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
   --sidebar-width: 260px;
   --header-height: 72px;
   --page-header-height: 64px;
@@ -432,6 +432,19 @@ input::placeholder {
   border-collapse: collapse;
   text-align: left;
   font-size: 0.9rem;
+}
+
+/* Seven columns need more room than the 600px default before the stacked-card
+   breakpoint takes over. Overridden back to 0 in that media query, which comes
+   later in this file, so it never fights the card layout. */
+.data-table--wide {
+  min-width: 880px;
+}
+/* Seven columns at the default 1.5rem side padding spend 336px on padding
+   alone, which is most of a laptop's content width. */
+.data-table--wide th,
+.data-table--wide td {
+  padding: 0.8rem 1rem;
 }
 
 .data-table th {
@@ -1782,4 +1795,141 @@ select.form-input {
 }
 .ledger-attach-link:hover {
   text-decoration: underline;
+}
+
+/* =========================================================
+   Panels: the card that holds a short form and a small table,
+   used by the website tools (tracking snippet, client & project,
+   dashboard users, API keys). Laid out as one row on a desktop
+   and stacked on a phone.
+
+   These exist because the first version of those panels put the
+   layout in inline styles, which no media query can reach. On a
+   phone that left half-width boxes stranded beside wrapped
+   lines, and three-column rows squeezed into a third of the
+   width they needed.
+   ========================================================= */
+.panel-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: flex-end;
+  margin-top: 0.9rem;
+}
+
+/* min-width: 0 lets a flex item shrink below its content, which a <select>
+   with long option text otherwise refuses to do, pushing the row wider than
+   the card. */
+.panel-form > * {
+  min-width: 0;
+}
+
+.panel-field {
+  flex: 1 1 13rem;
+}
+.panel-field--wide {
+  flex: 2 1 16rem;
+}
+/* For a short control such as a two-option select, which does not need a
+   13rem basis on a desktop but still takes a full row on a phone. */
+.panel-field--auto {
+  flex: 0 1 auto;
+}
+
+.panel-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+.panel-table td {
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--border-color);
+}
+.panel-table td.u-right {
+  text-align: right;
+}
+
+/* A row of controls with one group pushed to the far end. */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+.toolbar-end {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-left: auto;
+}
+/* The base rule gives every select width: 100%, which inside a toolbar would
+   push whatever follows it off the row. */
+.toolbar-end .form-input {
+  width: auto;
+}
+
+.u-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 700px) {
+  /* One control per row at full width. A half-width box left over at the end
+     of a wrapped row is the thing that reads as broken. */
+  .panel-form > * {
+    flex: 1 1 100%;
+  }
+  .panel-form .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .panel-table tbody,
+  .panel-table tr,
+  .panel-table td {
+    display: block;
+    width: 100%;
+  }
+  .panel-table tr {
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--border-color);
+  }
+  .panel-table td {
+    border-top: none;
+    padding: 0.12rem 0;
+  }
+  /* td beats the bare .u-right here, so the column stops being right-aligned
+     once it is a stacked block rather than a column. */
+  .panel-table td.u-right {
+    text-align: left;
+  }
+  .panel-table td:last-child {
+    padding-top: 0.6rem;
+  }
+  .panel-table td:last-child > div {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .toolbar > .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .toolbar-end {
+    margin-left: 0;
+    width: 100%;
+  }
+  /* Label on its own line, then the select and the button share the next one. */
+  .toolbar-end .form-label {
+    flex: 1 1 100%;
+    margin: 0;
+  }
+  .toolbar-end .form-input {
+    flex: 1 1 8rem;
+  }
+  .toolbar-end .btn {
+    flex: 1 1 9rem;
+    justify-content: center;
+  }
 }

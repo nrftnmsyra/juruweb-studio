@@ -9,8 +9,8 @@ export default function AddSiteForm({ customers }) {
 
   return (
     <form action={formAction} className="card" style={{ padding: '1.25rem', marginTop: '1.25rem' }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'flex-end' }}>
-        <label style={{ flex: '2 1 14rem', minWidth: 0 }}>
+      <div className="panel-form" style={{ gap: '0.75rem', marginTop: 0 }}>
+        <label className="panel-field panel-field--wide">
           <span className="form-label">Website</span>
           <input
             id="site-domain"
@@ -19,11 +19,10 @@ export default function AddSiteForm({ customers }) {
             required
             placeholder="catrumah.com.my"
             className="form-input"
-            style={{ width: '100%' }}
           />
         </label>
 
-        <label style={{ flex: '1 1 10rem', minWidth: 0 }}>
+        <label className="panel-field">
           <span className="form-label">Label (optional)</span>
           <input
             id="site-label"
@@ -31,13 +30,12 @@ export default function AddSiteForm({ customers }) {
             type="text"
             placeholder="Cat Rumah"
             className="form-input"
-            style={{ width: '100%' }}
           />
         </label>
 
-        <label style={{ flex: '1 1 11rem', minWidth: 0 }}>
+        <label className="panel-field">
           <span className="form-label">Client (optional)</span>
-          <select id="site-customer" name="customer_id" defaultValue="" className="form-input" style={{ width: '100%' }}>
+          <select id="site-customer" name="customer_id" defaultValue="" className="form-input">
             <option value="">Not linked</option>
             {customers.map((c) => (
               <option key={c.id} value={c.id}>

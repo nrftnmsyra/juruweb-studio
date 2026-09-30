@@ -1,10 +1,12 @@
-import { Google_Sans } from "next/font/google";
+import { Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
-const googleSans = Google_Sans({
+// Variable font, so one file covers 200 to 900 and every weight the dashboard
+// uses costs nothing extra.
+const sourceSans = Source_Sans_3({
   subsets: ["latin"],
-  variable: "--font-google-sans",
+  variable: "--font-source-sans",
   display: "swap",
 });
 
@@ -21,7 +23,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={googleSans.variable}>
+    <html lang="en" className={sourceSans.variable}>
       <body>
         {children}
         <Toaster

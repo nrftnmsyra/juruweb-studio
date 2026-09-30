@@ -276,7 +276,7 @@ export default function ClientMembers({ domain, projectRef, siteLabel }) {
         </p>
       )}
 
-      <form action={addAction} style={{ display: 'flex', gap: '0.5rem', marginTop: '0.9rem', flexWrap: 'wrap' }}>
+      <form action={addAction} className="panel-form">
         <input type="hidden" name="project_ref" value={projectRef} />
         <input type="hidden" name="domain" value={domain} />
         <input
@@ -285,26 +285,28 @@ export default function ClientMembers({ domain, projectRef, siteLabel }) {
           type="email"
           required
           placeholder="person@client.com"
-          className="form-input form-input--sm"
-          style={{ flex: '2 1 13rem', minWidth: 0 }}
+          className="form-input form-input--sm panel-field panel-field--wide"
         />
         <input
           id="member-name"
           name="full_name"
           type="text"
           placeholder="Name (optional)"
-          className="form-input form-input--sm"
-          style={{ flex: '1 1 9rem', minWidth: 0 }}
+          className="form-input form-input--sm panel-field"
         />
         <input
           id="member-pw"
           name="password"
           type="text"
           placeholder="Password (blank to generate)"
-          className="form-input form-input--sm"
-          style={{ flex: '1 1 11rem', minWidth: 0 }}
+          className="form-input form-input--sm panel-field"
         />
-        <select id="member-role" name="role" defaultValue="member" className="form-input form-input--sm" style={{ width: 'auto' }}>
+        <select
+          id="member-role"
+          name="role"
+          defaultValue="member"
+          className="form-input form-input--sm panel-field panel-field--auto"
+        >
           <option value="member">Member</option>
           <option value="owner">Owner</option>
         </select>
@@ -351,17 +353,17 @@ export default function ClientMembers({ domain, projectRef, siteLabel }) {
       )}
 
       {members && members.length > 0 && (
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+        <table className="panel-table">
           <tbody>
             {members.map((m) => (
               <tr key={m.email} style={{ opacity: m.active ? 1 : 0.5 }}>
-                <td style={{ padding: '0.6rem 0', borderTop: '1px solid var(--border-color)', fontSize: '0.84rem' }}>
+                <td style={{ fontSize: '0.84rem', wordBreak: 'break-word' }}>
                   {m.email}
                   {m.full_name && (
                     <span style={{ color: 'var(--text-muted)' }}> · {m.full_name}</span>
                   )}
                 </td>
-                <td style={{ padding: '0.6rem 0', borderTop: '1px solid var(--border-color)' }}>
+                <td>
                   <span
                     style={{
                       fontSize: '0.72rem',
@@ -375,7 +377,7 @@ export default function ClientMembers({ domain, projectRef, siteLabel }) {
                     {m.role === 'owner' ? 'Owner' : 'Member'}
                   </span>
                 </td>
-                <td style={{ padding: '0.6rem 0', borderTop: '1px solid var(--border-color)', textAlign: 'right' }}>
+                <td className="u-right">
                   <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                     <ResetButton email={m.email} domain={domain} />
                     <ConfirmSubmit

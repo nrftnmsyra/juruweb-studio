@@ -15,16 +15,6 @@ export const maxDuration = 300;
 
 export const metadata = { title: 'Websites · Juruweb Studio' };
 
-const cell = { padding: '0.8rem 1rem', borderBottom: '1px solid var(--border-color)' };
-const num = { ...cell, textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
-const head = {
-  padding: '0.75rem 1rem',
-  fontSize: '0.75rem',
-  fontWeight: 600,
-  color: 'var(--text-muted)',
-  borderBottom: '1px solid var(--border-color)',
-  whiteSpace: 'nowrap',
-};
 const sub = { fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 400 };
 
 /** Days left, coloured by how close it is to biting. */
@@ -60,6 +50,11 @@ function SeoScore({ score }) {
  *
  * The numbers themselves stay on each site's own page: a figure summed across
  * every client at once answers no question anybody actually asks.
+ *
+ * The table uses the app's own .data-table--stack classes rather than inline
+ * styles, so below 1200px it becomes one card per site like every other table
+ * here. The first version styled its cells inline, which no media query can
+ * reach, and on a phone it was a 1000px-wide table you had to drag sideways.
  */
 export default async function ManageWebsites() {
   const admin = await getCurrentAdmin();
@@ -140,17 +135,17 @@ export default async function ManageWebsites() {
 
       <AddSiteForm customers={customers || []} />
 
-      <div className="card" style={{ marginTop: '1.25rem', overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1000px' }}>
+      <div className="table-container" style={{ marginTop: '1.25rem' }}>
+        <table className="data-table data-table--stack data-table--wide">
           <thead>
             <tr>
-              <th style={{ ...head, textAlign: 'left' }}>Website</th>
-              <th style={{ ...head, textAlign: 'left' }}>Client</th>
-              <th style={{ ...head, textAlign: 'left' }}>Status</th>
-              <th style={{ ...head, textAlign: 'left' }}>Expiry</th>
-              <th style={{ ...head, textAlign: 'left' }}>SEO</th>
-              <th style={{ ...head, textAlign: 'right' }}>Views (30d)</th>
-              <th style={head} />
+              <th>Website</th>
+              <th>Client</th>
+              <th>Status</th>
+              <th>Expiry</th>
+              <th>SEO</th>
+              <th className="u-num">Views (30d)</th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -163,7 +158,7 @@ export default async function ManageWebsites() {
 
               return (
                 <tr key={s.id} style={{ opacity: s.active ? 1 : 0.55 }}>
-                  <td style={{ ...cell, fontWeight: 500 }}>
+                  <td style={{ fontWeight: 500 }}>
                     <Link
                       href={href}
                       style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}
@@ -177,6 +172,7 @@ export default async function ManageWebsites() {
                             display: 'flex',
                             alignItems: 'center',
                             gap: '0.4rem',
+                            flexWrap: 'wrap',
                             marginTop: '0.15rem',
                           }}
                         >
@@ -204,11 +200,14 @@ export default async function ManageWebsites() {
                     </Link>
                   </td>
 
-                  <td style={{ ...cell, color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                  <td
+                    data-label="Client"
+                    style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}
+                  >
                     {s.customer_name || '-'}
                   </td>
 
-                  <td style={cell}>
+                  <td data-label="Status">
                     {!s.checked_at ? (
                       <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>
                         Not checked yet
@@ -217,6 +216,7 @@ export default async function ManageWebsites() {
                       <>
                         <span
                           style={{
+                            display: 'inline-block',
                             fontSize: '0.75rem',
                             fontWeight: 600,
                             padding: '0.2rem 0.55rem',
@@ -240,7 +240,7 @@ export default async function ManageWebsites() {
                     )}
                   </td>
 
-                  <td style={cell}>
+                  <td data-label="Expiry">
                     {hasExpiry ? (
                       <>
                         <Expiry label="SSL" days={s.ssl_days_left} date={s.ssl_expires_at} />
@@ -255,11 +255,11 @@ export default async function ManageWebsites() {
                     )}
                   </td>
 
-                  <td style={cell}>
+                  <td data-label="SEO">
                     <SeoScore score={s.seo_score} />
                   </td>
 
-                  <td style={{ ...num, fontWeight: 600 }}>
+                  <td data-label="Views (30d)" className="u-num" style={{ fontWeight: 600 }}>
                     {views ? (
                       <>
                         {views.toLocaleString('en-MY')}
@@ -272,7 +272,7 @@ export default async function ManageWebsites() {
                     )}
                   </td>
 
-                  <td style={{ ...cell, textAlign: 'right', whiteSpace: 'nowrap' }}>
+                  <td className="actions-cell">
                     <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
                       <Link href={href} className="btn btn-secondary btn-sm">
                         <MdInsights />

@@ -27,25 +27,30 @@ export default function TrackingSnippet({ sites }) {
 
   return (
     <div className="card" style={{ padding: '1.25rem' }}>
-      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+      <div className="toolbar">
         <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>Tracking snippet</div>
-        <select
-          id="snippet-site"
-          className="form-input form-input--sm"
-          value={domain}
-          onChange={(e) => setDomain(e.target.value)}
-          style={{ width: 'auto', maxWidth: '13rem', marginLeft: 'auto' }}
-        >
-          {sites.map((s) => (
-            <option key={s.domain} value={s.domain}>
-              {s.label || s.domain}
-            </option>
-          ))}
-        </select>
-        <button type="button" className="btn btn-secondary btn-sm" onClick={copy}>
-          {copied ? <MdCheck /> : <MdContentCopy />}
-          <span>{copied ? 'Copied' : 'Copy'}</span>
-        </button>
+        {/* Grouped so the select and the button stay together when the row
+            wraps on a phone, instead of the button dropping onto a line of
+            its own. */}
+        <div className="toolbar-end">
+          <select
+            id="snippet-site"
+            className="form-input form-input--sm"
+            value={domain}
+            onChange={(e) => setDomain(e.target.value)}
+            style={{ maxWidth: '13rem' }}
+          >
+            {sites.map((s) => (
+              <option key={s.domain} value={s.domain}>
+                {s.label || s.domain}
+              </option>
+            ))}
+          </select>
+          <button type="button" className="btn btn-secondary btn-sm" onClick={copy}>
+            {copied ? <MdCheck /> : <MdContentCopy />}
+            <span>{copied ? 'Copied' : 'Copy'}</span>
+          </button>
+        </div>
       </div>
 
       <pre
