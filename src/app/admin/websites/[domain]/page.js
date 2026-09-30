@@ -421,7 +421,11 @@ export default async function SiteAnalyticsPage({ params: routeParams, searchPar
       <div style={{ marginTop: '1.5rem' }}>
         <TrackingSnippet sites={[site]} />
         <SiteLink site={site} customers={customers || []} orders={orders || []} />
-        <ClientMembers domain={site.domain} projectRef={site.project_ref} />
+        <ClientMembers
+          domain={site.domain}
+          projectRef={site.project_ref}
+          siteLabel={site.label || site.domain}
+        />
         <ClientKeys website={site.domain} keys={apiKeys || []} />
       </div>
     </div>

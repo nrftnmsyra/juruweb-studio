@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState, useTransition } from 'react';
-import { MdGroup, MdContentCopy, MdCheck, MdRefresh, MdKey } from 'react-icons/md';
+import { MdGroup, MdContentCopy, MdCheck, MdRefresh, MdKey, MdDescription } from 'react-icons/md';
 import ConfirmSubmit from '@/components/ConfirmSubmit';
 import {
   provisionMembers,
@@ -10,6 +10,106 @@ import {
   removeMember,
   resetMemberPassword,
 } from './memberActions';
+
+/**
+ * Written for whoever builds the client's own dashboard, human or agent. The
+ * lockdown migration closed anon write access, so their existing code stops
+ * working the moment we hand them users, and the fix is not guessable from the
+ * error. This is the text that explains it.
+ */
+function handoffNote(schema, projectRef, label) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://YOUR-PROJECT.supabase.co';
+
+  return `${label} admin dashboard, sign-in setup
+From Juruweb Studio. Order ${projectRef}, Supabase schema ${schema}.
+
+WHAT CHANGED
+The anon key can no longer write anything in this schema. It kept read
+access to the public website content tables, and it may still INSERT a
+booking, so the public site is unaffected. Everything else now needs a
+signed-in user.
+
+HOW LOGIN WORKS
+Supabase Auth, email and password. Juruweb creates the accounts, so do
+not build a sign-up form. Two things have to line up:
+  1. an account in auth.users          (Juruweb creates it)
+  2. a row in ${schema}.members with active = true  (Juruweb adds it)
+The row is what grants this dashboard. The account on its own grants
+nothing, anywhere.
+
+SETUP
+  npm i @supabase/ssr @supabase/supabase-js
+
+  NEXT_PUBLIC_SUPABASE_URL=${url}
+  NEXT_PUBLIC_SUPABASE_ANON_KEY=<the same anon key you already use>
+
+  import { createBrowserClient } from '@supabase/ssr';
+
+  export const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    { db: { schema: '${schema}' } }   // required, the data is not in public
+  );
+
+SIGN IN
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  // Then confirm they belong to THIS client, not merely to the project:
+  const { data: allowed } = await supabase.rpc('is_member');
+  if (!allowed) {
+    await supabase.auth.signOut();
+    // refuse, and say the account is not registered for this dashboard
+  }
+
+  Do run that check. One Supabase project means one shared auth.users, so
+  a valid session proves someone can sign in, not that they are yours.
+
+READING AND WRITING
+  Signed in and a member, ordinary queries work on every table in the
+  schema, with no extra filters to remember:
+
+    await supabase.from('bookings').select('*').order('created_at');
+
+  Without a session they return 401 permission denied. That is the new
+  behaviour working, not a bug to route around.
+
+THE MEMBERS TABLE
+  ${schema}.members is readable, but a member sees only their own row, so
+  use it for the signed-in person's name and role:
+
+    await supabase.from('members').select('email, role, full_name').single();
+
+  Adding and removing users happens in Juruweb, not in this dashboard.
+
+JOBS WITH NOBODY SIGNED IN
+  A cron, a seed script or an agent tidying data has no session, so it
+  must use SUPABASE_SERVICE_ROLE_KEY, on the server only. That key
+  bypasses RLS completely: never put it in the browser bundle, never
+  commit it, and never send it to a URL you have not verified.
+
+FORGOTTEN PASSWORD
+  Ask Juruweb. Every user has a Reset password button in our dashboard
+  that hands back a new one.`;
+}
+
+function HandoffNoteButton({ schema, projectRef, label }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      className="btn btn-secondary btn-sm"
+      onClick={() => {
+        navigator.clipboard?.writeText(handoffNote(schema, projectRef, label));
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+      title="Setup instructions for whoever builds the client's dashboard"
+    >
+      {copied ? <MdCheck /> : <MdDescription />}
+      <span>{copied ? 'Copied' : 'Handoff note'}</span>
+    </button>
+  );
+}
 
 function CopyableSecret({ label, value }) {
   const [copied, setCopied] = useState(false);
@@ -88,7 +188,7 @@ function ResetButton({ email, domain }) {
  * auth.users, and a row in this client's own schema. The account gets them
  * through the door; the row is what says which client they belong to.
  */
-export default function ClientMembers({ domain, projectRef }) {
+export default function ClientMembers({ domain, projectRef, siteLabel }) {
   const [addState, addAction, adding] = useActionState(addMember, null);
   const [members, setMembers] = useState(null);
   const [error, setError] = useState(null);
@@ -144,22 +244,30 @@ export default function ClientMembers({ domain, projectRef }) {
         >
           schema {schema}
         </span>
-        <button
-          type="button"
-          className="btn btn-secondary btn-sm"
-          onClick={load}
-          disabled={loading}
-          style={{ marginLeft: 'auto' }}
-        >
-          <MdRefresh />
-          <span>{loading ? 'Loading…' : 'Refresh'}</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.4rem', marginLeft: 'auto', flexWrap: 'wrap' }}>
+          <HandoffNoteButton
+            schema={schema}
+            projectRef={projectRef}
+            label={siteLabel || domain}
+          />
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={load}
+            disabled={loading}
+          >
+            <MdRefresh />
+            <span>{loading ? 'Loading…' : 'Refresh'}</span>
+          </button>
+        </div>
       </div>
 
       <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem', lineHeight: 1.6 }}>
         Adding someone creates their sign-in account and grants them this client&apos;s dashboard,
         and nothing else. Removing them revokes this dashboard but keeps the account, since the
-        same person may work for another client too.
+        same person may work for another client too. Handoff note copies the setup instructions
+        for whoever builds that dashboard, which they will need: the anon key can no longer write
+        to this schema, so their old code stops working and the error does not say why.
       </p>
 
       {error && (
