@@ -999,7 +999,13 @@ html { scroll-behavior: smooth; }
   position: fixed;
   left: 50%;
   bottom: 1.4rem;
-  transform: translate(-50%, 140%);
+  /* calc, not a percentage. 140% is 140% of the pill's OWN height, and the
+     pill still has to clear the 1.4rem it sits above the viewport edge. With
+     no message it is only its padding tall, about 22px, so 140% moved it 31px
+     when it needed 44px, and a sliver of empty pink sat at the bottom of
+     every page view. Opacity makes sure of it. */
+  transform: translate(-50%, calc(100% + 2rem));
+  opacity: 0;
   background: var(--pink);
   color: #140008;
   font-family: var(--mono);
@@ -1007,10 +1013,13 @@ html { scroll-behavior: smooth; }
   padding: 0.7rem 1.1rem;
   border-radius: 99px;
   z-index: 95;
-  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.3, 1.2);
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.3, 1.2), opacity 0.25s ease;
   pointer-events: none;
 }
-.lp-toast.is-on { transform: translate(-50%, 0); }
+.lp-toast.is-on {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
 
 @media (max-width: 860px) {
   .lp-nav-links, .lp-nav-cta { display: none; }
