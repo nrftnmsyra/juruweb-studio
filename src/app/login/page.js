@@ -116,7 +116,9 @@ export default function LoginPage() {
             lineHeight: 1.6,
           }}
         >
-          Forgot your password? Ask the owner to reset it from Admin Users.
+          Forgot your password?
+          <br />
+          Ask the owner to reset it from Admin Users.
         </p>
 
         <Link href="/track" className="login-track-link">
